@@ -7,7 +7,17 @@ const HostSchema = new mongoose.Schema({
   email: { type: String, lowercase: true, unique: true, required: [true, "is required"], match: [/\S+@\S+\.\S+/, "is invalid"] },
   fullname: { type: String, lowercase: true, unique: true, required: [true, "is required"]},
   zipcode: { type: String, required: [true, "is required"]},
-  phonenumber: { type: String, unique: true, match: [ /d{10}/, "is not a valid 10 digit number"], required: [true, "is required"]},
+  phonenumber: {
+    type: Number,
+    unique: true,
+    validate: [
+      function validator(n) {
+        return /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/im.test(n);
+      },
+      'This is not a valid 10 digit number'
+    ],
+    required: [ true, "is required" ]
+  },
   hash: String,
   salt: String
 }, { timestamps: true })
@@ -24,7 +34,7 @@ HostSchema.methods.validPassword = function(password) {
   return this.hash === hash
 }
 
-HostScheme.methods.generateJWT = function() {
+HostSchema.methods.generateJWT = function() {
   const today = new Date()
   let exp = new Date(today)
   exp.setDate(today.getDate() + 30)
