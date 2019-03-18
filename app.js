@@ -16,7 +16,7 @@ require('./models/User')
 require('./models/Host')
 require('./models/User')
 
-app.use('/api', require('./routes/index'));
+app.use('/api', require('./routes/beta_api'));
 
 if (isProduction) {
 }
