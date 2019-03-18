@@ -14,7 +14,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 require('./models/User')
 require('./models/Host')
-require('./models/User')
 
 app.use('/api', require('./routes/beta_api'));
 
