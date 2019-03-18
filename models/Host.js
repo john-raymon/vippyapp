@@ -2,6 +2,7 @@ var mongoose = require('mongoose')
 var crypto = require('crypto')
 var jwt = require('jsonwebtoken')
 var uniqueValidator = require('mongoose-unique-validator')
+var secret = require('../config').secret
 
 const HostSchema = new mongoose.Schema({
   email: { type: String, lowercase: true, unique: true, required: [true, "is required"], match: [/\S+@\S+\.\S+/, "is invalid"] },
@@ -18,8 +19,8 @@ const HostSchema = new mongoose.Schema({
     ],
     required: [ true, "is required" ]
   },
+  salt: String,
   hash: String,
-  salt: String
 }, { timestamps: true })
 
 HostSchema.plugin(uniqueValidator, { message: "is already taken" })
@@ -44,7 +45,7 @@ HostSchema.methods.generateJWT = function() {
     id: this._id,
     email: this.email,
     exp: parseInt(exp.getTime() / 1000)
-  }, process.env.SECRET)
+  }, secret)
 }
 
 HostSchema.methods.toAuthJSON = function() {

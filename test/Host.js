@@ -1,10 +1,13 @@
 var assert = require('assert')
 var mongoose = require('mongoose')
 
+// Models
 var Host = require('../models/Host')
 
+// connect to test database
 mongoose.connect('mongodb://localhost/vippy_test');
 
+// log DB emitted events
 mongoose.connection
     .once('open', () => console.log('Connected!'))
     .on('error', (error) => {
@@ -19,6 +22,8 @@ beforeEach((done) => {
     });
 });
 
+
+// Test Create operatins for Host
 describe("all CRUD Operations on a Host document should work", () => {
   it("Create a Host document", (done) => {
     const testHost = new Host({
