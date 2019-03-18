@@ -42,10 +42,21 @@ HostSchema.methods.generateJWT = function() {
   return jwt.sign({
     sub: 'host',
     id: this._id,
-    email: email,
+    email: this.email,
     exp: parseInt(exp.getTime() / 1000)
   }, process.env.SECRET)
 }
+
+HostSchema.methods.toAuthJSON = function() {
+  return {
+    username: this.email,
+    zipcode: this.zipcode,
+    fullname: this.fullname,
+    phonenumber: this.phonenumber,
+    token: this.generateJWT()
+  }
+}
+
 const Host = mongoose.model('Host', HostSchema)
 
 module.exports = Host

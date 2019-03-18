@@ -3,9 +3,6 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
-
 var isProduction = process.env.NODE_ENV === 'production'
 var app = express();
 
@@ -19,8 +16,7 @@ require('./models/User')
 require('./models/Host')
 require('./models/User')
 
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
+app.use('/api', require('./routes/index'));
 
 if (isProduction) {
 }
