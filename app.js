@@ -14,9 +14,9 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 if(isProduction){
-  mongoose.connect(process.env.MONGODB_URI);
+  mongoose.connect(process.env.MONGODB_URI)
 } else {
-  mongoose.connect('mongodb://localhost/vippy_dev');
+  mongoose.connect('mongodb://localhost/vippy_dev', { useNewUrlParser: true });
   mongoose.set('debug', true);
 }
 
