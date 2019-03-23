@@ -5,7 +5,7 @@ var mongoose = require('mongoose')
 var Host = require('../models/Host')
 
 // connect to test database
-mongoose.connect('mongodb://localhost/vippy_test');
+mongoose.connect('mongodb://localhost/vippy_test', { useNewUrlParser: true });
 
 // log DB emitted events
 mongoose.connection
