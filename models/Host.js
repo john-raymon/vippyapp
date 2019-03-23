@@ -19,11 +19,18 @@ const HostSchema = new mongoose.Schema({
     ],
     required: [ true, "is required" ]
   },
+  products: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
   salt: String,
   hash: String,
 }, { timestamps: true })
 
 HostSchema.plugin(uniqueValidator, { message: "is already taken" })
+
+HostSchema.methods.addProduct = function(id) {
+  if (this.products.indexOf(id) === -1) {
+    this.products.push(id)
+  }
+}
 
 HostSchema.methods.setPassword = function(password) {
   this.salt = crypto.randomBytes(16).toString('hex');
