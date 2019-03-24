@@ -19,6 +19,7 @@ const HostSchema = new mongoose.Schema({
     ],
     required: [ true, "is required" ]
   },
+  stripeAccountId: String,
   products: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
   salt: String,
   hash: String,
@@ -61,6 +62,7 @@ HostSchema.methods.toAuthJSON = function() {
     zipcode: this.zipcode,
     fullname: this.fullname,
     phonenumber: this.phonenumber,
+    type: "host",
     token: this.generateJWT()
   }
 }

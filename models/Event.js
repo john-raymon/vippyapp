@@ -7,8 +7,10 @@ var EventSchema = mongoose.Schema({
   date: Date,
   startTime: Date,
   endTime: Date,
-  street: String,
-  city: String,
-  state: String,
-  zip: String
+  address: {
+    street: String,
+    city: String,
+    state: String,
+    zip: String
+  }
 })
