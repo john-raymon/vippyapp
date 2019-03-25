@@ -22,6 +22,7 @@ if(isProduction){
 
 require('./models/User')
 require('./models/Host')
+require('./config/passport')
 
 app.use('/api', require('./routes/beta_api'));
 
