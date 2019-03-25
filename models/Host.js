@@ -19,6 +19,7 @@ const HostSchema = new mongoose.Schema({
     ],
     required: [ true, "is required" ]
   },
+  type: { type: String, default: 'individual', enum: ['individual', 'company'] },
   stripeAccountId: String,
   products: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
   salt: String,
