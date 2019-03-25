@@ -1,7 +1,7 @@
 var express = require('express');
 var router = express.Router();
 
-router.use('/host', require('./host'));
+router.use('/host', require('./host').router);
 router.use('/user', require('./user'));
 router.use('/event', require('./event'))
 
