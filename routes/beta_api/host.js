@@ -126,7 +126,7 @@ router.get("/stripe/token", auth.optional, function(req, res, next) { // usually
         // update the host model with the stripe_user_id
         host.stripeAccountId = body.stripe_user_id
         host.save().then(() => {
-          res.json({ host: host.toJSON()})
+          res.json({ host: host.toJSON()}) // when front-end is implemented instead redirect to dashboard, that will handle for stripe being authenticated already
         }).catch(next)
       }
     )
