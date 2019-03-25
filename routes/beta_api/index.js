@@ -3,6 +3,7 @@ var router = express.Router();
 
 router.use('/host', require('./host'));
 router.use('/user', require('./user'));
+router.use('/event', require('./event'))
 
 // error handler; catches ValidationErrors, otherwise calls next errorhandler in stack
 router.use(function(err, req, res, next) {
