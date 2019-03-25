@@ -7,8 +7,8 @@ var User = require("../models/User")
 var Host = require("../models/Host")
 
 userPassport.use(new LocalStategy({
-  usernameField: "user[email]",
-  passwordField: "user[password]"
+  usernameField: "email",
+  passwordField: "password"
 }, function(email, password, done) {
   User.findOne({ email: email }).then(function(user) {
     if (!user || !user.validPassword(password)) {
