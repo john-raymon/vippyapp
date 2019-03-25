@@ -15,12 +15,12 @@ function getToken(req) {
 module.exports = {
   required: jwt({
     secret,
-    userProperty: "user",
+    userProperty: "auth",
     getToken
   }),
   optional: jwt({
     secret,
-    userProperty: "user",
+    userProperty: "auth",
     credentialsRequired: false,
     getToken
   })
