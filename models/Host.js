@@ -24,6 +24,7 @@ const HostSchema = new mongoose.Schema({
   products: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
   salt: String,
   hash: String,
+  randomKey: String
 }, { timestamps: true })
 
 HostSchema.plugin(uniqueValidator, { message: "is already taken" })
@@ -44,6 +45,15 @@ HostSchema.methods.validPassword = function(password) {
   return this.hash === hash
 }
 
+HostSchema.methods.createRandomKey = function() {
+  crypto.randomBytes(48, (err, buffer) => {
+    this.randomKey = buffer.toString('hex');
+  });
+  return this.save().then(() => {
+    return this.randomKey
+  })
+}
+
 HostSchema.methods.generateJWT = function() {
   const today = new Date()
   let exp = new Date(today)
@@ -57,6 +67,13 @@ HostSchema.methods.generateJWT = function() {
   }, secret)
 }
 
+HostSchema.methods.hasStripeId = function() {
+  if ((typeof this.stripeAccountId === "string" && !this.stripeAccountId.trim().length) || this.stripeAccountId === null || !this.stripeAccountId) {
+    return false
+  }
+  return true
+}
+
 HostSchema.methods.toAuthJSON = function() {
   return {
     username: this.email,
@@ -64,7 +81,19 @@ HostSchema.methods.toAuthJSON = function() {
     fullname: this.fullname,
     phonenumber: this.phonenumber,
     type: "host",
-    token: this.generateJWT()
+    token: this.generateJWT(),
+    completedPayment: this.hasStripeId()
+  }
+}
+
+HostSchema.methods.toJSON = function() {
+  return {
+    username: this.email,
+    zipcode: this.zipcode,
+    fullname: this.fullname,
+    phonenumber: this.phonenumber,
+    type: "host",
+    completedPayment: this.hasStripeId()
   }
 }
 
