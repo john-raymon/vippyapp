@@ -8,6 +8,7 @@ var ListingSchema = mongoose.Schema({
   currentReservations: [{ type: mongoose.Schema.Types.ObjectId, ref: "Reservation"}],
   payAndWait: Boolean,
   images: [String],
+  bookingPrice: Number,
   disclaimers: String,
   bookingDeadline: Date
 })
