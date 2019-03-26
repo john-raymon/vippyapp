@@ -74,6 +74,7 @@ HostSchema.methods.toProfileJSON = function() {
     id: this._id,
     zipcode: this.zipcode,
     firstname: this.fullname.split(" ")[0],
+    phonenumber: this.phonenumber,
     type: "host"
   };
 };
