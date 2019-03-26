@@ -17,8 +17,8 @@ var ListingSchema = mongoose.Schema({
   bookingDeadline: Date
 });
 
-ListingSchema.methods.toJSONForHost = function(currentHost = { _id: "" }) {
-  if (!currentHost._id.equals(this.host._id)) {
+ListingSchema.methods.toJSONForHost = function(currentHost) {
+  if (currentHost && !currentHost._id.equals(this.host._id)) {
     console.log("returned due to unauth host", currentHost._id, this.host._id);
     return this._toJSON();
   }
@@ -44,7 +44,7 @@ ListingSchema.methods.toJSONForHost = function(currentHost = { _id: "" }) {
     name,
     guestCount,
     host: host.toProfileJSON(),
-    event: event.toNestedJSON(currentHost),
+    event: event.toNestedJSON(),
     currentReservations,
     payAndWait,
     images,
