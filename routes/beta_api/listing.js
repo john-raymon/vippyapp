@@ -85,21 +85,21 @@ router.get("/:listing", auth.optional, auth.setUserOrHost, function(
   res.json({ listing: currentListing._toJSON() });
 });
 
-router.get("/", auth.optional, auth.setUserOrHost, function(req, res, next) {
-  let query = {};
-  let limit = 20;
-  let offset = 0;
-
-  if (req.auth && req.vippyHost) {
-    Listing.res.json({
-      listings: listings.map((listing, index) =>
-        listing.toJSONForHost(req.vippyHost)
-      )
-    });
-  } // if we don't have a vippyHost but do have req.auth, then we have a regular user req.vippyUser , take a look at middleware auth.setUserOrHost
-  res.json({
-    listings: listings
-  });
-});
+// router.get("/", auth.optional, auth.setUserOrHost, function(req, res, next) {
+//   let query = {};
+//   let limit = 20;
+//   let offset = 0;
+//
+//   if (req.auth && req.vippyHost) {
+//     Listing.res.json({
+//       listings: listings.map((listing, index) =>
+//         listing.toJSONForHost(req.vippyHost)
+//       )
+//     });
+//   } // if we don't have a vippyHost but do have req.auth, then we have a regular user req.vippyUser , take a look at middleware auth.setUserOrHost
+//   res.json({
+//     listings: listings
+//   });
+// });
 
 module.exports = router;
