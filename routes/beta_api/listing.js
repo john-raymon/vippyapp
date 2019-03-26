@@ -102,4 +102,49 @@ router.get("/:listing", auth.optional, auth.setUserOrHost, function(
 //   });
 // });
 
+router.get("/", auth.optional, auth.setUserOrHost, function(req, res, next) {
+  let query = {}; // query based on date and other stuff later on
+  let limit = 20;
+  let offset = 0;
+
+  if (typeof req.body.limit !== "undefined") {
+    limit = req.body.limit;
+  }
+
+  if (typeof req.body.offset !== "undefined") {
+    offset = req.body.offset;
+  }
+
+  Promise.all([
+    Listing.find(query)
+      .limit(Number(limit))
+      .skip(Number(offset))
+      .populate("host")
+      .populate({
+        path: "event",
+        populate: {
+          path: "host"
+        }
+      })
+      .exec(),
+    Listing.count(query).exec()
+  ])
+    .then(([listings, listingCount]) => {
+      res.json({
+        listings: listings.map(listing => {
+          console.log(
+            "this is an listing currently being iterated through in the map",
+            listing
+          );
+          if (req.auth && req.vippyHost) {
+            return listing.toJSONForHost(req.vippyHost);
+          }
+          return listing.toJSONForHost();
+        }),
+        listingCount: listingCount
+      });
+    })
+    .catch(next);
+});
+
 module.exports = router;
