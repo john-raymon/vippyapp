@@ -14,6 +14,35 @@ var Host = require("../../models/Host");
 // config
 var config = require("./../../config");
 
+router.param("event", function(req, res, next, eventId) {
+  Event.findById(eventId)
+    .populate("host")
+    .populate({
+      path: "currentListings",
+      populate: [
+        {
+          path: "host"
+        },
+        {
+          path: "event",
+          populate: {
+            path: "host"
+          }
+        }
+      ]
+    })
+    .exec()
+    .then(function(event) {
+      console.log("the event is", event);
+      if (!event) {
+        return res.sendStatus(404);
+      }
+      req.vippyEvent = event;
+      next();
+    })
+    .catch(next);
+});
+
 router.post("/", auth.required, hostMiddleware, function(req, res, next) {
   console.log("the req.body at POST event/ endpoint is", req.body);
   const { vippyHost: host } = req;
@@ -37,6 +66,22 @@ router.post("/", auth.required, hostMiddleware, function(req, res, next) {
       res.json({ event: savedEvent.toJSONFor() });
     })
     .catch(next);
+});
+
+router.get("/:event", auth.optional, auth.setUserOrHost, function(
+  req,
+  res,
+  next
+) {
+  const { auth = { sub: "" }, vippyEvent, vippyHost, vippyUser } = req;
+  if (vippyHost && vippyHost._id.equals(vippyEvent.host._id)) {
+    return res.json({
+      event: vippyEvent.toJSONFor(vippyHost)
+    });
+  }
+  return res.json({
+    event: vippyEvent.toJSONFor(vippyUser)
+  });
 });
 
 router.get("/", auth.optional, auth.setUserOrHost, function(req, res, next) {
