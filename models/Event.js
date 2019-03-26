@@ -50,7 +50,7 @@ EventSchema.methods.toJSONFor = function(user) {
   };
 };
 
-EventSchema.methods.toJSONForListing = function() {
+EventSchema.methods.toNestedJSON = function() {
   const {
     name,
     host,
