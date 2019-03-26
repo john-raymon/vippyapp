@@ -1,20 +1,47 @@
-var mongoose = require("mongoose")
+var mongoose = require("mongoose");
+
+// Host model
+var Host = require("./Host");
 
 var EventSchema = mongoose.Schema({
-  name: { type: String, required: [ true, 'is required' ] },
+  name: { type: String, required: [true, "is required"] },
   host: { type: mongoose.Schema.Types.ObjectId, ref: "Host" },
-  currentListings: [{ type: mongoose.Schema.Types.ObjectId, ref: "Listing"}],
-  date: { type: Date, required: [ true, 'is required'] },
-  startTime: { type: Date, required: [ true, 'is required' ] },
-  endTime: { type: Date, required: [ true, 'is required' ] },
+  currentListings: [{ type: mongoose.Schema.Types.ObjectId, ref: "Listing" }],
+  date: { type: Date, required: [true, "is required"] },
+  startTime: { type: Date, required: [true, "is required"] },
+  endTime: { type: Date, required: [true, "is required"] },
   address: {
-    street: { type: String, required: [ true, 'is required' ] },
-    city: { type: String, required: [ true, 'is required' ] },
-    state: { type: String, required: [ true, 'is required' ] },
-    zip: { type: String, required: [ true, 'is required' ] }
+    street: { type: String, required: [true, "is required"] },
+    city: { type: String, required: [true, "is required"] },
+    state: { type: String, required: [true, "is required"] },
+    zip: { type: String, required: [true, "is required"] }
   }
-})
+});
 
-var Event = mongoose.model('Event', EventSchema)
+EventSchema.methods.toJSONFor = function() {
+  const {
+    name,
+    host,
+    currentListings,
+    date,
+    startTime,
+    endTime,
+    address,
+    _id: id
+  } = this;
 
-module.exports = Event
+  return {
+    id,
+    name,
+    host: host.toProfileJSON(),
+    currentListings: currentListings.map((listing, index) => listing.toJSON()),
+    date,
+    startTime,
+    endTime,
+    address
+  };
+};
+
+var Event = mongoose.model("Event", EventSchema);
+
+module.exports = Event;
