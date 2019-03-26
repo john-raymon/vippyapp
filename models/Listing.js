@@ -18,8 +18,8 @@ var ListingSchema = mongoose.Schema({
 });
 
 ListingSchema.methods.toJSONForHost = function(currentHost) {
-  if (currentHost && !currentHost._id.equals(this.host._id)) {
-    console.log("returned due to unauth host", currentHost._id, this.host._id);
+  if ((currentHost && !currentHost._id.equals(this.host._id)) || !currentHost) {
+    // calling other toJSON due to unauth host, or not host at all
     return this._toJSON();
   }
   // by host we're assuming host of listing, anyone else is a username
