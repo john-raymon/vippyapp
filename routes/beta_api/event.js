@@ -39,14 +39,52 @@ router.post("/", auth.required, hostMiddleware, function(req, res, next) {
     .catch(next);
 });
 
-router.get("/", auth.required, hostMiddleware, function(req, res, next) {
-  const { vippyHost } = req;
-  Event.find({ host: vippyHost._id })
-    .populate("host")
-    .populate("currentListings")
-    .exec()
-    .then(events => {
-      res.json({ events: events.map((event, index) => event.toJSONFor()) });
+router.get("/", auth.optional, auth.setUserOrHost, function(req, res, next) {
+  let query = {}; // query based on date and other stuff later on
+  let limit = 20;
+  let offset = 0;
+
+  if (typeof req.body.limit !== "undefined") {
+    limit = req.body.limit;
+  }
+
+  if (typeof req.body.offset !== "undefined") {
+    offset = req.body.offset;
+  }
+
+  Promise.all([
+    Event.find(query)
+      .limit(Number(limit))
+      .skip(Number(offset))
+      .populate("host")
+      .populate({
+        path: "currentListings",
+        populate: [
+          {
+            path: "host"
+          },
+          {
+            path: "event",
+            populate: {
+              path: "host"
+            }
+          }
+        ]
+      })
+      .exec(),
+    Event.count(query).exec()
+  ])
+    .then(([events, eventsCount]) => {
+      res.json({
+        events: events.map(event => {
+          console.log("this is an event in the map", event);
+          if (req.auth && req.vippyHost) {
+            return event.toJSONFor(req.vippyHost);
+          }
+          return event.toJSONFor(); // designed to be adjusted to return auth versions of events and listing objects within event
+        }),
+        eventsCount: eventsCount
+      });
     })
     .catch(next);
 });

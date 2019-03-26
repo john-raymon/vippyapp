@@ -18,14 +18,18 @@ var config = require("./../../config");
 router.param("listing", function(req, res, next, listingId) {
   Listing.findById(listingId)
     .populate("host")
-    .populate("event")
+    .populate({
+      path: "event",
+      populate: { path: "host" }
+    })
     .exec()
     .then(function(listing) {
+      console.log("the listing is", listing);
       if (!listing) {
         return res.sendStatus(404);
       }
-
       req.listing = listing;
+      next();
     })
     .catch(next);
 });
@@ -33,13 +37,13 @@ router.param("listing", function(req, res, next, listingId) {
 router.post("/", auth.required, hostMiddleware, function(req, res, next) {
   console.log("the req.body at POST listing/ endpoint is", req.body);
   const { vippyHost: host } = req;
-
   console.log("the event is", req.body.eventId);
   Event.findById(req.body.eventId)
     .populate("host")
     .populate("currentListings")
     .exec()
     .then(function(event) {
+      if (!event.host._id.equals(host._id)) return res.sendStatus(403); // the auth host isn't the host of the event they are theying to create a listing for
       console.log("the event were grttng back is", event);
       const listing = new Listing({
         name: req.body.name,
@@ -58,20 +62,44 @@ router.post("/", auth.required, hostMiddleware, function(req, res, next) {
       listing.host = host;
       listing.event = event;
 
-      return listing.save().then(function(listing) {
-        res.json({ listing: listing._toJSON() });
-      });
+      event.currentListings = [...event.currentListings, listing._id];
+
+      return Promise.all([listing.save(), event.save()]);
+    })
+    .then(function([listing]) {
+      res.json({ listing: listing._toJSON() });
     })
     .catch(next);
 });
 
-router.get("/:listing", auth.optional, function(req, res, next) {
-  const { auth, listing: currentListing } = req;
+router.get("/:listing", auth.optional, auth.setUserOrHost, function(
+  req,
+  res,
+  next
+) {
+  const { auth = { sub: "" }, listing: currentListing } = req;
   console.log("The type of authenticated user is a", auth.sub);
   if (auth.sub === "host") {
-    res.json({ listing: listing.toJSONForHost() });
+    res.json({ listing: currentListing.toJSONForHost(req.vippyHost) });
   }
-  res.json({ listing: listing._toJSON() });
+  res.json({ listing: currentListing._toJSON() });
+});
+
+router.get("/", auth.optional, auth.setUserOrHost, function(req, res, next) {
+  let query = {};
+  let limit = 20;
+  let offset = 0;
+
+  if (req.auth && req.vippyHost) {
+    Listing.res.json({
+      listings: listings.map((listing, index) =>
+        listing.toJSONForHost(req.vippyHost)
+      )
+    });
+  } // if we don't have a vippyHost but do have req.auth, then we have a regular user req.vippyUser , take a look at middleware auth.setUserOrHost
+  res.json({
+    listings: listings
+  });
 });
 
 module.exports = router;

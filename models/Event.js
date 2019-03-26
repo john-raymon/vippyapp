@@ -3,6 +3,9 @@ var mongoose = require("mongoose");
 // Host model
 var Host = require("./Host");
 
+// Listing model
+var Listing = require("./Listing");
+
 var EventSchema = mongoose.Schema({
   name: { type: String, required: [true, "is required"] },
   host: { type: mongoose.Schema.Types.ObjectId, ref: "Host" },
@@ -18,7 +21,7 @@ var EventSchema = mongoose.Schema({
   }
 });
 
-EventSchema.methods.toJSONFor = function() {
+EventSchema.methods.toJSONFor = function(user) {
   const {
     name,
     host,
@@ -34,7 +37,35 @@ EventSchema.methods.toJSONFor = function() {
     id,
     name,
     host: host.toProfileJSON(),
-    currentListings: currentListings.map((listing, index) => listing.toJSON()),
+    currentListings: currentListings.map(function(listing, index) {
+      console.log("the listing is now !!!!! -->", listing);
+      return listing.toJSONForHost(user);
+      // return listing
+    }),
+    // currentListings: currentListings,
+    date,
+    startTime,
+    endTime,
+    address
+  };
+};
+
+EventSchema.methods.toJSONForListing = function() {
+  const {
+    name,
+    host,
+    currentListings,
+    date,
+    startTime,
+    endTime,
+    address,
+    _id: id
+  } = this;
+
+  return {
+    id,
+    name,
+    host: host.toProfileJSON(),
     date,
     startTime,
     endTime,
