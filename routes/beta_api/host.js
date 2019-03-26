@@ -86,11 +86,9 @@ router.post("/stripe/auth", auth.required, function(req, res, next) {
       }
 
       if (host.hasStripeId()) {
-        return res
-          .status(403)
-          .json({
-            error: "You have already connected this account to a Stripe account"
-          });
+        return res.status(403).json({
+          error: "You have already connected this account to a Stripe account"
+        });
       }
 
       host
@@ -144,11 +142,9 @@ router.get("/stripe/token", auth.optional, function(req, res, next) {
       }
 
       if (host.hasStripeId()) {
-        return res
-          .status(403)
-          .json({
-            error: "You have already connected this account to a Stripe account"
-          });
+        return res.status(403).json({
+          error: "You have already connected this account to a Stripe account"
+        });
       }
 
       // make request to Stripe tokenUri with access code received from Stripe to receive Host's stripe_user_id
@@ -171,7 +167,7 @@ router.get("/stripe/token", auth.optional, function(req, res, next) {
           host
             .save()
             .then(() => {
-              res.json({ host: host.toJSON() }); // when front-end is implemented instead redirect to dashboard, that will handle for stripe being authenticated already
+              res.json({ host: host._toJSON() }); // when front-end is implemented instead redirect to dashboard, that will handle for stripe being authenticated already
             })
             .catch(next);
         }
