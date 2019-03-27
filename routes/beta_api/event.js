@@ -99,8 +99,8 @@ router.get("/", auth.optional, auth.setUserOrHost, function(req, res, next) {
 
   Promise.all([
     Event.find(query)
-      .limit(Number(limit))
-      .skip(Number(offset))
+      .limit(+limit)
+      .skip(+offset)
       .populate("host")
       .populate({
         path: "currentListings",
