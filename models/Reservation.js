@@ -9,6 +9,7 @@ var ReservSchema = mongoose.Schema(
     payAndWait: Boolean,
     totalPrice: Number,
     stripeChargeId: String,
+    redeemed: { type: Boolean, default: false },
     paid: { type: Boolean, default: false }
     // receipts/transactions: [ { type: mongoose.Schema.Types.ObjectId, ref: "Receipt"}]
   },
@@ -27,7 +28,8 @@ ReservSchema.methods.toProfileJSON = function() {
     listing,
     payAndWait,
     totalPrice,
-    stripeChargeId
+    stripeChargeId,
+    redeemed
   } = this;
 
   return {
@@ -38,7 +40,8 @@ ReservSchema.methods.toProfileJSON = function() {
     listing,
     payAndWait,
     totalPrice,
-    stripeChargeId
+    stripeChargeId,
+    redeemed
   };
 };
 

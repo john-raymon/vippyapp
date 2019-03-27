@@ -116,4 +116,63 @@ router.post("/", auth.required, auth.setUserOrHost, function(req, res, next) {
     .catch(next);
 });
 
+router.get("/", auth.required, auth.setUserOrHost, function(req, res, next) {
+  if (!req.vippyUser && !req.vippyHost) {
+    return res
+      .status(403)
+      .json({ error: "You must be an Authenticated host or user" });
+  }
+  let query = {},
+    limit = 20,
+    offset = 0;
+  if (req.query.limit) {
+    limit = req.query.limit;
+  }
+  if (req.query.offset) {
+    offset = req.query.offset;
+  }
+  Promise.all([
+    Reservation.find(query)
+      .limit(+limit)
+      .skip(+offset)
+      .populate("customer")
+      .populate("host")
+      .populate({
+        path: "listing",
+        populate: [
+          {
+            path: "host"
+          },
+          {
+            path: "event",
+            populate: {
+              path: "host"
+            }
+          }
+        ]
+      })
+      .exec(),
+    Reservation.count(query).exec()
+  ])
+    // .then(promises => {
+    //   return Promise.all([
+    //     ...promises,
+    //     Listing
+    //       .findById(reservation.listing)
+    //   ])
+    // })
+    .then(([reservations, reservationsCount]) => {
+      res.json({
+        reservations: reservations.map(r => {
+          return {
+            ...r.toProfileJSON(),
+            listing: r.listing._toJSON()
+          };
+        }),
+        reservationsCount
+      });
+    })
+    .catch(next);
+});
+
 module.exports = router;
