@@ -1,21 +1,47 @@
-var mongoose = require("mongoose")
+var mongoose = require("mongoose");
 
-var ReservSchema = mongoose.Schema({
-  customer: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-  host: { type: mongoose.Schema.Types.ObjectId, ref: "Host"},
-  listing: { type: mongoose.Schema.Types.ObjectId, ref: "Listing"},
-  payAndWait: Boolean,
-  totalPrice: Number,
-  stripeChargeId: String
-  // receipts/transactions: [ { type: mongoose.Schema.Types.ObjectId, ref: "Receipt"}]
-}, { timestamps: true })
-
+var ReservSchema = mongoose.Schema(
+  {
+    id: { type: String, index: true },
+    customer: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    host: { type: mongoose.Schema.Types.ObjectId, ref: "Host" },
+    listing: { type: mongoose.Schema.Types.ObjectId, ref: "Listing" },
+    payAndWait: Boolean,
+    totalPrice: Number,
+    stripeChargeId: String,
+    paid: { type: Boolean, default: false }
+    // receipts/transactions: [ { type: mongoose.Schema.Types.ObjectId, ref: "Receipt"}]
+  },
+  { id: false, timestamps: true }
+);
 
 // return amount for the host after collecting a 20% application fee
 ReservSchema.methods.amountForHost = function() {
   return parseInt(this.totalPrice * 0.8);
-}
+};
 
-var Reservation = mongoose.model('Reservation', ReservSchema)
+ReservSchema.methods.toProfileJSON = function() {
+  const {
+    customer,
+    host,
+    listing,
+    payAndWait,
+    totalPrice,
+    stripeChargeId
+  } = this;
 
-module.exports = Reservation
+  return {
+    id: this._id,
+    confirmationCode: this.id,
+    customer: customer.toProfileJSON(),
+    host: host.toProfileJSON(),
+    listing,
+    payAndWait,
+    totalPrice,
+    stripeChargeId
+  };
+};
+
+var Reservation = mongoose.model("Reservation", ReservSchema);
+
+module.exports = Reservation;
