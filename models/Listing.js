@@ -14,7 +14,8 @@ var ListingSchema = mongoose.Schema({
   disclaimers: String,
   quantity: Number,
   unlimitedQuantity: Boolean,
-  bookingDeadline: Date
+  bookingDeadline: Date,
+  activeListing: { type: Boolean, default: true }
 });
 
 ListingSchema.methods.toJSONForHost = function(currentHost) {
