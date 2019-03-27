@@ -82,9 +82,11 @@ UserSchema.methods.toAuthJSON = function() {
     token: this.generateJWT()
   };
 };
+
 UserSchema.methods.toProfileJSON = function() {
   return {
     id: this.id,
+    phonenumber: this.phonenumber,
     zipcode: this.zipcode,
     fullname: this.fullname,
     type: "user"

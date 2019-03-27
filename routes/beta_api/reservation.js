@@ -24,11 +24,9 @@ router.post("/", auth.required, auth.setUserOrHost, function(req, res, next) {
     return res.status(403).json({ error: "You must be an Authenticated host" });
   }
   if (!req.query.listing) {
-    return res
-      .status(400)
-      .json({
-        error: "You must provide a Listing ID to create a reservation for"
-      });
+    return res.status(400).json({
+      error: "You must provide a Listing ID to create a reservation for"
+    });
   }
   if (!mongoose.Types.ObjectId.isValid(req.query.listing)) {
     return res
@@ -41,12 +39,15 @@ router.post("/", auth.required, auth.setUserOrHost, function(req, res, next) {
   Listing.findById(req.query.listing)
     .then(function(listing) {
       if (!listing) {
-        return res
-          .status(400)
-          .json({
-            error:
-              "We could not locate a Listing with the ID of" + req.query.listing
-          });
+        return res.status(400).json({
+          error:
+            "We could not locate a Listing with the ID of" + req.query.listing
+        });
+      }
+      if (!listing.unlimitedQuantity && listing.quantity === 0) {
+        return res.status(400).json({
+          error: "This listing is sold out, we apologize for the inconvenience."
+        });
       }
       const reservationConfirmationCode = crypto
         .randomBytes(24)
