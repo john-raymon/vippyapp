@@ -125,6 +125,8 @@ router.get("/", auth.required, auth.setUserOrHost, function(req, res, next) {
   let query = {},
     limit = 20,
     offset = 0;
+  if (req.vippyHost) query.host = req.vippyHost._id;
+  if (req.vippyUser) query.customer = req.vippyUser._id;
   if (req.query.limit) {
     limit = req.query.limit;
   }
@@ -154,13 +156,6 @@ router.get("/", auth.required, auth.setUserOrHost, function(req, res, next) {
       .exec(),
     Reservation.count(query).exec()
   ])
-    // .then(promises => {
-    //   return Promise.all([
-    //     ...promises,
-    //     Listing
-    //       .findById(reservation.listing)
-    //   ])
-    // })
     .then(([reservations, reservationsCount]) => {
       res.json({
         reservations: reservations.map(r => {
