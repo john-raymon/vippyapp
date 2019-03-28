@@ -33,6 +33,7 @@ const UserSchema = new mongoose.Schema(
       ],
       required: [true, "is required"]
     },
+    phoneVerified: { type: Boolean, default: false },
     salt: String,
     hash: String
   },
