@@ -6,6 +6,7 @@ router.use("/user", require("./user"));
 router.use("/event", require("./event"));
 router.use("/listing", require("./listing"));
 router.use("/reservation", require("./reservation"));
+router.use("/phone", require("./twilio"));
 
 // error handler; catches ValidationErrors, otherwise calls next errorhandler in stack
 router.use(function(err, req, res, next) {
