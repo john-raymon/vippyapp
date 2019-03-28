@@ -2,6 +2,7 @@ var express = require("express");
 var router = express.Router();
 var querystring = require("querystring");
 var request = require("request");
+var stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 // auth middleware
 var auth = require("../authMiddleware");
@@ -174,6 +175,28 @@ router.get("/stripe/token", auth.optional, function(req, res, next) {
       );
     })
     .catch(next);
+});
+
+router.get("/stripe/dashboard", auth.required, auth.setUserOrHost, function(
+  req,
+  res,
+  next
+) {
+  if (req.vippyHost) {
+    if (!req.vippyHost.hasStripeId()) {
+      return res.status(400).json({
+        error: "You must have authenticate your account with Stripe",
+        redirectTo: "HOST_DASHBOARD"
+      });
+    }
+
+    stripe.accounts
+      .createLoginLink(req.vippyHost.stripeAccountId)
+      .then(loginLink => {
+        res.redirect(loginLink.url);
+      })
+      .catch(next);
+  }
 });
 
 module.exports = {
