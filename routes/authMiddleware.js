@@ -32,7 +32,7 @@ var auth = {
   }),
   setUserOrHost: function(req, res, next) {
     const hostAuth = req.auth;
-    if (!hostAuth) return next();
+    if (!hostAuth) return next(); // doesn't return if no authentication. skips to next middleware on stack
     if (hostAuth.sub === "host") {
       Host.findById(hostAuth.id)
         .then(function(host) {
