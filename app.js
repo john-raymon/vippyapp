@@ -1,31 +1,36 @@
-require('dotenv').config();
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
-var mongoose = require('mongoose');
+require("dotenv").config();
+var express = require("express");
+var path = require("path");
+var cookieParser = require("cookie-parser");
+var logger = require("morgan");
+var mongoose = require("mongoose");
 
-var isProduction = process.env.NODE_ENV === 'production'
+var isProduction = process.env.NODE_ENV === "production";
 var app = express();
 
-app.use(logger('dev'));
+app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, "public")));
 
-if(isProduction){
-  mongoose.connect(process.env.MONGODB_URI)
+if (isProduction) {
+  mongoose.connect(process.env.MONGODB_URI);
 } else {
-  mongoose.connect('mongodb://localhost/vippy_dev', { useNewUrlParser: true });
-  mongoose.set('debug', true);
+  mongoose.connect("mongodb://localhost/vippy_dev", { useNewUrlParser: true });
+  mongoose.set("debug", true);
 }
 
-require('./models/User')
-require('./models/Host')
-require('./config/passport')
+require("./models/User");
+require("./models/Host");
+require("./models/Event");
+require("./models/Listing");
+require("./models/Product");
+require("./models/Reservation");
 
-app.use('/api', require('./routes/beta_api'));
+require("./config/passport");
+
+app.use("/api", require("./routes/beta_api"));
 
 if (isProduction) {
 }
