@@ -76,16 +76,49 @@ router.post(
           if (!body.success || err) {
             return res.status(400).json({ error: body.message });
           }
-          // if verified successfully then set reservation as redeemed, and let them know
+          // if verified successfully then set reservation as redeemed, res with success.
+          // also create transfer for Host
+          // Create a Transfer to the connected account (later):
           req.vippyReservation.redeemed = body.success;
-          req.vippyReservation
-            .save()
-            .then(function(reservation) {
-              return res.json(body);
-            })
-            .catch(next);
+          return stripe.transfers.create(
+            {
+              amount: req.vippyReservation.amountForHost() * 100,
+              currency: "usd",
+              source_transaction: req.vippyReservation.stripeChargeId,
+              destination: req.vippyHost.stripeAccountId,
+              transfer_group: req.vippyReservation.id
+            },
+            function(err, transfer) {
+              if (err) {
+                console.log("the stripe transfer error was", err);
+                // could not charge
+                req.vippyReservation.paidToHost = false;
+                return req.vippyReservation
+                  .save()
+                  .then(function(reservation) {
+                    return res.json(body);
+                  })
+                  .catch(next);
+              }
+              // charged update reservation and return
+              req.vippyReservation.paidToHost = true;
+              req.vippyReservation.stripeTransferId = transfer.id;
+              return req.vippyReservation
+                .save()
+                .then(function(reservation) {
+                  return res.json(body);
+                })
+                .catch(next);
+            }
+          );
         }
       );
+      // // because of this block below, only host with completedPayment/stripeAccountId will be allowed to
+      // // create Event/Listings OR just set a reservation to transferHeld if the Host does not have a stripeAccountId yet when at
+      // // the point of creating a stripe transfer with the reservationConfirmationCode and host.stripeAccountId. for now we block.
+      // if (!req.vippyHost.hasStripeId()) {
+      //  // do pay out yet, set to p
+      // }
     }
     // Send Code to customer
     request(
@@ -109,16 +142,6 @@ router.post(
         return res.json(body);
       }
     );
-    // // because of this block below, only host with completedPayment/stripeAccountId will be allowed to
-    // // create Event/Listings OR just set a reservation to transferHeld if the Host does not have a stripeAccountId yet when at
-    // // the point of creating a stripe transfer with the reservationConfirmationCode and host.stripeAccountId. for now we block.
-    // if (!req.vippyHost.hasStripeId()) {
-    //   return res.status(404).json({
-    //     error: "You must connect to Stripe before creating an Event"
-    //   })
-    // }
-    //
-    // res.json("we began the redeeming process")
   }
 );
 
