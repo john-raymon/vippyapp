@@ -33,22 +33,39 @@ router.post("/", function(req, res, next) {
   // we have all the requiredProps so continue
   const userNum = req.body.phonenumber;
   // validate phonenumber
-  new Promise((resolve, reject) => {
-    try {
-      const parsedPhoneNumber = parsePhoneNumber(userNum, "US");
-      if (!parsedPhoneNumber.isValid()) {
-        return res.status(400).json({ error: "The phone number is not valid" });
+  User.count({ email: req.body.email })
+    .exec()
+    .then(function(count) {
+      if (count > 0) {
+        throw {
+          name: "ValidationError",
+          errors: {
+            email: { message: "is already taken" }
+          }
+        };
       }
-      resolve(parsedPhoneNumber);
-    } catch (error) {
-      if (error instanceof ParseError) {
-        return res
-          .status(400)
-          .json({ error: "The phone number may be invalid" });
-      }
-      reject(error);
-    }
-  })
+      return count;
+    })
+    .then(function() {
+      return new Promise((resolve, reject) => {
+        try {
+          const parsedPhoneNumber = parsePhoneNumber(userNum, "US");
+          if (!parsedPhoneNumber.isValid()) {
+            return res
+              .status(400)
+              .json({ error: "The phone number is not valid" });
+          }
+          resolve(parsedPhoneNumber);
+        } catch (error) {
+          if (error instanceof ParseError) {
+            return res
+              .status(400)
+              .json({ error: "The phone number may be invalid" });
+          }
+          reject(error);
+        }
+      });
+    })
     .then(parsedPhoneNumber => {
       const nationalNumber = parsedPhoneNumber.nationalNumber;
       const countryCallingCode = parsedPhoneNumber.countryCallingCode;
@@ -78,17 +95,20 @@ router.post("/", function(req, res, next) {
               return res.status(400).json({ error: body.message });
             }
             // if verification was successful then resolve promise with twilio response body, and create the account
-            resolve(body);
+            resolve([body, nationalNumber, countryCallingCode]);
           }
         );
       });
     })
-    .then(twilioRes => {
+    .then(([twilioRes, nationalNumber, countryCallingCode]) => {
+      console.log("nationalNumber is", nationalNumber);
       const user = new User({
         email: req.body.email,
         fullname: req.body.fullname,
         zipcode: req.body.zipcode,
-        phonenumber: req.body.phonenumber
+        phonenumber: nationalNumber,
+        countryCallingCode: countryCallingCode,
+        phoneVerified: true
       });
 
       user.setPassword(req.body.password);

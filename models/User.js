@@ -16,7 +16,6 @@ const UserSchema = new mongoose.Schema(
     fullname: {
       type: String,
       lowercase: true,
-      unique: true,
       required: [true, "is required"]
     },
     zipcode: { type: String, required: [true, "is required"] },
@@ -33,6 +32,7 @@ const UserSchema = new mongoose.Schema(
       ],
       required: [true, "is required"]
     },
+    countryCallingCode: String,
     phoneVerified: { type: Boolean, default: false },
     salt: String,
     hash: String

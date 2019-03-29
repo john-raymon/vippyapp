@@ -33,7 +33,6 @@ router.param("event", function(req, res, next, eventId) {
     })
     .exec()
     .then(function(event) {
-      console.log("the event is", event);
       if (!event) {
         return res.sendStatus(404);
       }
@@ -46,6 +45,11 @@ router.param("event", function(req, res, next, eventId) {
 router.post("/", auth.required, hostMiddleware, function(req, res, next) {
   console.log("the req.body at POST event/ endpoint is", req.body);
   const { vippyHost: host } = req;
+  if (!host.hasStripeId()) {
+    return res.status(404).json({
+      error: "You must connect to Stripe before creating an Event"
+    });
+  }
   const event = new Event({
     name: req.body.name,
     host: host,

@@ -19,6 +19,109 @@ var Reservation = require("../../models/Reservation");
 // config
 var config = require("./../../config");
 
+router.param("reservationId", function(req, res, next, reservationId) {
+  // attempt to locate reservation
+  Reservation.findById(reservationId)
+    .populate("host")
+    .populate("customer")
+    .exec()
+    .then(function(reservation) {
+      if (!reservation) {
+        return res.sendStatus(404);
+      }
+      req.vippyReservation = reservation;
+      next();
+    });
+});
+
+// begin redeeming of reservation
+router.post(
+  "/:reservationId/redeem",
+  auth.required,
+  auth.setUserOrHost,
+  function(req, res, next) {
+    if (
+      (req.vippyUser &&
+        req.vippyUser.id !== req.vippyReservation.customer.id) ||
+      (req.vippyHost && req.vippyHost.id !== req.vippyReservation.host.id)
+    ) {
+      return res
+        .status(403)
+        .json({ error: "You must be the host of this reservation" });
+    }
+
+    if (req.vippyReservation.redeemed) {
+      return res
+        .status(404)
+        .json({ error: "This reservation has already been redeemed" });
+    }
+    // if query.param "code" is set then attempt to verify the phone number with the code,
+    // if verified succesfully mark the reservation as redeemed.
+    if (req.query.verify) {
+      return request(
+        {
+          url: "https://api.authy.com/protected/json/phones/verification/check",
+          method: "GET",
+          headers: {
+            "X-Authy-API-Key": process.env.TWILIO_ACCOUNT_SECURITY_API_KEY
+          },
+          qs: {
+            verification_code: req.body.verification_code,
+            phone_number: req.vippyReservation.customer.phonenumber,
+            country_code: req.vippyReservation.customer.countryCallingCode
+          },
+          json: true
+        },
+        function(err, response, body) {
+          if (!body.success || err) {
+            return res.status(400).json({ error: body.message });
+          }
+          // if verified successfully then set reservation as redeemed, and let them know
+          req.vippyReservation.redeemed = body.success;
+          req.vippyReservation
+            .save()
+            .then(function(reservation) {
+              return res.json(body);
+            })
+            .catch(next);
+        }
+      );
+    }
+    // Send Code to customer
+    request(
+      {
+        url: "https://api.authy.com/protected/json/phones/verification/start",
+        method: "POST",
+        headers: {
+          "X-Authy-API-Key": process.env.TWILIO_ACCOUNT_SECURITY_API_KEY
+        },
+        form: {
+          via: "sms",
+          phone_number: req.vippyReservation.customer.phonenumber,
+          country_code: req.vippyReservation.customer.countryCallingCode
+        },
+        json: true
+      },
+      function(err, response, body) {
+        if (!body.success || err) {
+          return res.status(400).json({ error: body.message });
+        }
+        return res.json(body);
+      }
+    );
+    // // because of this block below, only host with completedPayment/stripeAccountId will be allowed to
+    // // create Event/Listings OR just set a reservation to transferHeld if the Host does not have a stripeAccountId yet when at
+    // // the point of creating a stripe transfer with the reservationConfirmationCode and host.stripeAccountId. for now we block.
+    // if (!req.vippyHost.hasStripeId()) {
+    //   return res.status(404).json({
+    //     error: "You must connect to Stripe before creating an Event"
+    //   })
+    // }
+    //
+    // res.json("we began the redeeming process")
+  }
+);
+
 router.post("/", auth.required, auth.setUserOrHost, function(req, res, next) {
   if (!req.vippyUser) {
     return res.status(403).json({ error: "You must be an Authenticated host" });
