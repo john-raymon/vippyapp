@@ -42,6 +42,7 @@ app.use(function(req, res, next) {
   err.status = 404;
   next(err);
 });
+
 // error handler
 app.use(function(err, req, res, next) {
   if (isProduction) {
@@ -55,7 +56,5 @@ app.use(function(err, req, res, next) {
     }
   });
 });
-if (isProduction) {
-}
 
 module.exports = app;
