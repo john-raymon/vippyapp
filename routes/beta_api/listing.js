@@ -44,13 +44,9 @@ router.post("/", auth.required, hostMiddleware, function(req, res, next) {
     .exec()
     .then(function(event) {
       if (!event)
-        res
-          .status(404)
-          .json({
-            error: `We could not locate an Event with the id ${
-              req.body.eventId
-            }`
-          });
+        res.status(404).json({
+          error: `We could not locate an Event with the id ${req.body.eventId}`
+        });
       if (!event.host._id.equals(host._id)) return res.sendStatus(403); // the auth host isn't the host of the event they are theying to create a listing for
       console.log("the event were grttng back is", event);
       const listing = new Listing({
@@ -140,10 +136,6 @@ router.get("/", auth.optional, auth.setUserOrHost, function(req, res, next) {
     .then(([listings, listingCount]) => {
       res.json({
         listings: listings.map(listing => {
-          console.log(
-            "this is an listing currently being iterated through in the map",
-            listing
-          );
           if (req.auth && req.vippyHost) {
             return listing.toJSONForHost(req.vippyHost);
           }
