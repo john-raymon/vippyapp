@@ -16,7 +16,6 @@ const HostSchema = new mongoose.Schema(
     fullname: {
       type: String,
       lowercase: true,
-      unique: true,
       required: [true, "is required"]
     },
     zipcode: { type: String, required: [true, "is required"] },
@@ -42,7 +41,8 @@ const HostSchema = new mongoose.Schema(
     products: [{ type: mongoose.Schema.Types.ObjectId, ref: "Product" }],
     salt: String,
     hash: String,
-    randomKey: String
+    randomKey: String,
+    venueId: String
   },
   { timestamps: true }
 );
