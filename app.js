@@ -23,6 +23,7 @@ if (isProduction) {
 
 require("./models/User");
 require("./models/Host");
+require("./models/Promoter");
 require("./models/Event");
 require("./models/Listing");
 require("./models/Product");
