@@ -3,7 +3,8 @@ var secret = require("../config").secret;
 
 // models
 var Host = require("../models/Host"),
-  User = require("../models/User");
+  User = require("../models/User"),
+  Promoter = require("../models/Promoter");
 
 function getToken(req) {
   if (
@@ -31,10 +32,10 @@ var auth = {
     getToken: getToken
   }),
   setUserOrHost: function(req, res, next) {
-    const hostAuth = req.auth;
-    if (!hostAuth) return next(); // doesn't return if no authentication. skips to next middleware on stack
-    if (hostAuth.sub === "host") {
-      Host.findById(hostAuth.id)
+    const currentAuth = req.auth;
+    if (!currentAuth) return next(); // doesn't return if no authentication. skips to next middleware on stack
+    if (currentAuth.sub === "host") {
+      Host.findById(currentAuth.id)
         .then(function(host) {
           if (!host) {
             return res
@@ -46,8 +47,8 @@ var auth = {
           next();
         })
         .catch(next);
-    } else if (hostAuth.sub === "user") {
-      User.findById(hostAuth.id)
+    } else if (currentAuth.sub === "user") {
+      User.findById(currentAuth.id)
         .then(function(user) {
           if (!user) {
             return res
@@ -56,6 +57,19 @@ var auth = {
           }
 
           req.vippyUser = user;
+          next();
+        })
+        .catch(next);
+    } else if (currentAuth.sub === "promoter") {
+      Promoter.findById(currentAuth.id)
+        .then(function(promoter) {
+          if (!promoter) {
+            return res.status(401).json({
+              success: false,
+              error: "You must be an authenticated promoter"
+            });
+          }
+          req.vippyPromoter = promoter;
           next();
         })
         .catch(next);
