@@ -161,6 +161,7 @@ router.post("/stripe/auth", auth.required, function(req, res, next) {
     .catch(next);
 });
 
+// stripe on-boarding returns venue host back through here
 router.get("/stripe/token", auth.optional, function(req, res, next) {
   // usually not optional, will be required when jwt can be picked up on redirect
   const hostAuth = req.auth;
