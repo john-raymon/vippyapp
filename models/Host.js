@@ -16,6 +16,7 @@ const HostSchema = new mongoose.Schema(
       required: [true, "is required"],
       match: [/\S+@\S+\.\S+/, "is invalid"]
     },
+    venueName: { type: String },
     fullname: {
       type: String,
       lowercase: true,
@@ -118,6 +119,7 @@ HostSchema.methods.toAuthJSON = function() {
     username: this.email,
     zipcode: this.zipcode,
     fullname: this.fullname,
+    venueName: this.venueName,
     phonenumber: this.phonenumber,
     type: "host",
     token: this.generateJWT(),
@@ -134,6 +136,7 @@ HostSchema.methods._toJSON = function() {
     fullname: this.fullname,
     phonenumber: this.phonenumber,
     type: "host",
+    venueName: this.venueName,
     venueId: this.venueId,
     completedPayment: this.hasStripeId()
   };
@@ -146,6 +149,7 @@ HostSchema.methods.toProfileJSON = function() {
     firstname: this.fullname.split(" ")[0],
     phonenumber: this.phonenumber,
     type: "host",
+    venueName: this.venueName,
     venueId: this.venueId
   };
 };
