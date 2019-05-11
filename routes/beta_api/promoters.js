@@ -23,6 +23,39 @@ var createId = require("./../../utils/createId");
 // create a promoter
 router.post("/", auth.required, hostMiddleware, function(req, res, next) {
   const { vippyHost: host } = req;
+
+  const requiredProps = ["password"];
+
+  let isBodyMissingProperty = false;
+
+  const propErrors = requiredProps.reduce((errors, prop) => {
+    if (!req.body[prop]) {
+      isBodyMissingProperty = true;
+      errors[prop] = { message: `is required` };
+    }
+    return errors;
+  }, {});
+
+  if (isBodyMissingProperty) {
+    return next({
+      name: "ValidationError",
+      errors: propErrors
+    });
+  }
+
+  Promoter.count({ username: req.body.username })
+    .exec()
+    .then(function(count) {
+      if (count > 0) {
+        return next({
+          name: "ValidationError",
+          errors: {
+            username: { message: "is already taken" }
+          }
+        });
+      }
+      return count;
+    });
   const promoter = new Promoter({
     username: req.body.username || createId(6),
     venue: host,
@@ -42,13 +75,25 @@ router.post("/", auth.required, hostMiddleware, function(req, res, next) {
 
 // authenticate a promoter
 router.post("/login", function(req, res, next) {
-  if (!req.body.username || !req.body.password || !req.body.venueId) {
-    res
-      .status(422)
-      .json({
-        error: "username, password, and the venue ID is required to login"
-      });
+  const requiredProps = ["username", "password", "venueId"];
+
+  let isBodyMissingProperty = false;
+
+  const propErrors = requiredProps.reduce((errors, prop) => {
+    if (!req.body[prop]) {
+      isBodyMissingProperty = true;
+      errors[prop] = { message: `is required` };
+    }
+    return errors;
+  }, {});
+
+  if (isBodyMissingProperty) {
+    next({
+      name: "ValidationError",
+      errors: propErrors
+    });
   }
+
   promoterPassport.authenticate("local", function(err, promoter, data) {
     // handle for errors
     if (err) {
