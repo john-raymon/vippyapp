@@ -18,6 +18,7 @@ const PromoterSchema = new mongoose.Schema(
       required: [true, "is required"]
     },
     venue: { type: mongoose.Schema.Types.ObjectId, ref: "Host" },
+    venueId: { type: String },
     salt: String,
     hash: String
   },
