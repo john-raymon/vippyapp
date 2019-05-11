@@ -43,11 +43,15 @@ router.post(
     if (
       (req.vippyUser &&
         req.vippyUser.id !== req.vippyReservation.customer.id) ||
-      (req.vippyHost && req.vippyHost.id !== req.vippyReservation.host.id)
+      (req.vippyHost && req.vippyHost.id !== req.vippyReservation.host.id) ||
+      req.vippyPromoter.venue.id !== req.vippyReservation.host.id
     ) {
       return res
         .status(403)
-        .json({ error: "You must be the host of this reservation" });
+        .json({
+          error:
+            "You must be the venue host, promoter, or the customer on this reservation"
+        });
     }
 
     if (req.vippyReservation.redeemed) {
