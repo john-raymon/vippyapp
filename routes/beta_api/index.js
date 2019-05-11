@@ -23,7 +23,7 @@ router.use(function(err, req, res, next) {
 
   if (err.name === "UnauthorizedError") {
     return res.status(401).json({
-      error: { Authentication: "You must be authenticated as a host" }
+      error: { Authentication: "You must be logged in" }
     });
   }
 
