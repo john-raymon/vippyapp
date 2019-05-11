@@ -14,9 +14,13 @@ var Host = require("../../models/Host");
 // config
 var config = require("./../../config");
 
+// auth passports
+var { promoterPassport } = require("./../../config/passport");
+
 // utils
 var createId = require("./../../utils/createId");
 
+// create a promoter
 router.post("/", auth.required, hostMiddleware, function(req, res, next) {
   const { vippyHost: host } = req;
   const promoter = new Promoter({
@@ -36,6 +40,35 @@ router.post("/", auth.required, hostMiddleware, function(req, res, next) {
     .catch(next);
 });
 
+// authenticate a promoter
+router.post("/login", function(req, res, next) {
+  if (!req.body.username || !req.body.password || !req.body.venueId) {
+    res
+      .status(422)
+      .json({
+        error: "username, password, and the venue ID is required to login"
+      });
+  }
+  promoterPassport.authenticate("local", function(err, promoter, data) {
+    // handle for errors
+    if (err) {
+      return next(err);
+    }
+
+    if (!promoter) {
+      return res.status(422).json({
+        success: false,
+        error: data
+      });
+    }
+
+    return res.json({
+      promoter: promoter.getAuthPromoter()
+    });
+  })(req, res, next);
+});
+
+// get all promoters for authorized venue host
 router.get("/", auth.required, hostMiddleware, function(req, res, next) {
   const { vippyHost: host } = req;
 
