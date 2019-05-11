@@ -42,6 +42,17 @@ function hostMiddleware(req, res, next) {
     .catch(next);
 }
 
+router.get("/", auth.optional, auth.setUserOrHost, function(req, res, next) {
+  return Promise.all([Host.find().exec(), Host.count().exec()])
+    .then(([hosts, hostCount]) => {
+      return res.json({
+        venues: hosts.map(host => host.toProfileJSON()),
+        venueCount: hostCount
+      });
+    })
+    .catch(next);
+});
+
 router.post("/", function(req, res, next) {
   const host = new Host({
     email: req.body.email,
