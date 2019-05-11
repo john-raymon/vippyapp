@@ -16,10 +16,18 @@ var config = require("./../../config");
 // passports
 var { hostPassport } = require("./../../config/passport");
 
+// utils
+var createId = require("./../../utils/createId");
+
 function hostMiddleware(req, res, next) {
   const hostAuth = req.auth;
-  if (hostAuth.sub !== "host")
-    return res.status(403).json({ error: "You must be an Authenticated host" });
+  if (hostAuth.sub !== "host") {
+    return res.status(403).json({
+      success: false,
+      error: "You must be an Authenticated host"
+    });
+  }
+
   Host.findById(hostAuth.id)
     .then(function(host) {
       if (!host) {
@@ -27,7 +35,6 @@ function hostMiddleware(req, res, next) {
           .status(401)
           .json({ error: "You must be an Authenticated Host" });
       }
-
       req.vippyHost = host;
       next();
     })
@@ -40,7 +47,8 @@ router.post("/", function(req, res, next) {
     email: req.body.email,
     fullname: req.body.fullname,
     zipcode: req.body.zipcode,
-    phonenumber: req.body.phonenumber
+    phonenumber: req.body.phonenumber,
+    venueId: createId(5)
   });
 
   host.setPassword(req.body.password);
@@ -73,7 +81,6 @@ router.post("/login", function(req, res, next) {
 });
 
 // stripe
-
 router.post("/stripe/auth", auth.required, function(req, res, next) {
   const hostAuth = req.auth;
   if (hostAuth.sub !== "host")
