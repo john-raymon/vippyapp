@@ -122,9 +122,7 @@ router.post("/", function(req, res, next) {
 
 router.post("/login", function(req, res, next) {
   if (!req.body.email || !req.body.password) {
-    res
-      .status(422)
-      .json({ errors: { "email and password": "are required to login" } });
+    res.status(422).json({ error: "email and password are required to login" });
   }
 
   userPassport.authenticate("local", function(err, user, data) {
