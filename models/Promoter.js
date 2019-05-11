@@ -46,7 +46,18 @@ PromoterSchema.methods.getPromoter = function() {
     id: this._id,
     firstname: this.fullname.split(" ")[0],
     type: "promoter",
-    username: this.username
+    username: this.username,
+    venueId: this.venueId
+  };
+};
+
+PromoterSchema.methods.getAuthPromoter = function() {
+  return {
+    id: this._id,
+    firstname: this.fullname.split(" ")[0],
+    type: "promoter",
+    venueId: this.venueId,
+    token: this.generateJWT()
   };
 };
 
