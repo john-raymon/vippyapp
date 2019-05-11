@@ -9,6 +9,7 @@ var auth = require("../authMiddleware");
 
 // models
 var Host = require("../../models/Host");
+var Promoter = require("../../models/Promoter");
 
 // config
 var config = require("./../../config");
@@ -42,7 +43,6 @@ function hostMiddleware(req, res, next) {
 }
 
 router.post("/", function(req, res, next) {
-  console.log("the req is", req.body);
   const host = new Host({
     email: req.body.email,
     fullname: req.body.fullname,
@@ -76,7 +76,21 @@ router.post("/login", function(req, res, next) {
     if (!host) {
       return res.status(422).json(data);
     }
-    return res.json({ host: host.toAuthJSON() });
+
+    return Promise.all([
+      Promoter.find({ venue: host._id }).exec(),
+      Promoter.count({ venue: host._id }).exec()
+    ])
+      .then(([promoters, promoterCount]) => {
+        return res.json({
+          host: {
+            ...host.toAuthJSON(),
+            promoters: promoters.map(promoter => promoter.getPromoter()),
+            promoterCount
+          }
+        });
+      })
+      .catch(next);
   })(req, res, next);
 });
 
