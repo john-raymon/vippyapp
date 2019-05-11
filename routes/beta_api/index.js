@@ -9,7 +9,7 @@ router.use("/listing", require("./listing"));
 router.use("/reservation", require("./reservation"));
 router.use("/phone", require("./twilio"));
 
-// error handler; catches ValidationErrors, otherwise calls next errorhandler in stack
+// error handler; catches ValidationErrors, UnauthorizedErrors, otherwise calls next errorhandler in stack
 router.use(function(err, req, res, next) {
   if (err.name === "ValidationError") {
     return res.status(422).json({
