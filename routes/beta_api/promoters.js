@@ -36,4 +36,20 @@ router.post("/", auth.required, hostMiddleware, function(req, res, next) {
     .catch(next);
 });
 
+router.get("/", auth.required, hostMiddleware, function(req, res, next) {
+  const { vippyHost: host } = req;
+
+  return Promise.all([
+    Promoter.find({ venue: host._id }).exec(),
+    Promoter.count({ venue: host._id }).exec()
+  ])
+    .then(([promoters, promoterCount]) => {
+      return res.json({
+        promoters: promoters.map(promoter => promoter.getPromoter()),
+        promoterCount
+      });
+    })
+    .catch(next);
+});
+
 module.exports = router;
