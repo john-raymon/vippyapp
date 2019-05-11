@@ -40,18 +40,19 @@ router.post(
   auth.required,
   auth.setUserOrHost,
   function(req, res, next) {
+    console.log("vippypromoter", req.vippyPromoter);
+    console.log("reservation host", req.vippyReservation.host);
     if (
       (req.vippyUser &&
         req.vippyUser.id !== req.vippyReservation.customer.id) ||
       (req.vippyHost && req.vippyHost.id !== req.vippyReservation.host.id) ||
-      req.vippyPromoter.venue.id !== req.vippyReservation.host.id
+      (req.vippyPromoter &&
+        req.vippyPromoter.venueId !== req.vippyReservation.host.venueId)
     ) {
-      return res
-        .status(403)
-        .json({
-          error:
-            "You must be the venue host, promoter, or the customer on this reservation"
-        });
+      return res.status(403).json({
+        error:
+          "You must be the venue host, promoter, or the customer on this reservation"
+      });
     }
 
     if (req.vippyReservation.redeemed) {
@@ -89,7 +90,7 @@ router.post(
               amount: req.vippyReservation.amountForHost() * 100,
               currency: "usd",
               source_transaction: req.vippyReservation.stripeChargeId,
-              destination: req.vippyHost.stripeAccountId,
+              destination: req.vippyReservation.host.stripeAccountId,
               transfer_group: req.vippyReservation.id
             },
             function(err, transfer) {
@@ -247,7 +248,7 @@ router.post("/", auth.required, auth.setUserOrHost, function(req, res, next) {
 });
 
 router.get("/", auth.required, auth.setUserOrHost, function(req, res, next) {
-  if (!req.vippyUser && !req.vippyHost) {
+  if (!req.vippyUser && !req.vippyHost && !req.vippyPromoter) {
     return res
       .status(403)
       .json({ error: "You must be an Authenticated host or user" });
@@ -256,6 +257,7 @@ router.get("/", auth.required, auth.setUserOrHost, function(req, res, next) {
     limit = 20,
     offset = 0;
   if (req.vippyHost) query.host = req.vippyHost._id;
+  if (req.vippyPromoter) query.host = req.vippyPromoter.venue._id;
   if (req.vippyUser) query.customer = req.vippyUser._id;
   if (req.query.limit) {
     limit = req.query.limit;
