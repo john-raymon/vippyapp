@@ -4,6 +4,9 @@ var jwt = require("jsonwebtoken");
 var uniqueValidator = require("mongoose-unique-validator");
 var secret = require("../config").secret;
 
+// utils
+var createId = require("../utils/createId");
+
 const HostSchema = new mongoose.Schema(
   {
     email: {
@@ -42,7 +45,11 @@ const HostSchema = new mongoose.Schema(
     salt: String,
     hash: String,
     randomKey: String,
-    venueId: String
+    venueId: {
+      type: String,
+      unique: true,
+      default: createId(5)
+    }
   },
   { timestamps: true }
 );
@@ -124,6 +131,7 @@ HostSchema.methods.toAuthJSON = function() {
     phonenumber: this.phonenumber,
     type: "host",
     token: this.generateJWT(),
+    venueId: this.venueId,
     completedPayment: this.hasStripeId()
   };
 };
