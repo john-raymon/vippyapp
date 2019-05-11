@@ -22,14 +22,18 @@ router.post("/", function(req, res, next) {
   const propErrors = requiredProps.reduce((errors, prop) => {
     if (!req.body[prop]) {
       isBodyMissingProperty = true;
-      errors[prop] = `is required`;
+      errors[prop] = { message: `is required` };
     }
     return errors;
   }, {});
 
   if (isBodyMissingProperty) {
-    return res.status(400).json({ errors: propErrors });
+    return next({
+      name: "ValidationError",
+      errors: propErrors
+    });
   }
+
   // we have all the requiredProps so continue
   const userNum = req.body.phonenumber;
   // validate phonenumber
@@ -37,12 +41,12 @@ router.post("/", function(req, res, next) {
     .exec()
     .then(function(count) {
       if (count > 0) {
-        throw {
+        return next({
           name: "ValidationError",
           errors: {
             email: { message: "is already taken" }
           }
-        };
+        });
       }
       return count;
     })
