@@ -2,6 +2,7 @@ var express = require("express");
 var router = express.Router();
 
 router.use("/host", require("./host").router);
+router.use("/promoters", require("./promoters"));
 router.use("/user", require("./user"));
 router.use("/event", require("./event"));
 router.use("/listing", require("./listing"));
