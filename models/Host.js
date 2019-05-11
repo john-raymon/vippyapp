@@ -76,17 +76,6 @@ HostSchema.methods.validPassword = function(password) {
   return this.hash === hash;
 };
 
-HostSchema.methods.toProfileJSON = function() {
-  return {
-    id: this._id,
-    zipcode: this.zipcode,
-    firstname: this.fullname.split(" ")[0],
-    phonenumber: this.phonenumber,
-    type: "host",
-    venueId: this.venueId
-  };
-};
-
 HostSchema.methods.createRandomKey = function() {
   crypto.randomBytes(48, (err, buffer) => {
     this.randomKey = buffer.toString("hex");
@@ -137,6 +126,7 @@ HostSchema.methods.toAuthJSON = function() {
   };
 };
 
+// change to getAuthHostWithoutJWT
 HostSchema.methods._toJSON = function() {
   return {
     username: this.email,
@@ -144,7 +134,19 @@ HostSchema.methods._toJSON = function() {
     fullname: this.fullname,
     phonenumber: this.phonenumber,
     type: "host",
+    venueId: this.venueId,
     completedPayment: this.hasStripeId()
+  };
+};
+
+HostSchema.methods.toProfileJSON = function() {
+  return {
+    id: this._id,
+    zipcode: this.zipcode,
+    firstname: this.fullname.split(" ")[0],
+    phonenumber: this.phonenumber,
+    type: "host",
+    venueId: this.venueId
   };
 };
 
