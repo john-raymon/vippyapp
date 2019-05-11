@@ -82,7 +82,8 @@ HostSchema.methods.toProfileJSON = function() {
     zipcode: this.zipcode,
     firstname: this.fullname.split(" ")[0],
     phonenumber: this.phonenumber,
-    type: "host"
+    type: "host",
+    venueId: this.venueId
   };
 };
 
