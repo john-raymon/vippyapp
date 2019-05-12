@@ -23,10 +23,7 @@ var createId = require("./../../utils/createId");
 function hostMiddleware(req, res, next) {
   const hostAuth = req.auth;
   if (hostAuth.sub !== "host") {
-    return res.status(403).json({
-      success: false,
-      error: "You must be an Authenticated host"
-    });
+    return next({ name: "UnauthorizedError" });
   }
 
   Host.findById(hostAuth.id)
@@ -43,12 +40,55 @@ function hostMiddleware(req, res, next) {
 }
 
 router.get("/", auth.optional, auth.setUserOrHost, function(req, res, next) {
-  return Promise.all([Host.find().exec(), Host.count().exec()])
+  return Promise.all([
+    Host.find({ isEmailConfirmed: true }).exec(),
+    Host.count({ isEmailConfirmed: true }).exec()
+  ])
     .then(([hosts, hostCount]) => {
       return res.json({
         venues: hosts.map(host => host.toProfileJSON()),
         venueCount: hostCount
       });
+    })
+    .catch(next);
+});
+
+router.patch("/", auth.required, hostMiddleware, function(req, res, next) {
+  const whitelistedKeys = [
+    "venueName",
+    "fullname",
+    "phonenumber",
+    "email",
+    "password"
+  ];
+  for (let prop in req.body) {
+    if (
+      whitelistedKeys.includes(prop) &&
+      prop !== "email" &&
+      prop !== "password"
+    ) {
+      req.vippyHost[prop] = req.body[prop];
+    }
+    continue;
+  }
+
+  if (req.body.email && req.vippyHost.email !== req.body.email) {
+    // send security confirmation email below
+    // and reset isEmailConfirmed
+    // ...
+    req.vippyHost.email = req.body.email;
+    req.vippyHost.isEmailConfirmed = false;
+  }
+
+  if (req.body.password) {
+    // send security email to host
+    req.vippyHost.setPassword(req.body.password);
+  }
+
+  req.vippyHost
+    .save()
+    .then(function(host) {
+      return res.json({ venueHost: host._toJSON() });
     })
     .catch(next);
 });
@@ -59,7 +99,8 @@ router.post("/", function(req, res, next) {
     fullname: req.body.fullname,
     zipcode: req.body.zipcode,
     phonenumber: req.body.phonenumber,
-    venueId: createId(5)
+    venueId: createId(5),
+    venueName: req.body.venueName
   });
 
   host.setPassword(req.body.password);
@@ -67,7 +108,7 @@ router.post("/", function(req, res, next) {
   host
     .save()
     .then(function() {
-      return res.json({ user: host.toAuthJSON() });
+      return res.json({ venueHost: host.toAuthJSON() });
     })
     .catch(next);
 });
