@@ -149,8 +149,12 @@ router.post("/login", function(req, res, next) {
 // stripe
 router.post("/stripe/auth", auth.required, function(req, res, next) {
   const hostAuth = req.auth;
-  if (hostAuth.sub !== "host")
-    return res.status(403).json({ error: "You must be an Authenticated host" });
+  if (hostAuth.sub !== "host") {
+    next({
+      name: "UnauthorizedError",
+      message: "You must be an authenticated host"
+    });
+  }
   Host.findById(hostAuth.id)
     .then(function(host) {
       if (!host) {
@@ -211,9 +215,10 @@ router.get("/stripe/token", auth.optional, function(req, res, next) {
     .then(function(host) {
       // usually will look for host using data from auth host such as hostAuth.id
       if (!host) {
-        return res
-          .status(401)
-          .json({ error: "You must be an Authenticated Host" });
+        return next({
+          name: "UnauthorizedError",
+          message: "You must be an authenticated host"
+        });
       }
 
       if (host.hasStripeId()) {
