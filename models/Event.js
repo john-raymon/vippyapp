@@ -22,6 +22,7 @@ var EventSchema = mongoose.Schema({
 });
 
 EventSchema.methods.toJSONFor = function(user) {
+  // user argument is utilized when invoking listing.toJSONForHost method vvv read comment below next to invocation
   const {
     name,
     host,
@@ -38,11 +39,9 @@ EventSchema.methods.toJSONFor = function(user) {
     name,
     host: host.toProfileJSON(),
     currentListings: currentListings.map(function(listing, index) {
-      console.log("the listing is now !!!!! -->", listing);
+      // toJSONForHost will check if user is not Host and instead return unAuth version of listing object
       return listing.toJSONForHost(user);
-      // return listing
     }),
-    // currentListings: currentListings,
     date,
     startTime,
     endTime,
