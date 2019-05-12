@@ -77,10 +77,19 @@ router.get("/:event", auth.optional, auth.setUserOrHost, function(
   res,
   next
 ) {
-  const { auth = { sub: "" }, vippyEvent, vippyHost, vippyUser } = req;
-  if (vippyHost && vippyHost._id.equals(vippyEvent.host._id)) {
+  const {
+    auth = { sub: "" },
+    vippyEvent,
+    vippyHost,
+    vippyUser,
+    vippyPromoter
+  } = req;
+  if (
+    (vippyHost && vippyHost._id.equals(vippyEvent.host._id)) ||
+    (vippyPromoter && vippyPromoter.venueId === vippyEvent.host.venueId)
+  ) {
     return res.json({
-      event: vippyEvent.toJSONFor(vippyHost)
+      event: vippyEvent.toJSONFor(vippyHost || vippyPromoter.venue)
     });
   }
   return res.json({
