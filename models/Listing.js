@@ -58,7 +58,6 @@ ListingSchema.methods.toJSONForHost = function(currentHost) {
 };
 
 ListingSchema.methods._toJSON = function() {
-  // by host we're assuming host of listing, anyone else is a username
   const {
     _id: id,
     name,
@@ -73,8 +72,6 @@ ListingSchema.methods._toJSON = function() {
     unlimitedQuantity,
     bookingDeadline
   } = this;
-
-  console.log("the event is", this.event);
 
   return {
     id,
