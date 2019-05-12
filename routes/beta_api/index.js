@@ -13,6 +13,7 @@ router.use("/phone", require("./twilio"));
 router.use(function(err, req, res, next) {
   if (err.name === "ValidationError") {
     return res.status(422).json({
+      success: false,
       errors: Object.keys(err.errors).reduce(function(errors, key) {
         errors[key] = err.errors[key].message;
 
@@ -23,6 +24,7 @@ router.use(function(err, req, res, next) {
 
   if (err.name === "UnauthorizedError") {
     return res.status(401).json({
+      success: false,
       error: { Authentication: "You must be logged in" }
     });
   }
