@@ -130,4 +130,60 @@ router.get("/", auth.required, hostMiddleware, function(req, res, next) {
     .catch(next);
 });
 
+router.patch("/:promoterUsername", auth.required, hostMiddleware, function(
+  req,
+  res,
+  next
+) {
+  if (!req.params.promoterUsername) {
+    return next({
+      name: "ValidationError",
+      errors: {
+        username: { message: "The promoter username is required" }
+      }
+    });
+  }
+  const { promoterUsername } = req.params;
+  const whitelistedKeys = ["username", "password", "fullname"];
+  Promoter.findOne({ username: promoterUsername })
+    .then(promoter => {
+      if (!promoter) {
+        res.status(404).json({
+          success: false,
+          errors: {
+            promoter: {
+              message: `Promoter with username ${promoterUsername} does not exist`
+            }
+          }
+        });
+      }
+      for (let prop in req.body) {
+        if (
+          whitelistedKeys.includes(prop) &&
+          prop !== "username" &&
+          prop !== "password"
+        ) {
+          promoter[prop] = req.body[prop];
+        }
+      }
+
+      if (req.body.username && promoter.username !== req.body.username) {
+        // send security confirmation email below
+        // and reset isEmailConfirmed
+        // ...
+        promoter.username = req.body.username;
+      }
+
+      if (req.body.password) {
+        // send security email to host
+        promoter.setPassword(req.body.password);
+      }
+
+      return promoter.save();
+    })
+    .then(function(promoter) {
+      return res.json({ promoter: promoter.getPromoter() });
+    })
+    .catch(next);
+});
 module.exports = router;
