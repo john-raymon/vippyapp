@@ -16,6 +16,7 @@ const HostSchema = new mongoose.Schema(
       required: [true, "is required"],
       match: [/\S+@\S+\.\S+/, "is invalid"]
     },
+    isEmailConfirmed: { type: Boolean, unqiue: true, default: true },
     venueName: { type: String },
     fullname: {
       type: String,
@@ -124,6 +125,7 @@ HostSchema.methods.toAuthJSON = function() {
     type: "host",
     token: this.generateJWT(),
     venueId: this.venueId,
+    isEmailConfirmed: this.isEmailConfirmed,
     completedPayment: this.hasStripeId()
   };
 };
@@ -138,6 +140,7 @@ HostSchema.methods._toJSON = function() {
     type: "host",
     venueName: this.venueName,
     venueId: this.venueId,
+    isEmailConfirmed: this.isEmailConfirmed,
     completedPayment: this.hasStripeId()
   };
 };
