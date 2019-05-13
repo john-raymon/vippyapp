@@ -19,25 +19,24 @@ var { promoterPassport } = require("./../../config/passport");
 
 // utils
 var createId = require("./../../utils/createId");
+var isBodyMissingProps = require("./../../utils/isBodyMissingProps");
 
-// create a promoter
+// create a promoter only venue host can create a promoter
 router.post("/", auth.required, hostMiddleware, function(req, res, next) {
   const { vippyHost: host } = req;
 
-  const requiredProps = ["password"];
-
-  let isBodyMissingProperty = false;
-
-  const propErrors = requiredProps.reduce((errors, prop) => {
-    if (!req.body[prop]) {
-      isBodyMissingProperty = true;
-      errors[prop] = { message: `is required` };
-    }
-    return errors;
-  }, {});
-
-  if (isBodyMissingProperty) {
-    return next({
+  const requiredProps = [
+    "password",
+    "createUpdateEvents",
+    "createUpdateListings",
+    "fullname"
+  ];
+  const { hasMissingProps, propErrors } = isBodyMissingProps(
+    requiredProps,
+    req.body
+  );
+  if (hasMissingProps) {
+    next({
       name: "ValidationError",
       errors: propErrors
     });
@@ -60,7 +59,11 @@ router.post("/", auth.required, hostMiddleware, function(req, res, next) {
     username: req.body.username || createId(6),
     venue: host,
     venueId: host.venueId,
-    fullname: req.body.fullname
+    fullname: req.body.fullname,
+    permissions: {
+      createUpdateEvents: req.body.createUpdateEvents,
+      createUpdateListings: req.body.createUpdateListings
+    }
   });
 
   promoter.setPassword(req.body.password);
@@ -76,18 +79,11 @@ router.post("/", auth.required, hostMiddleware, function(req, res, next) {
 // authenticate a promoter
 router.post("/login", function(req, res, next) {
   const requiredProps = ["username", "password", "venueId"];
-
-  let isBodyMissingProperty = false;
-
-  const propErrors = requiredProps.reduce((errors, prop) => {
-    if (!req.body[prop]) {
-      isBodyMissingProperty = true;
-      errors[prop] = { message: `is required` };
-    }
-    return errors;
-  }, {});
-
-  if (isBodyMissingProperty) {
+  const { hasMissingProps, propErrors } = isBodyMissingProps(
+    requiredProps,
+    req.body
+  );
+  if (hasMissingProps) {
     next({
       name: "ValidationError",
       errors: propErrors
@@ -113,7 +109,7 @@ router.post("/login", function(req, res, next) {
   })(req, res, next);
 });
 
-// get all promoters for authorized venue host
+// get all promoters for authorized venue host, only venue host can view all promoters
 router.get("/", auth.required, hostMiddleware, function(req, res, next) {
   const { vippyHost: host } = req;
 
@@ -130,6 +126,8 @@ router.get("/", auth.required, hostMiddleware, function(req, res, next) {
     .catch(next);
 });
 
+// only venue host can update a promoter
+// we're only querying for promoters with matching venueId as host
 router.patch("/:promoterUsername", auth.required, hostMiddleware, function(
   req,
   res,
@@ -144,8 +142,17 @@ router.patch("/:promoterUsername", auth.required, hostMiddleware, function(
     });
   }
   const { promoterUsername } = req.params;
-  const whitelistedKeys = ["username", "password", "fullname"];
-  Promoter.findOne({ username: promoterUsername })
+  const whitelistedKeys = [
+    "username",
+    "password",
+    "fullname",
+    "createUpdateEvents",
+    "createUpdateListings"
+  ];
+  Promoter.findOne({
+    username: promoterUsername,
+    venueId: req.vippyHost.venueId
+  })
     .then(promoter => {
       if (!promoter) {
         res.status(404).json({
@@ -161,7 +168,8 @@ router.patch("/:promoterUsername", auth.required, hostMiddleware, function(
         if (
           whitelistedKeys.includes(prop) &&
           prop !== "username" &&
-          prop !== "password"
+          prop !== "password" &&
+          (prop !== "createUpdateListings" && prop !== "createUpdateListings")
         ) {
           promoter[prop] = req.body[prop];
         }
@@ -177,6 +185,21 @@ router.patch("/:promoterUsername", auth.required, hostMiddleware, function(
       if (req.body.password) {
         // send security email to host
         promoter.setPassword(req.body.password);
+      }
+
+      if (
+        req.body.createUpdateEvents !== undefined ||
+        typeof req.body.createUpdateEvents !== "undefined"
+      ) {
+        promoter.permissions.createUpdateEvents = req.body.createUpdateEvents;
+      }
+
+      if (
+        req.body.createUpdateListings !== undefined ||
+        typeof req.body.createUpdateListings !== "undefined"
+      ) {
+        promoter.permissions.createUpdateListings =
+          req.body.createUpdateListings;
       }
 
       return promoter.save();
