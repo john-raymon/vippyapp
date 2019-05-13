@@ -6,6 +6,7 @@ var stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 // auth middleware
 var auth = require("../authMiddleware");
+var hostMiddleware = auth.hostOrPromoterMiddleware(true); // true to set doNotAllowPromoter
 
 // models
 var Host = require("../../models/Host");
@@ -19,26 +20,9 @@ var { hostPassport } = require("./../../config/passport");
 
 // utils
 var createId = require("./../../utils/createId");
+var isBodyMissingProps = require("./../../utils/isBodyMissingProps");
 
-function hostMiddleware(req, res, next) {
-  const hostAuth = req.auth;
-  if (hostAuth.sub !== "host") {
-    return next({ name: "UnauthorizedError" });
-  }
-
-  Host.findById(hostAuth.id)
-    .then(function(host) {
-      if (!host) {
-        return res
-          .status(401)
-          .json({ error: "You must be an Authenticated Host" });
-      }
-      req.vippyHost = host;
-      next();
-    })
-    .catch(next);
-}
-
+// get all Venues, authentication not required
 router.get("/", auth.optional, auth.setUserOrHost, function(req, res, next) {
   return Promise.all([
     Host.find({ isEmailConfirmed: true }).exec(),
@@ -53,6 +37,7 @@ router.get("/", auth.optional, auth.setUserOrHost, function(req, res, next) {
     .catch(next);
 });
 
+// Update hosts
 router.patch("/", auth.required, hostMiddleware, function(req, res, next) {
   const whitelistedKeys = [
     "venueName",
@@ -93,7 +78,26 @@ router.patch("/", auth.required, hostMiddleware, function(req, res, next) {
     .catch(next);
 });
 
+// Create a new Host - add admin middleware to prevent Host from being created without permission
 router.post("/", function(req, res, next) {
+  const requiredProps = [
+    "email",
+    "venueName",
+    "phonenumber",
+    "fullname",
+    "zipcode"
+  ];
+  const { hasMissingProps, propErrors } = isBodyMissingProps(
+    requiredProps,
+    req.body
+  );
+  if (hasMissingProps) {
+    next({
+      name: "ValidationError",
+      errors: propErrors
+    });
+  }
+
   const host = new Host({
     email: req.body.email,
     fullname: req.body.fullname,
@@ -113,11 +117,19 @@ router.post("/", function(req, res, next) {
     .catch(next);
 });
 
+// login and authenticate Host
 router.post("/login", function(req, res, next) {
-  if (!req.body.email || !req.body.password) {
-    res
-      .status(422)
-      .json({ errors: { "email and password": "are required to login" } });
+  const requiredProps = ["email", "password"];
+
+  const { hasMissingProps, propErrors } = isBodyMissingProps(
+    requiredProps,
+    req.body
+  );
+  if (hasMissingProps) {
+    next({
+      name: "ValidationError",
+      errors: propErrors
+    });
   }
 
   hostPassport.authenticate("local", function(err, host, data) {
@@ -147,25 +159,26 @@ router.post("/login", function(req, res, next) {
 });
 
 // stripe
-router.post("/stripe/auth", auth.required, function(req, res, next) {
+router.post("/stripe/auth", auth.required, hostMiddleware, function(
+  req,
+  res,
+  next
+) {
   const hostAuth = req.auth;
-  if (hostAuth.sub !== "host") {
-    next({
-      name: "UnauthorizedError",
-      message: "You must be an authenticated host"
-    });
-  }
+
   Host.findById(hostAuth.id)
     .then(function(host) {
       if (!host) {
-        return res
-          .status(401)
-          .json({ error: "You must be an Authenticated Host" });
+        return next({
+          name: "UnauthorizedError",
+          message: "You must be an authenticated host"
+        });
       }
 
       if (host.hasStripeId()) {
-        return res.status(403).json({
-          error: "You have already connected this account to a Stripe account"
+        return next({
+          name: "UnauthorizedError",
+          message: "You have already connected this account to a Stripe account"
         });
       }
 
@@ -239,15 +252,21 @@ router.get("/stripe/token", auth.optional, function(req, res, next) {
           json: true
         },
         (err, response, body) => {
-          if (err || body.errer) {
+          if (err || body.error) {
             res.redirect("/onBoardingError"); // front-end page explaining the fallout, telling the user to attempt the process again
           }
           // update the host model with the stripe_user_id
           host.stripeAccountId = body.stripe_user_id;
+
           host
             .save()
-            .then(() => {
-              res.json({ host: host._toJSON() }); // when front-end is implemented instead redirect to dashboard, that will handle for stripe being authenticated already
+            .then(host => {
+              host.createRandomKey().then(key => {
+                return res.json({
+                  success: "true",
+                  host: host._toJSON()
+                }); // when front-end is implemented instead redirect to dashboard, that will handle for stripe being authenticated already
+              });
             })
             .catch(next);
         }
