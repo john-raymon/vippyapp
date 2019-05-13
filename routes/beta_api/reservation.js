@@ -118,12 +118,6 @@ router.post(
           );
         }
       );
-      // // because of this block below, only host with completedPayment/stripeAccountId will be allowed to
-      // // create Event/Listings OR just set a reservation to transferHeld if the Host does not have a stripeAccountId yet when at
-      // // the point of creating a stripe transfer with the reservationConfirmationCode and host.stripeAccountId. for now we block.
-      // if (!req.vippyHost.hasStripeId()) {
-      //  // do pay out yet, set to p
-      // }
     }
     // Send Code to customer
     request(
