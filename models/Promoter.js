@@ -12,6 +12,10 @@ const PromoterSchema = new mongoose.Schema(
       unique: true,
       required: [true, "is required"]
     },
+    permissions: {
+      createUpdateEvents: { type: Boolean, default: false },
+      createUpdateListings: { type: Boolean, default: false }
+    },
     fullname: {
       type: String,
       lowercase: true,
@@ -47,7 +51,8 @@ PromoterSchema.methods.getPromoter = function() {
     firstname: this.fullname.split(" ")[0],
     type: "promoter",
     username: this.username,
-    venueId: this.venueId
+    venueId: this.venueId,
+    permissions: this.permissions
   };
 };
 
@@ -56,7 +61,9 @@ PromoterSchema.methods.getAuthPromoter = function() {
     id: this._id,
     firstname: this.fullname.split(" ")[0],
     type: "promoter",
+    username: this.username,
     venueId: this.venueId,
+    permissions: this.permissions,
     token: this.generateJWT()
   };
 };
