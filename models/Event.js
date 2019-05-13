@@ -9,6 +9,7 @@ var Listing = require("./Listing");
 var EventSchema = mongoose.Schema({
   name: { type: String, required: [true, "is required"] },
   host: { type: mongoose.Schema.Types.ObjectId, ref: "Host" },
+  active: { type: Boolean, default: true },
   currentListings: [{ type: mongoose.Schema.Types.ObjectId, ref: "Listing" }],
   date: { type: Date, required: [true, "is required"] },
   startTime: { type: Date, required: [true, "is required"] },
