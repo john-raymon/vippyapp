@@ -51,7 +51,8 @@ const HostSchema = new mongoose.Schema(
       type: String,
       unique: true,
       default: createId(5)
-    }
+    },
+    suspended: { type: Boolean, default: false }
   },
   { timestamps: true }
 );
@@ -126,7 +127,7 @@ HostSchema.methods.toAuthJSON = function() {
     token: this.generateJWT(),
     venueId: this.venueId,
     isEmailConfirmed: this.isEmailConfirmed,
-    completedPayment: this.hasStripeId()
+    completedStripePaymentFlow: this.hasStripeId()
   };
 };
 
