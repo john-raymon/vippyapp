@@ -5,7 +5,8 @@ var request = require("request");
 
 // auth middleware
 var auth = require("../authMiddleware");
-var { hostMiddleware } = require("./host");
+var hostOrPromoterOnlyMiddleware = auth.hostOrPromoterMiddleware(false);
+var hostOnlyMiddleware = auth.hostOrPromoterMiddleware(true);
 
 // models
 var Event = require("../../models/Event");
@@ -34,48 +35,74 @@ router.param("listing", function(req, res, next, listingId) {
     .catch(next);
 });
 
-router.post("/", auth.required, hostMiddleware, function(req, res, next) {
-  console.log("the req.body at POST listing/ endpoint is", req.body);
-  const { vippyHost: host } = req;
-  console.log("the event is", req.body.eventId);
-  Event.findById(req.body.eventId)
-    .populate("host")
-    .populate("currentListings")
-    .exec()
-    .then(function(event) {
-      if (!event)
-        res.status(404).json({
-          error: `We could not locate an Event with the id ${req.body.eventId}`
+// Create Listings -- only the Venue Host on the Event and Promoter (with proper permissions) of the Venue Host on Event can Create Listings
+router.post(
+  "/",
+  auth.required,
+  hostOrPromoterOnlyMiddleware,
+  auth.onlyPromoterWithCreateUpdateListingsPermissions,
+  function(req, res, next) {
+    const { vippyHost: host, vippyPromoter } = req;
+    Event.findById(req.body.eventId)
+      .populate("host")
+      .populate("currentListings")
+      .exec()
+      .then(function(event) {
+        if (!event) {
+          res.status(404).json({
+            success: false,
+            errors: {
+              event: {
+                message: `We could not locate an Event with the id ${
+                  req.body.eventId
+                }`
+              }
+            }
+          });
+        }
+        // make sure host or promoter belong to Event
+        if (
+          (host && host.id !== event.host.id) ||
+          (vippyPromoter && vippyPromoter.venue.id !== event.host.id)
+        ) {
+          return next({
+            name: "UnauthorizedError",
+            message:
+              "You must the venue host of this event or promoter of the venue host of this event with proper permissions to create listings for this event"
+          });
+        }
+        // proceed to create listing
+        const listing = new Listing({
+          name: req.body.name,
+          guestCount: req.body.guestCount,
+          payAndWait: req.body.hasPayAndWait,
+          // images: req.body.endTime, // use multer and cloudinary to store images
+          bookingPrice: req.body.bookingPrice,
+          disclaimers:
+            req.body.disclaimers +
+            " You must be able to receive a verfication code to the phone number on your account at the door in order to redeem your reservation.",
+          quantity: req.body.unlimitedQuantity ? 0 : req.body.quantity,
+          unlimitedQuantity: req.body.unlimitedQuantity
+          // bookingDeadline: only allow this to be set to up to 6 hours before event's startTime.
         });
-      if (!event.host._id.equals(host._id)) return res.sendStatus(403); // the auth host isn't the host of the event they are theying to create a listing for
-      console.log("the event were grttng back is", event);
-      const listing = new Listing({
-        name: req.body.name,
-        guestCount: req.body.guestCount,
-        payAndWait: req.body.hasPayAndWait,
-        // images: req.body.endTime, // use multer and cloudinary to store images
-        bookingPrice: req.body.bookingPrice,
-        disclaimers:
-          req.body.disclaimers +
-          " You must be able to receive a verfication code to the phone number on your account at the door in order to redeem your reservation.",
-        quantity: req.body.unlimitedQuantity ? 0 : req.body.quantity,
-        unlimitedQuantity: req.body.unlimitedQuantity
-        // bookingDeadline: only allow this to be set to up to 6 hours before event's startTime.
-      });
 
-      listing.host = host;
-      listing.event = event;
+        listing.host = host ? host : vippyPromoter.venue;
+        listing.event = event;
 
-      event.currentListings = [...event.currentListings, listing._id];
+        event.currentListings = [...event.currentListings, listing._id];
 
-      return Promise.all([listing.save(), event.save()]);
-    })
-    .then(function([listing]) {
-      res.json({ listing: listing._toJSON() });
-    })
-    .catch(next);
-});
+        return Promise.all([listing.save(), event.save()]);
+      })
+      .then(function([listing]) {
+        res.json({ listing: listing._toJSON() });
+      })
+      .catch(next);
+  }
+);
 
+// get listing by id, no authentication required,
+// if authenticated Venue Host, or Promoter, it will return
+// listing object with the currentReservations
 router.get("/:listing", auth.optional, auth.setUserOrHost, function(
   req,
   res,
@@ -89,23 +116,9 @@ router.get("/:listing", auth.optional, auth.setUserOrHost, function(
   res.json({ listing: currentListing._toJSON() });
 });
 
-// router.get("/", auth.optional, auth.setUserOrHost, function(req, res, next) {
-//   let query = {};
-//   let limit = 20;
-//   let offset = 0;
-//
-//   if (req.auth && req.vippyHost) {
-//     Listing.res.json({
-//       listings: listings.map((listing, index) =>
-//         listing.toJSONForHost(req.vippyHost)
-//       )
-//     });
-//   } // if we don't have a vippyHost but do have req.auth, then we have a regular user req.vippyUser , take a look at middleware auth.setUserOrHost
-//   res.json({
-//     listings: listings
-//   });
-// });
-
+// get all listings, no authentication required,
+// if authenticated Venue Host, or Promoter, it will return
+// listing objects with the currentReservations
 router.get("/", auth.optional, auth.setUserOrHost, function(req, res, next) {
   let query = {}; // query based on date and other stuff later on
   let limit = 20;
