@@ -9,6 +9,10 @@ var User = require("../../models/User");
 // passports
 var { userPassport } = require("./../../config/passport");
 
+// utils
+var isBodyMissingProps = require("./../../utils/isBodyMissingProps");
+
+// creating a new user, anyone can become a user, no admin middleware needed here
 router.post("/", function(req, res, next) {
   const requiredProps = [
     "email",
@@ -17,18 +21,13 @@ router.post("/", function(req, res, next) {
     "phonenumber",
     "verification_code"
   ];
-  let isBodyMissingProperty = false;
 
-  const propErrors = requiredProps.reduce((errors, prop) => {
-    if (!req.body[prop]) {
-      isBodyMissingProperty = true;
-      errors[prop] = { message: `is required` };
-    }
-    return errors;
-  }, {});
-
-  if (isBodyMissingProperty) {
-    return next({
+  const { hasMissingProps, propErrors } = isBodyMissingProps(
+    requiredProps,
+    req.body
+  );
+  if (hasMissingProps) {
+    next({
       name: "ValidationError",
       errors: propErrors
     });
