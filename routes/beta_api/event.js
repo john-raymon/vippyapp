@@ -5,7 +5,8 @@ var request = require("request");
 
 // auth middleware
 var auth = require("../authMiddleware");
-var { hostMiddleware } = require("./host");
+var hostOrPromoterMiddleware = auth.hostOrPromoterMiddleware(false);
+var hostOnlyMiddleware = auth.hostOrPromoterMiddleware(true);
 
 // models
 var Event = require("../../models/Event");
@@ -34,7 +35,14 @@ router.param("event", function(req, res, next, eventId) {
     .exec()
     .then(function(event) {
       if (!event) {
-        return res.sendStatus(404);
+        return res.status(404).json({
+          success: false,
+          errors: {
+            promoter: {
+              message: `An event with the id ${eventId} does not exist`
+            }
+          }
+        });
       }
       req.vippyEvent = event;
       next();
@@ -42,48 +50,99 @@ router.param("event", function(req, res, next, eventId) {
     .catch(next);
 });
 
-router.post("/", auth.required, hostMiddleware, function(req, res, next) {
-  console.log("the req.body at POST event/ endpoint is", req.body);
-  const { vippyHost: host } = req;
-  if (!host.hasStripeId()) {
-    return res.status(404).json({
-      error: "You must connect to Stripe before creating an Event"
+// Create Events endpoint, only Venue Host and authenticated Promoter's belonging to Venue Host, with proper permissions can Create Events
+router.post(
+  "/",
+  auth.required,
+  hostOrPromoterMiddleware,
+  auth.onlyPromoterWithCreateUpdateEventsPermissions,
+  function(req, res, next) {
+    console.log("the req.body at POST event/ endpoint is", req.body);
+    const { vippyPromoter, vippyHost: host } = req;
+
+    if (!(host ? host.hasStripeId() : vippyPromoter.venue.hasStripeId())) {
+      return res.status(404).json({
+        success: false,
+        error: "You must connect to Stripe before creating an Event"
+      });
+    }
+
+    const event = new Event({
+      name: req.body.name,
+      host: host ? host : vippyPromoter.venue,
+      date: req.body.eventDate || req.body.date,
+      startTime: req.body.startTime,
+      endTime: req.body.endTime,
+      address: {
+        street: req.body.street,
+        city: req.body.city,
+        state: req.body.state,
+        zip: req.body.zip || req.body.zipcode
+      }
+    });
+
+    return event
+      .save()
+      .then(savedEvent => {
+        res.json({ event: savedEvent.toJSONFor() });
+      })
+      .catch(next);
+  }
+);
+
+router.patch(
+  "/:event",
+  auth.required,
+  hostOrPromoterMiddleware,
+  auth.onlyPromoterWithCreateUpdateEventsPermissions,
+  function(req, res, next) {
+    const { vippyEvent, vippyHost, vippyPromoter } = req;
+
+    // if host , check if event belongs to host/
+    // if promoter, check if event belongs to promoter's host
+    if (
+      (vippyHost && !vippyHost._id.equals(vippyEvent.host._id)) ||
+      (vippyPromoter && vippyPromoter.venueId !== vippyEvent.host.venueId)
+    ) {
+      return next({
+        name: "UnauthorizedError",
+        message:
+          "You must the venue host of this event or promoter of the venue host of this event with proper permissions to make changes to this event"
+      });
+    }
+
+    const whitelistedKeys = ["name"];
+    // changes to date, starttime, endtime, address are not allowed to be updated after creation of event,
+    // a deactivation of this event along with a new event with the
+    // preferred date, startTime, endtime, address will need to take be created
+    // /event/deactivate endpoint will be used for deactivating since sideeffects
+    // and constrains will need be to checked, deactivating connected listings, refunding reservations.
+    // multiple event cancellations will result in suspension of host , set event cap in env variables
+
+    for (let prop in req.body) {
+      if (whitelistedKeys.includes(prop)) {
+        vippyEvent[prop] = req.body[prop];
+      }
+    }
+
+    vippyEvent.save().then(event => {
+      res.json({
+        success: true,
+        event: event.toJSONFor(vippyHost || vippyPromoter.venue)
+      });
     });
   }
-  const event = new Event({
-    name: req.body.name,
-    host: host,
-    date: req.body.eventDate || req.body.date,
-    startTime: req.body.startTime,
-    endTime: req.body.endTime,
-    address: {
-      street: req.body.street,
-      city: req.body.city,
-      state: req.body.state,
-      zip: req.body.zip || req.body.zipcode
-    }
-  });
+);
 
-  return event
-    .save()
-    .then(savedEvent => {
-      res.json({ event: savedEvent.toJSONFor() });
-    })
-    .catch(next);
-});
-
+// get specific event by id, no authentication required,
+// if authenticated Venue Host, or Promoter, it will return
+// the event object with the event's listing's currentReservations
 router.get("/:event", auth.optional, auth.setUserOrHost, function(
   req,
   res,
   next
 ) {
-  const {
-    auth = { sub: "" },
-    vippyEvent,
-    vippyHost,
-    vippyUser,
-    vippyPromoter
-  } = req;
+  const { vippyEvent, vippyHost, vippyUser, vippyPromoter } = req;
   if (
     (vippyHost && vippyHost._id.equals(vippyEvent.host._id)) ||
     (vippyPromoter && vippyPromoter.venueId === vippyEvent.host.venueId)
@@ -97,6 +156,9 @@ router.get("/:event", auth.optional, auth.setUserOrHost, function(
   });
 });
 
+// get all events, no authentication required,
+// if authenticated Venue Host, or Promoter, it will return
+// event objects with the each event's listing's currentReservations
 router.get("/", auth.optional, auth.setUserOrHost, function(req, res, next) {
   let query = {}; // query based on date and other stuff later on
   let limit = 20;
@@ -136,8 +198,8 @@ router.get("/", auth.optional, auth.setUserOrHost, function(req, res, next) {
       res.json({
         events: events.map(event => {
           console.log("this is an event in the map", event);
-          if (req.auth && req.vippyHost) {
-            return event.toJSONFor(req.vippyHost);
+          if (req.vippyHost || req.vippyPromoter) {
+            return event.toJSONFor(req.vippyHost || req.vippyPromoter.venue);
           }
           return event.toJSONFor(); // designed to be adjusted to return auth versions of events and listing objects within event
         }),
