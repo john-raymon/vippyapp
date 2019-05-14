@@ -50,15 +50,17 @@ router.post(
         req.vippyPromoter.venueId !== req.vippyReservation.host.venueId)
     ) {
       return res.status(403).json({
+        success: false,
         error:
           "You must be the venue host, promoter, or the customer on this reservation"
       });
     }
 
     if (req.vippyReservation.redeemed) {
-      return res
-        .status(404)
-        .json({ error: "This reservation has already been redeemed" });
+      return res.status(404).json({
+        success: false,
+        error: "This reservation has already been redeemed"
+      });
     }
     // if query.param "code" is set then attempt to verify the phone number with the code,
     // if verified succesfully mark the reservation as redeemed.
@@ -79,7 +81,10 @@ router.post(
         },
         function(err, response, body) {
           if (!body.success || err) {
-            return res.status(400).json({ error: body.message });
+            return res.status(400).json({
+              success: false,
+              error: body.message
+            });
           }
           // if verified successfully then set reservation as redeemed, res with success.
           // also create transfer for Host
@@ -146,17 +151,30 @@ router.post(
 
 router.post("/", auth.required, auth.setUserOrHost, function(req, res, next) {
   if (!req.vippyUser) {
-    return res.status(403).json({ error: "You must be an Authenticated host" });
+    return res.status(403).json({
+      success: false,
+      error: "You must be logged in as a user or a venue"
+    });
   }
   if (!req.query.listing) {
     return res.status(400).json({
-      error: "You must provide a Listing ID to create a reservation for"
+      success: false,
+      errors: {
+        listing: {
+          message: "You must provide a Listing ID to create a reservation for"
+        }
+      }
     });
   }
   if (!mongoose.Types.ObjectId.isValid(req.query.listing)) {
-    return res
-      .status(400)
-      .json({ error: "You must provide a valid Listing ID" });
+    return res.status(400).json({
+      success: false,
+      errors: {
+        listing: {
+          message: "You must provide a valid Listing ID"
+        }
+      }
+    });
   }
   if (!req.body.cardToken && process.env.NODE_ENV === "production") {
     return res.status(400).json({ error: "A Stripe card token is required" });
@@ -165,13 +183,20 @@ router.post("/", auth.required, auth.setUserOrHost, function(req, res, next) {
     .then(function(listing) {
       if (!listing) {
         return res.status(400).json({
+          success: false,
           error:
             "We could not locate a Listing with the ID of" + req.query.listing
         });
       }
       if (!listing.unlimitedQuantity && listing.quantity === 0) {
         return res.status(400).json({
-          error: "This listing is sold out, we apologize for the inconvenience."
+          success: false,
+          errors: {
+            listing: {
+              message:
+                "This listing is sold out, we apologize for the inconvenience."
+            }
+          }
         });
       }
       const reservationConfirmationCode = crypto
@@ -212,6 +237,9 @@ router.post("/", auth.required, auth.setUserOrHost, function(req, res, next) {
               ...listing.currentReservations,
               reservation._id
             ];
+            listing.quantity = listing.unlimitedQuantity
+              ? listing.quantity
+              : listing.quantity - 1;
             return Promise.all([
               reservation.save().then(r => r.populate("host").execPopulate()),
               listing.save().then(listing =>
@@ -223,7 +251,12 @@ router.post("/", auth.required, auth.setUserOrHost, function(req, res, next) {
             ]);
           }
           res.json({
-            error: "We could not charge your card, please try again"
+            success: false,
+            errors: {
+              listing: {
+                message: "We could not charge your card please try again later"
+              }
+            }
           });
         });
     })
@@ -243,9 +276,10 @@ router.post("/", auth.required, auth.setUserOrHost, function(req, res, next) {
 
 router.get("/", auth.required, auth.setUserOrHost, function(req, res, next) {
   if (!req.vippyUser && !req.vippyHost && !req.vippyPromoter) {
-    return res
-      .status(403)
-      .json({ error: "You must be an Authenticated host or user" });
+    return res.status(403).json({
+      success: "false",
+      error: "You must be an Authenticated host or user"
+    });
   }
   let query = {},
     limit = 20,
