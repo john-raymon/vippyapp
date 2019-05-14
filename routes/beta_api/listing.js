@@ -10,6 +10,8 @@ var cloudinary = require("cloudinary");
 var auth = require("../authMiddleware");
 var hostOrPromoterOnlyMiddleware = auth.hostOrPromoterMiddleware(false);
 var hostOnlyMiddleware = auth.hostOrPromoterMiddleware(true);
+
+// cloudinary parser middleware
 var imageParser = require("./../../config/multer-cloudinary");
 
 // models
