@@ -9,7 +9,14 @@ var ListingSchema = mongoose.Schema({
     { type: mongoose.Schema.Types.ObjectId, ref: "Reservation" }
   ],
   payAndWait: Boolean,
-  images: [String],
+  images: {
+    type: Map,
+    of: {
+      url: String,
+      public_id: { type: String, index: true }
+    },
+    default: new Map()
+  },
   bookingPrice: Number,
   disclaimers: String,
   quantity: Number,
