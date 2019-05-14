@@ -3,10 +3,16 @@ var router = express.Router();
 var querystring = require("querystring");
 var request = require("request");
 
+// cloudinary
+var cloudinary = require("cloudinary");
+
 // auth middleware
 var auth = require("../authMiddleware");
 var hostOrPromoterMiddleware = auth.hostOrPromoterMiddleware(false);
 var hostOnlyMiddleware = auth.hostOrPromoterMiddleware(true);
+
+// cloudinary parser middleware
+var imageParser = require("./../../config/multer-cloudinary");
 
 // models
 var Event = require("../../models/Event");
@@ -84,7 +90,36 @@ router.post(
     return event
       .save()
       .then(savedEvent => {
-        res.json({ success: true, event: savedEvent.toJSONFor() });
+        req.vippyEvent = savedEvent;
+        return next();
+        //  res.json({ success: true, event: savedEvent.toJSONFor() });
+      })
+      .catch(next);
+  },
+  imageParser.array("eventImages", 10),
+  function(req, res, next) {
+    const { vippyEvent } = req;
+    if (req.files) {
+      const newImages = req.files.reduce((newImagesObj, file) => {
+        newImagesObj[file.public_id] = {
+          url: file.url,
+          public_id: file.public_id
+        };
+        return newImagesObj;
+      }, {});
+      let eventImagesObject = {}; // convert Map to JS Object
+      for (let [key, value] of vippyEvent.images) {
+        eventImagesObject[key] = value;
+      }
+      vippyEvent.images = { ...eventImagesObject, ...newImages };
+    }
+    vippyEvent
+      .save()
+      .then(event => {
+        return res.json({
+          success: true,
+          event: event.toJSONFor()
+        });
       })
       .catch(next);
   }
@@ -95,7 +130,8 @@ router.patch(
   auth.required,
   hostOrPromoterMiddleware,
   auth.onlyPromoterWithCreateUpdateEventsPermissions,
-  function(req, res, next) {
+  imageParser.array("eventImages", 10),
+  async function(req, res, next) {
     const { vippyEvent, vippyHost, vippyPromoter } = req;
 
     // if host , check if event belongs to host/
@@ -122,6 +158,48 @@ router.patch(
     for (let prop in req.body) {
       if (whitelistedKeys.includes(prop)) {
         vippyEvent[prop] = req.body[prop];
+      }
+    }
+
+    let newImages = {};
+    if (req.files) {
+      newImages = req.files.reduce((newImagesObj, file) => {
+        newImagesObj[file.public_id] = {
+          url: file.url,
+          public_id: file.public_id
+        };
+        return newImagesObj;
+      }, {});
+      let eventImagesObject = {}; // convert Map to JS Object
+      for (let [key, value] of vippyEvent.images) {
+        eventImagesObject[key] = value;
+      }
+      vippyEvent.images = { ...eventImagesObject, ...newImages };
+    }
+
+    if (req.body.imageIdsToRemove) {
+      for (let publicId of req.body.imageIdsToRemove) {
+        try {
+          const destroyImage = await new Promise((resolve, reject) => {
+            cloudinary.v2.uploader.destroy(publicId, {}, (error, result) => {
+              if (error) reject(error);
+              resolve(result);
+            });
+          });
+          if (destroyImage) {
+            let eventImagesObject = {}; // convert Map to JS Object
+            for (let [key, value] of vippyEvent.images) {
+              eventImagesObject[key] = value;
+            }
+            vippyEvent.images = {
+              ...eventImagesObject,
+              ...newImages,
+              [publicId]: undefined
+            };
+          }
+        } catch (err) {
+          next(err);
+        }
       }
     }
 
