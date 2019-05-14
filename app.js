@@ -19,6 +19,31 @@ if (isProduction) {
 } else {
   mongoose.connect("mongodb://localhost/vippy_dev", { useNewUrlParser: true });
   mongoose.set("debug", true);
+  function logResponseBody(req, res, next) {
+    console.log("The request body --->", req.body);
+    var oldWrite = res.write,
+      oldEnd = res.end;
+
+    var chunks = [];
+
+    res.write = function(chunk) {
+      chunks.push(chunk);
+
+      oldWrite.apply(res, arguments);
+    };
+
+    res.end = function(chunk) {
+      if (chunk) chunks.push(chunk);
+
+      var body = Buffer.concat(chunks).toString("utf8");
+      console.log(req.path, body);
+
+      oldEnd.apply(res, arguments);
+    };
+    next();
+  }
+
+  app.use(logResponseBody);
 }
 
 require("./models/User");
@@ -51,9 +76,11 @@ app.use(function(err, req, res, next) {
   }
   res.status(err.status || 500);
   res.json({
+    success: false,
     errors: {
-      message: err.message || "",
-      error: err
+      [err.name || "error"]: {
+        message: err.message || ""
+      }
     }
   });
 });
