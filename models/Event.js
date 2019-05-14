@@ -19,6 +19,14 @@ var EventSchema = mongoose.Schema({
     city: { type: String, required: [true, "is required"] },
     state: { type: String, required: [true, "is required"] },
     zip: { type: String, required: [true, "is required"] }
+  },
+  images: {
+    type: Map,
+    of: {
+      url: String,
+      public_id: { type: String, index: true }
+    },
+    default: new Map()
   }
 });
 
@@ -32,6 +40,7 @@ EventSchema.methods.toJSONFor = function(user) {
     startTime,
     endTime,
     address,
+    images,
     _id: id
   } = this;
 
@@ -46,7 +55,8 @@ EventSchema.methods.toJSONFor = function(user) {
     date,
     startTime,
     endTime,
-    address
+    address,
+    images
   };
 };
 
@@ -59,6 +69,7 @@ EventSchema.methods.toNestedJSON = function() {
     startTime,
     endTime,
     address,
+    images,
     _id: id
   } = this;
 
@@ -69,7 +80,8 @@ EventSchema.methods.toNestedJSON = function() {
     date,
     startTime,
     endTime,
-    address
+    address,
+    images
   };
 };
 
