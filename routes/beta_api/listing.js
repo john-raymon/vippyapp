@@ -239,7 +239,7 @@ router.post(
     listing
       .save()
       .then(listing => {
-        return res.json({ listing: listing._toJSON() });
+        return res.json({ success: true, listing: listing._toJSON() });
       })
       .catch(next);
   }
@@ -256,9 +256,12 @@ router.get("/:listing", auth.optional, auth.setUserOrHost, function(
   const { auth = { sub: "" }, listing: currentListing } = req;
   console.log("The type of authenticated user is a", auth.sub);
   if (auth.sub === "host") {
-    res.json({ listing: currentListing.toJSONForHost(req.vippyHost) });
+    res.json({
+      success: true,
+      listing: currentListing.toJSONForHost(req.vippyHost)
+    });
   }
-  res.json({ listing: currentListing._toJSON() });
+  res.json({ success: true, listing: currentListing._toJSON() });
 });
 
 // get all listings, no authentication required,
@@ -293,6 +296,7 @@ router.get("/", auth.optional, auth.setUserOrHost, function(req, res, next) {
   ])
     .then(([listings, listingCount]) => {
       res.json({
+        success: true,
         listings: listings.map(listing => {
           if (req.auth && req.vippyHost) {
             return listing.toJSONForHost(req.vippyHost);

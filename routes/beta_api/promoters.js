@@ -71,7 +71,7 @@ router.post("/", auth.required, hostMiddleware, function(req, res, next) {
   return promoter
     .save()
     .then(savedPromoter => {
-      res.json({ promoter: savedPromoter.getPromoter() });
+      res.json({ success: true, promoter: savedPromoter.getPromoter() });
     })
     .catch(next);
 });
@@ -104,6 +104,7 @@ router.post("/login", function(req, res, next) {
     }
 
     return res.json({
+      success: true,
       promoter: promoter.getAuthPromoter()
     });
   })(req, res, next);
@@ -119,6 +120,7 @@ router.get("/", auth.required, hostMiddleware, function(req, res, next) {
   ])
     .then(([promoters, promoterCount]) => {
       return res.json({
+        success: true,
         promoters: promoters.map(promoter => promoter.getPromoter()),
         promoterCount
       });
@@ -205,7 +207,7 @@ router.patch("/:promoterUsername", auth.required, hostMiddleware, function(
       return promoter.save();
     })
     .then(function(promoter) {
-      return res.json({ promoter: promoter.getPromoter() });
+      return res.json({ success: true, promoter: promoter.getPromoter() });
     })
     .catch(next);
 });

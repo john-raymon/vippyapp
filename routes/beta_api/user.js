@@ -117,7 +117,7 @@ router.post("/", function(req, res, next) {
       user.setPassword(req.body.password);
 
       return user.save().then(function() {
-        return res.json({ user: user.toAuthJSON() });
+        return res.json({ success: true, user: user.toAuthJSON() });
       });
     })
     .catch(next);
@@ -136,7 +136,7 @@ router.post("/login", function(req, res, next) {
     if (!user) {
       return res.status(422).json(data);
     }
-    return res.json({ user: user.toAuthJSON() });
+    return res.json({ success: true, user: user.toAuthJSON() });
   })(req, res, next);
 });
 

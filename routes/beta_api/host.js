@@ -30,6 +30,7 @@ router.get("/", auth.optional, auth.setUserOrHost, function(req, res, next) {
   ])
     .then(([hosts, hostCount]) => {
       return res.json({
+        success: true,
         venues: hosts.map(host => host.toProfileJSON()),
         venueCount: hostCount
       });
@@ -73,7 +74,7 @@ router.patch("/", auth.required, hostMiddleware, function(req, res, next) {
   req.vippyHost
     .save()
     .then(function(host) {
-      return res.json({ venueHost: host._toJSON() });
+      return res.json({ success: true, venueHost: host._toJSON() });
     })
     .catch(next);
 });
@@ -112,7 +113,7 @@ router.post("/", function(req, res, next) {
   host
     .save()
     .then(function() {
-      return res.json({ venueHost: host.toAuthJSON() });
+      return res.json({ success: true, venueHost: host.toAuthJSON() });
     })
     .catch(next);
 });
@@ -147,6 +148,7 @@ router.post("/login", function(req, res, next) {
     ])
       .then(([promoters, promoterCount]) => {
         return res.json({
+          success: true,
           host: {
             ...host.toAuthJSON(),
             promoters: promoters.map(promoter => promoter.getPromoter()),
@@ -208,6 +210,7 @@ router.post("/stripe/auth", auth.required, hostMiddleware, function(
           console.log("Starting Express flow:", parameters);
 
           res.json({
+            success: true,
             res:
               config.stripe.authorizeUri +
               "?" +
@@ -263,7 +266,7 @@ router.get("/stripe/token", auth.optional, function(req, res, next) {
             .then(host => {
               host.createRandomKey().then(key => {
                 return res.json({
-                  success: "true",
+                  success: true,
                   host: host._toJSON()
                 }); // when front-end is implemented instead redirect to dashboard, that will handle for stripe being authenticated already
               });

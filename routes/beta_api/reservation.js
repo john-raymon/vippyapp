@@ -268,6 +268,7 @@ router.post("/", auth.required, auth.setUserOrHost, function(req, res, next) {
         listing: listing._toJSON()
       };
       res.json({
+        success: true,
         reservation: reservationResponse
       });
     })
@@ -318,6 +319,7 @@ router.get("/", auth.required, auth.setUserOrHost, function(req, res, next) {
   ])
     .then(([reservations, reservationsCount]) => {
       res.json({
+        success: true,
         reservations: reservations.map(r => {
           return {
             ...r.toProfileJSON(),

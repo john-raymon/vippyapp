@@ -84,7 +84,7 @@ router.post(
     return event
       .save()
       .then(savedEvent => {
-        res.json({ event: savedEvent.toJSONFor() });
+        res.json({ success: true, event: savedEvent.toJSONFor() });
       })
       .catch(next);
   }
@@ -148,10 +148,12 @@ router.get("/:event", auth.optional, auth.setUserOrHost, function(
     (vippyPromoter && vippyPromoter.venueId === vippyEvent.host.venueId)
   ) {
     return res.json({
+      success: true,
       event: vippyEvent.toJSONFor(vippyHost || vippyPromoter.venue)
     });
   }
   return res.json({
+    success: true,
     event: vippyEvent.toJSONFor(vippyUser)
   });
 });
@@ -196,6 +198,7 @@ router.get("/", auth.optional, auth.setUserOrHost, function(req, res, next) {
   ])
     .then(([events, eventsCount]) => {
       res.json({
+        success: true,
         events: events.map(event => {
           console.log("this is an event in the map", event);
           if (req.vippyHost || req.vippyPromoter) {
