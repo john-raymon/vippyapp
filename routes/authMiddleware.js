@@ -30,6 +30,15 @@ var auth = {
     credentialsRequired: false,
     getToken: getToken
   }),
+  onlyUser: function(req, res, next) {
+    if (!req.vippyUser) {
+      return next({
+        name: "UnauthorizedError",
+        message: "You are not logged in"
+      });
+    }
+    next();
+  },
   setUserOrHost: function(req, res, next) {
     const currentAuth = req.auth;
     if (!currentAuth) return next(); // doesn't return if no authentication. skips to next middleware on stack
