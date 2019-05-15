@@ -19,9 +19,13 @@ var Reservation = require("../../models/Reservation");
 // config
 var config = require("./../../config");
 
+// code to send to user
 router.get("/send-onboard-code", function(req, res, next) {
   if (!req.query.phonenumber) {
-    return res.status(400).json({ error: "A phone number is required" });
+    return res.status(400).json({
+      success: true,
+      error: "A phone number is required"
+    });
   }
   const userNum = req.query.phonenumber;
   // validate phonenumber
