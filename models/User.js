@@ -13,12 +13,19 @@ const UserSchema = new mongoose.Schema(
       required: [true, "is required"],
       match: [/\S+@\S+\.\S+/, "is invalid"]
     },
+    isEmailConfirmed: {
+      type: Boolean,
+      default: false
+    },
     fullname: {
       type: String,
       lowercase: true,
       required: [true, "is required"]
     },
-    zipcode: { type: String, required: [true, "is required"] },
+    zipcode: {
+      type: String,
+      required: [true, "is required"]
+    },
     phonenumber: {
       type: Number,
       unique: true,
@@ -32,10 +39,15 @@ const UserSchema = new mongoose.Schema(
       ],
       required: [true, "is required"]
     },
+    image: {
+      url: String,
+      public_id: { type: String, index: true }
+    },
     countryCallingCode: String,
     phoneVerified: { type: Boolean, default: false },
     salt: String,
-    hash: String
+    hash: String,
+    suspended: { type: Boolean, default: false }
   },
   { timestamps: true }
 );
@@ -80,6 +92,7 @@ UserSchema.methods.toAuthJSON = function() {
     fullname: this.fullname,
     phonenumber: this.phonenumber,
     type: "user",
+    image: this.image,
     token: this.generateJWT()
   };
 };
@@ -90,6 +103,7 @@ UserSchema.methods.toProfileJSON = function() {
     phonenumber: this.phonenumber,
     zipcode: this.zipcode,
     fullname: this.fullname,
+    image: this.image,
     type: "user"
   };
 };
