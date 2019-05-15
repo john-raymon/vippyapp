@@ -33,6 +33,13 @@ router.use(function(err, req, res, next) {
     });
   }
 
+  if (err.name === "BadRequestError") {
+    return res.status(400).json({
+      success: false,
+      error: err.message
+    });
+  }
+
   next(err);
 });
 
