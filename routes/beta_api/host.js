@@ -4,9 +4,15 @@ var querystring = require("querystring");
 var request = require("request");
 var stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
+// cloudinary
+var cloudinary = require("cloudinary");
+
 // auth middleware
 var auth = require("../authMiddleware");
 var hostMiddleware = auth.hostOrPromoterMiddleware(true); // true to set doNotAllowPromoter
+
+// cloudinary parser middleware
+var imageParser = require("./../../config/multer-cloudinary");
 
 // models
 var Host = require("../../models/Host");
@@ -39,84 +45,147 @@ router.get("/", auth.optional, auth.setUserOrHost, function(req, res, next) {
 });
 
 // Update hosts
-router.patch("/", auth.required, hostMiddleware, function(req, res, next) {
-  const whitelistedKeys = [
-    "venueName",
-    "fullname",
-    "phonenumber",
-    "email",
-    "password"
-  ];
-  for (let prop in req.body) {
-    if (
-      whitelistedKeys.includes(prop) &&
-      prop !== "email" &&
-      prop !== "password"
-    ) {
-      req.vippyHost[prop] = req.body[prop];
+router.patch(
+  "/",
+  auth.required,
+  hostMiddleware,
+  imageParser.array("venueImages", 10),
+  async function(req, res, next) {
+    const whitelistedKeys = ["venueName", "fullname", "phonenumber"];
+    for (let prop in req.body) {
+      if (whitelistedKeys.includes(prop)) {
+        req.vippyHost[prop] = req.body[prop];
+      }
     }
-    continue;
-  }
 
-  if (req.body.email && req.vippyHost.email !== req.body.email) {
-    // send security confirmation email below
-    // and reset isEmailConfirmed
-    // ...
-    req.vippyHost.email = req.body.email;
-    req.vippyHost.isEmailConfirmed = false;
-  }
+    if (req.body.email && req.vippyHost.email !== req.body.email) {
+      // send security confirmation email below
+      // and reset isEmailConfirmed
+      // ...
+      req.vippyHost.email = req.body.email;
+      req.vippyHost.isEmailConfirmed = false;
+    }
 
-  if (req.body.password) {
-    // send security email to host
-    req.vippyHost.setPassword(req.body.password);
-  }
+    if (req.body.password) {
+      // send security email to host
+      req.vippyHost.setPassword(req.body.password);
+    }
 
-  req.vippyHost
-    .save()
-    .then(function(host) {
-      return res.json({ success: true, venueHost: host._toJSON() });
-    })
-    .catch(next);
-});
+    let newImages = {};
+    if (req.files) {
+      newImages = req.files.reduce((newImagesObj, file) => {
+        newImagesObj[file.public_id] = {
+          url: file.url,
+          public_id: file.public_id
+        };
+        return newImagesObj;
+      }, {});
+      let hostImagesObject = {}; // convert Map to JS Object
+      for (let [key, value] of req.vippyHost.images) {
+        hostImagesObject[key] = value;
+      }
+      req.vippyHost.images = { ...hostImagesObject, ...newImages };
+    }
+
+    if (req.body.imageIdsToRemove) {
+      for (let publicId of req.body.imageIdsToRemove) {
+        try {
+          const destroyImage = await new Promise((resolve, reject) => {
+            cloudinary.v2.uploader.destroy(publicId, {}, (error, result) => {
+              if (error) reject(error);
+              resolve(result);
+            });
+          });
+          if (destroyImage) {
+            let hostImagesObject = {}; // convert Map to JS Object
+            for (let [key, value] of req.vippyHost.images) {
+              hostImagesObject[key] = value;
+            }
+            req.vippyHost.images = {
+              ...hostImagesObject,
+              ...newImages,
+              [publicId]: undefined
+            };
+          }
+        } catch (err) {
+          next(err);
+        }
+      }
+    }
+
+    req.vippyHost
+      .save()
+      .then(function(host) {
+        return res.json({ success: true, venueHost: host._toJSON() });
+      })
+      .catch(next);
+  }
+);
 
 // Create a new Host - add admin middleware to prevent Host from being created without permission
-router.post("/", function(req, res, next) {
-  const requiredProps = [
-    "email",
-    "venueName",
-    "phonenumber",
-    "fullname",
-    "zipcode"
-  ];
-  const { hasMissingProps, propErrors } = isBodyMissingProps(
-    requiredProps,
-    req.body
-  );
-  if (hasMissingProps) {
-    next({
-      name: "ValidationError",
-      errors: propErrors
+router.post(
+  "/",
+  function(req, res, next) {
+    const requiredProps = [
+      "email",
+      "venueName",
+      "phonenumber",
+      "fullname",
+      "zipcode"
+    ];
+    const { hasMissingProps, propErrors } = isBodyMissingProps(
+      requiredProps,
+      req.body
+    );
+    if (hasMissingProps) {
+      next({
+        name: "ValidationError",
+        errors: propErrors
+      });
+    }
+
+    const host = new Host({
+      email: req.body.email,
+      fullname: req.body.fullname,
+      zipcode: req.body.zipcode,
+      phonenumber: req.body.phonenumber,
+      venueId: createId(5),
+      venueName: req.body.venueName
     });
+
+    host.setPassword(req.body.password);
+
+    req.vippyHost = host;
+    next();
+  },
+  imageParser.array("venueImages", 10),
+  function(req, res, next) {
+    const { vippyHost } = req;
+    if (req.files) {
+      const newImages = req.files.reduce((newImagesObj, file) => {
+        newImagesObj[file.public_id] = {
+          url: file.url,
+          public_id: file.public_id
+        };
+        return newImagesObj;
+      }, {});
+      let hostImagesObject = {}; // convert Map to JS Object
+      for (let [key, value] of vippyHost.images) {
+        hostImagesObject[key] = value;
+      }
+      vippyHost.images = { ...hostImagesObject, ...newImages };
+    }
+    vippyHost
+      .save()
+      .then(function() {
+        return res.json({
+          success: true,
+          venueHost: host.toAuthJSON()
+        });
+      })
+      .catch(next);
   }
-
-  const host = new Host({
-    email: req.body.email,
-    fullname: req.body.fullname,
-    zipcode: req.body.zipcode,
-    phonenumber: req.body.phonenumber,
-    venueId: createId(5),
-    venueName: req.body.venueName
-  });
-
-  host.setPassword(req.body.password);
-
-  host
-    .save()
-    .then(function() {
-      return res.json({ success: true, venueHost: host.toAuthJSON() });
-    })
-    .catch(next);
-});
+);
 
 // login and authenticate Host
 router.post("/login", function(req, res, next) {
