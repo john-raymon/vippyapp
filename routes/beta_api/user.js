@@ -174,10 +174,15 @@ router.patch(
       req.vippyUser.email = req.body.email;
       req.vippyUser.isEmailConfirmed = false;
     }
-
     if (req.body.phonenumber) {
       try {
-        const parsedPhoneNumber = parsePhoneNumber(userNum, "US");
+        if (!req.body.verificationCode) {
+          throw {
+            name: "ValidationError",
+            message: "Your verification code is required"
+          };
+        }
+        const parsedPhoneNumber = parsePhoneNumber(req.body.phonenumber, "US");
         if (!parsedPhoneNumber.isValid()) {
           throw {
             name: "BadRequestError",
@@ -229,7 +234,7 @@ router.patch(
             message: "The phone number may be invalid"
           });
         }
-        next(error);
+        return next(error);
       }
     }
 
@@ -259,7 +264,7 @@ router.patch(
         }
         req.vippyUser.image = newImage;
       } catch (err) {
-        next(err);
+        return next(err);
       }
     }
 
