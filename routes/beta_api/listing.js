@@ -6,6 +6,9 @@ var request = require("request");
 // cloudinary
 var cloudinary = require("cloudinary");
 
+// zipcodes library
+var zipcodes = require("zipcodes");
+
 // auth middleware
 var auth = require("../authMiddleware");
 var hostOrPromoterOnlyMiddleware = auth.hostOrPromoterMiddleware(false);
@@ -269,10 +272,15 @@ router.get("/:listing", auth.optional, auth.setUserOrHost, function(
 // get all listings, no authentication required,
 // if authenticated Venue Host, or Promoter, it will return
 // listing objects with the currentReservations
-router.get("/", auth.optional, auth.setUserOrHost, function(req, res, next) {
+router.get("/", auth.optional, auth.setUserOrHost, async function(
+  req,
+  res,
+  next
+) {
   let query = {}; // query based on date and other stuff later on
   let limit = 20;
   let offset = 0;
+  let nearByZips = [];
 
   if (typeof req.body.limit !== "undefined") {
     limit = req.body.limit;
@@ -281,6 +289,52 @@ router.get("/", auth.optional, auth.setUserOrHost, function(req, res, next) {
   if (typeof req.body.offset !== "undefined") {
     offset = req.body.offset;
   }
+
+  if (req.query.zip || req.query.noZip) {
+    try {
+      const getNearByZips = function(zip = 11218) {
+        return zipcodes.radius(zip, 50); // 50 miles by default
+      };
+      let zipcode = req.query.zip || "";
+      if (req.query.noZip) {
+        let lat = req.query.lat;
+        let lng = req.query.lng;
+        // make request to Stripe tokenUri with access code received from Stripe to receive Host's stripe_user_id
+        zipcode = await new Promise((resolve, reject) => {
+          request.get(
+            {
+              url: `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&location_type=ROOFTOP&result_type=street_address&key=${
+                process.env.GOOGLE_GEOCODING_API_KEY
+              }`,
+              method: "GET",
+              json: true
+            },
+            (err, response, body) => {
+              if (body.status === "OK") {
+                resolve(
+                  body.results[0].address_components.find(element => {
+                    return element.types.includes("postal_code");
+                  }).long_name
+                );
+              }
+              if (err) {
+                reject(err);
+              }
+            }
+          );
+        });
+      }
+      nearByZips = [zipcode, ...getNearByZips(zipcode)];
+    } catch (err) {
+      return next(err);
+    }
+  }
+
+  //   make request to google api to reverse geocode the latlng into a precise address (street_address), only the address for which Google has location information accurate down to street address precision (ROOFTOP).
+  // 	check response, if status “OK” , proceed to get postal code from response
+  // 	use zipcode library to receive array of zipcodes with default mile radius 30 miles (later on allow mile radius to change)
+  // 	query events
+  // let results = await Event.find({'address.zip' : { '$in': [ '11217', '32825' ] } })
 
   Promise.all([
     Listing.find(query)
@@ -294,10 +348,53 @@ router.get("/", auth.optional, auth.setUserOrHost, function(req, res, next) {
         }
       })
       .exec(),
-    Listing.count(query).exec()
+    Listing.count(query).exec(),
+    Event.find({ "address.zip": { $in: nearByZips } })
+      .populate({
+        path: "currentListings",
+        populate: [
+          {
+            path: "host"
+          },
+          {
+            path: "event",
+            populate: {
+              path: "host"
+            }
+          }
+        ]
+      })
+      .populate("host")
+      .exec(),
+    Event.count({ "address.zip": { $in: nearByZips } })
+      .populate("currentListings")
+      .exec()
   ])
-    .then(([listings, listingCount]) => {
-      res.json({
+    .then(([listings, listingCount, nearByEvents, nearByEventsCount]) => {
+      if (req.query.zip || req.query.noZip) {
+        return res.json({
+          success: true,
+          nearByEvents: nearByEvents.map(event => {
+            console.log("this is an event in the map", event);
+            return event.toJSONFor(); // designed to be adjusted to return auth versions of events and listing objects within event
+          }),
+          nearByEventsCount: nearByEventsCount,
+          nearByListings: nearByEvents
+            .reduce((accListings, event) => {
+              return [...accListings, ...event.currentListings];
+            }, [])
+            .map(listing => {
+              return listing.toJSONForHost();
+            }),
+          nearByListingsCount: nearByEvents.reduce(
+            (accListingsCount, event) => {
+              return accListingsCount + event.currentListings.length;
+            },
+            0
+          )
+        });
+      }
+      return res.json({
         success: true,
         listings: listings.map(listing => {
           if (req.auth && req.vippyHost) {
