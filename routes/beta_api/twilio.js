@@ -54,7 +54,8 @@ router.get("/send-onboard-code", function(req, res, next) {
         .then(function(count) {
           if (count > 0) {
             return res.status(422).json({
-              error: "This phone number is already linked to an account"
+              success: false,
+              error: "This phone number is already linked to a user account"
             });
           }
           // the phonenumber is free to register so continue
