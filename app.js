@@ -71,6 +71,7 @@ app.use(function(req, res, next) {
 
 // error handler
 app.use(function(err, req, res, next) {
+  console.log("the error in error handler is", err);
   if (isProduction) {
     console.log(err.stack); // print stacktrace
   }
