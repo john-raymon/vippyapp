@@ -12,6 +12,12 @@ router.use("/phone", require("./twilio"));
 // error handler; catches ValidationErrors, UnauthorizedErrors, otherwise calls next errorhandler in stack
 router.use(function(err, req, res, next) {
   if (err.name === "ValidationError") {
+    if (typeof err.message === "string") {
+      return res.status(422).json({
+        success: false,
+        message: err.message
+      });
+    }
     return res.status(422).json({
       success: false,
       errors: Object.keys(err.errors).reduce(function(errors, key) {
