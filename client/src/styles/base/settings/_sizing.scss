@@ -1,0 +1,23 @@
+/*
+Spacing
+*/
+@function spacing($units) {
+  @return $units * 0.25rem;
+}
+
+$spacer: (
+  '0': spacing(0),
+  'xs': spacing(1),
+  's': spacing(2),
+  'm': spacing(4),
+  'l': spacing(8),
+  'xl': spacing(16),
+);
+
+
+// Footer Height
+$footerHeight: 0rem;
+
+// Logo width/height units to use
+$logoWidthUnits: 20;
+$logoWidthDesktopUnits: 40;
