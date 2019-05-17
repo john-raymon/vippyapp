@@ -1,0 +1,12 @@
+@import "settings/sizing";
+
+.mainContainer {
+  min-height: calc(100vh - #{$footerHeight});
+}
+
+.logoContainer {
+  width: spacing($logoWidthUnits);
+  @media screen and (min-width: 30em) {
+    width: spacing($logoWidthDesktopUnits);
+  }
+}
