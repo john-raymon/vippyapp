@@ -4742,18 +4742,22 @@ code,
   Dim element on hover by adding the dim class.
 
 */
-.dim {
+.dim,
+.drawerContainer__list li {
   opacity: 1;
   transition: opacity 0.15s ease-in;
 }
 
 .dim:hover,
-.dim:focus {
+.drawerContainer__list li:hover,
+.dim:focus,
+.drawerContainer__list li:focus {
   opacity: 0.5;
   transition: opacity 0.15s ease-in;
 }
 
-.dim:active {
+.dim:active,
+.drawerContainer__list li:active {
   opacity: 0.8;
   transition: opacity 0.15s ease-out;
 }
@@ -9359,7 +9363,6 @@ main {
  * `article` contexts in Chrome, Firefox, and Safari.
  */
 h1 {
-  font-size: 2em;
   margin: 0.67em 0;
 }
 
@@ -9385,8 +9388,6 @@ hr {
 pre {
   font-family: monospace, monospace;
   /* 1 */
-  font-size: 1em;
-  /* 2 */
 }
 
 /* Text-level semantics
@@ -9428,8 +9429,6 @@ kbd,
 samp {
   font-family: monospace, monospace;
   /* 1 */
-  font-size: 1em;
-  /* 2 */
 }
 
 /**
@@ -9663,6 +9662,18 @@ template {
   display: none;
 }
 
+.f8 {
+  font-size: 0.1rem;
+}
+
+.lh-extra {
+  line-height: 1.5rem;
+}
+
+.tracked-1 {
+  letter-spacing: 0.3rem;
+}
+
 @font-face {
   font-family: "michromaregular";
   src: url("../fonts/michroma-webfont.eot");
@@ -9675,6 +9686,10 @@ template {
   font-style: normal;
 }
 
+.michroma {
+  font-family: "michromaregular";
+}
+
 /*
 Spacing
 */
@@ -9682,11 +9697,18 @@ Spacing
   min-height: calc(100vh - 0rem);
 }
 
+.drawerContainer__list li {
+  cursor: pointer;
+}
+
 .logoContainer {
   width: 5rem;
 }
-@media screen and (min-width: 30em) {
+@media screen and (min-width: 60em) {
   .logoContainer {
     width: 10rem;
   }
+}
+.logoContainer--noQuery {
+  width: 5rem;
 }
