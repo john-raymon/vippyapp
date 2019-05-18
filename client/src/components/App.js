@@ -22,7 +22,8 @@ const theme = createMuiTheme({
     },
     secondary: {
       main: "#333333"
-    }
+    },
+    divider: "#5d5d5d"
   }
 });
 
