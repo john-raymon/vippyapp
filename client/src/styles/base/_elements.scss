@@ -4,9 +4,21 @@
   min-height: calc(100vh - #{$footerHeight});
 }
 
+.drawerContainer {
+  &__list {
+    li {
+      @extend .dim;
+      cursor: pointer;
+    }
+  }
+}
+
 .logoContainer {
   width: spacing($logoWidthUnits);
-  @media screen and (min-width: 30em) {
+  @media screen and (min-width: 60em) {
     width: spacing($logoWidthDesktopUnits);
+  }
+  &--noQuery {
+    width: spacing($logoWidthUnits);
   }
 }
