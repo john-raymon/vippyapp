@@ -1,9 +1,17 @@
-/* Tachyons lib atomic styles */
+/* reset stylesheet */
 @import
-'tachyons/css/tachyons';
-/* Base stylesheets */
+'base/reset';
+
+/* all base stylesheets */
 @import
-'base/reset',
 'base/utils',
 'base/typography',
 'base/elements';
+
+/* Tachyons lib atomic styles */
+@import
+'tachyons/css/tachyons';
+
+/* import all component stylesheets */
+@import
+'components/homepage';
