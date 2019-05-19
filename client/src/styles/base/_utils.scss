@@ -1,5 +1,34 @@
 .f8 {
-  font-size: 0.1rem;
+  font-size: 0.50rem;
+}
+
+.f9 {
+  font-size: 0.30rem;
+}
+
+.relative-important {
+  position: relative !important;
+}
+
+.f8-important {
+  font-size: 0.60rem !important;
+}
+
+.f9 {
+  font-size: 0.30rem !important;
+}
+
+.f7-important {
+  font-size: 0.85rem !important;
+}
+
+
+.lh-small {
+  line-height: 0.5rem;
+}
+
+.mt2-important {
+  margin-top: 0.5rem !important;
 }
 
 .lh-extra {
@@ -10,4 +39,40 @@
   letter-spacing: 0.3rem;
 }
 
+.tracked-05 {
+  letter-spacing: 0.275rem;
+}
+
 // colors
+.bg-vippy {
+  background: #0D0C0C;
+  // border: 0.2rem solid #b6c36b;
+}
+
+.b--white-important {
+  border: white !important;
+}
+
+.white-important {
+  color: white !important;
+}
+
+
+// overrides
+.MuiInputLabel-shrink-45 {
+    transform: translate(0%, 3.5px) scale(0.75) !important;
+    transform-origin: top right !important;
+}
+
+.MuiInputLabel-root-38 {
+  transform-origin: top right !important;
+}
+
+.MuiInput-underline-60:before {
+  border-bottom: 1px solid white !important;
+}
+
+.MuiInput-underline-60:after {
+    border-bottom: 2px solid white !important;
+    pointer-events: none;
+}
