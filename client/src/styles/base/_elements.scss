@@ -22,3 +22,20 @@
     width: spacing($logoWidthUnits);
   }
 }
+
+.vippyButton {
+  @extend .relative, .dim, .pointer;
+  border-radius: 1rem;
+  padding: 0.16rem 0.11rem;
+  height: 2.45rem;
+  min-width: 192px;
+  width: 100%;
+  background: url("../images/vippy-button-background.png");
+  background-position: 10% 76%;
+  background-repeat: no-repeat;
+  background-size: 300%;
+  &__innerColorBlock {
+    @extend .absolute--fill, .bg-black, .h-100, .w-100;
+    border-radius: 1rem;
+  }
+}
