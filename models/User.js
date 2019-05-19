@@ -90,6 +90,7 @@ UserSchema.methods.toAuthJSON = function() {
     username: this.email,
     zipcode: this.zipcode,
     fullname: this.fullname,
+    firstname: this.fullname.split(" ")[0],
     phonenumber: this.phonenumber,
     type: "user",
     image: this.image,
@@ -100,6 +101,7 @@ UserSchema.methods.toAuthJSON = function() {
 UserSchema.methods.toProfileJSON = function() {
   return {
     id: this.id,
+    firstname: this.fullname.split(" ")[0],
     phonenumber: this.phonenumber,
     zipcode: this.zipcode,
     fullname: this.fullname,
