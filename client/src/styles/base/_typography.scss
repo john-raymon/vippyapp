@@ -16,3 +16,7 @@ $michromaregular : 'michromaregular';
 .michroma {
   font-family: $michromaregular;
 }
+
+.michroma-important {
+  font-family: $michromaregular !important;
+}
