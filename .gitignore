@@ -64,3 +64,4 @@ typings/
 *.css.map
 *.sass.map
 *.scss.map
+*.css
