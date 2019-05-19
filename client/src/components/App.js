@@ -63,7 +63,7 @@ class App extends Component {
     const { auth } = this.props;
     return (
       <MuiThemeProvider theme={theme}>
-        <div className="bg-black ph4">
+        <div className="bg-vippy ph4">
           <Header auth={auth} logout={logout} />
           <main className="mainContainer">
             <Switch>
