@@ -1,6 +1,6 @@
 import React, { Component } from "react";
-import { connect } from "react-redux";
-import { Route } from "react-router";
+// import { connect } from "react-redux";
+// import { Route } from "react-router";
 
 // mui components
 import TextField from "@material-ui/core/TextField";
@@ -10,19 +10,15 @@ import BrowseContainer from "./BrowseContainer";
 import heroBackgroundImage from "./../images/vippy-hero-background.png";
 
 class Homepage extends Component {
-  constructor(props) {
-    super(props);
-  }
-
   render() {
     return (
-      <div className="homepage flex flex-column mw8 center justify-center">
+      <div className="homepage flex flex-column mw8 center justify-center pb4">
         <div className="homepage__hero flex flex-column">
-          <p className="michroma f7 f6-l tracked b lh-extra white-90 pt1 w-90 w-80-m w-60-l nb4 nb3-m nb2-l z-1">
+          <p className="michroma f6 tracked b lh-extra white-90 pt1 w-90 w-80-m w-60-l nb4 nb3-m nb2-l z-1 pl1">
             Book the best vip spot for your night out.
           </p>
           <div className="mw6">
-            <img src={heroBackgroundImage} width="100%" />
+            <img src={heroBackgroundImage} width="100%" alt="Hero Background" />
           </div>
           <div className="flex flex-column w-auto mw5 self-end nt5 mr2">
             <div className="w-auto">
@@ -30,7 +26,7 @@ class Homepage extends Component {
                 label="search by zipcode"
                 placeholder="ex. 55333"
                 margin="normal"
-                fullWidth="true"
+                fullWidth={true}
                 inputProps={{
                   className: "b--white tr w-70 f8-important tracked"
                 }}
@@ -55,7 +51,7 @@ class Homepage extends Component {
             </div>
           </div>
         </div>
-        <div className="homepage__browseContainerWrapper mt4">
+        <div className="homepage__browseContainerWrapper mt4 flex flex-column">
           <BrowseContainer />
         </div>
       </div>
