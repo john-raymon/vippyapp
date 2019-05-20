@@ -4,6 +4,7 @@ import { Route } from "react-router";
 
 // mui components
 import TextField from "@material-ui/core/TextField";
+import BrowseContainer from "./BrowseContainer";
 
 // images
 import heroBackgroundImage from "./../images/vippy-hero-background.png";
@@ -15,9 +16,9 @@ class Homepage extends Component {
 
   render() {
     return (
-      <div className="homepage flex mw8 center justify-center">
+      <div className="homepage flex flex-column mw8 center justify-center">
         <div className="homepage__hero flex flex-column">
-          <p className="michroma f7 f6-l tracked-1 b lh-extra white-90 pt1 w-90 w-80-m w-60-l nb4 nb3-m nb2-l z-1">
+          <p className="michroma f7 f6-l tracked b lh-extra white-90 pt1 w-90 w-80-m w-60-l nb4 nb3-m nb2-l z-1">
             Book the best vip spot for your night out.
           </p>
           <div className="mw6">
@@ -53,6 +54,9 @@ class Homepage extends Component {
               </div>
             </div>
           </div>
+        </div>
+        <div className="homepage__browseContainerWrapper mt4">
+          <BrowseContainer />
         </div>
       </div>
     );
