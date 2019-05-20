@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Route, Link, Redirect, Switch } from "react-router";
+import { Route, Redirect, Switch } from "react-router";
 import { createMuiTheme, MuiThemeProvider } from "@material-ui/core/styles";
 
 // Route Components
