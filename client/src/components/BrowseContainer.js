@@ -22,7 +22,7 @@ class BrowseContainer extends Component {
     super(props);
     this.handleTabChange = this.handleTabChange.bind(this);
     this.state = {
-      currentTab: "vips/packages",
+      currentTab: "events",
       tabs: ["events", "vips/packages"],
       listings: [],
       events: []
@@ -52,6 +52,7 @@ class BrowseContainer extends Component {
         <div className="mv2 w-100 pb1 ph1">
           <Card className="flex flex-column">
             <CardHeader
+              className="bg-mid-gray"
               avatar={
                 <Avatar aria-label="Recipe" className="">
                   R
@@ -64,24 +65,29 @@ class BrowseContainer extends Component {
               }
               title="DJ KHALED AT TIER - Ladies in Free"
               subheader="June 1, 2019"
-              titleTypographyProps={{ className: "f7-important" }}
-              subheaderTypographyProps={{ className: "f7-important" }}
+              titleTypographyProps={{
+                className: "f7-important white-important"
+              }}
+              subheaderTypographyProps={{
+                className: "f7-important white-wash-important"
+              }}
             />
-            <CardContent component="div">
+            <CardContent
+              component="div"
+              className="bg-mid-gray padding-top-025-important"
+            >
               <div className="flex flex-row flex-wrap flex-grow-0 mw6">
                 <div className="flex flex-column flex-grow-1 self-start mb2">
-                  <div className="flex items-center flex-grow-1 justify-between ph1 mb1">
-                    <p className="michroma f8 b tracked black ttu">
-                      Start Time:
-                    </p>
-                    <p className="michroma f8 mid-gray ml1">8:00pm</p>
+                  <div className="flex items-center flex-grow-1 justify-between ph1 mb1 white">
+                    <p className="michroma f8 b tracked ttu">Start Time:</p>
+                    <p className="michroma f8 ml1">8:00pm</p>
                   </div>
-                  <div className="flex items-center flex-grow-1 justify-between ph1 mb1">
-                    <p className="michroma f8 b tracked ttu black">End Time:</p>
-                    <p className="michroma mid-gray f8 ml1">2:00am</p>
+                  <div className="flex items-center flex-grow-1 justify-between ph1 mb1 white">
+                    <p className="michroma f8 b tracked ttu">End Time:</p>
+                    <p className="michroma f8 ml1">2:00am</p>
                   </div>
                 </div>
-                <div className="flex flex-column mid-gray flex-grow-1 self-end tr">
+                <div className="flex flex-column white flex-grow-1 self-end tr">
                   <p className="michroma f8 b tracked ttu mb1">
                     Night Club Name
                   </p>
@@ -131,6 +137,7 @@ class BrowseContainer extends Component {
           <div className="mv2 w-100 pb1 ph1">
             <Card className="flex flex-column">
               <CardHeader
+                className="bg-mid-gray"
                 action={
                   <IconButton>
                     <MoreVertIcon />
@@ -138,46 +145,44 @@ class BrowseContainer extends Component {
                 }
                 title="Package - Pop Up"
                 subheader="at Club Tier on June 1, 2019"
-                titleTypographyProps={{ className: "f7-important" }}
-                subheaderTypographyProps={{ className: "f7-important" }}
+                titleTypographyProps={{
+                  className: "f7-important white-important"
+                }}
+                subheaderTypographyProps={{
+                  className: "f7-important white-wash-important"
+                }}
               />
               <CardContent
                 component="div"
-                className="padding-top-025-important"
+                className="padding-top-025-important bg-mid-gray"
               >
                 <div className="flex flex-row flex-wrap flex-grow-0">
                   <div className="flex pv1 pr1">
-                    <div className="flex items-center justify-between ph1 mb1">
-                      <p className="michroma f8 b tracked ttu black">
-                        Guest Count:
-                      </p>
-                      <p className="michroma f8 ml1 mid-gray">8</p>
+                    <div className="flex items-center justify-between ph1 mb1 white">
+                      <p className="michroma f8 b tracked ttu">Guest Count:</p>
+                      <p className="michroma f8 ml1">8</p>
                     </div>
                   </div>
                   <div className="flex pv1 pr1">
-                    <div className="flex items-center justify-between ph1 mb1">
-                      <p className="michroma f8 b tracked ttu black">Price:</p>
-                      <p className="michroma f8 ml1 mid-gray">$400.00</p>
+                    <div className="flex items-center justify-between ph1 mb1 white">
+                      <p className="michroma f8 b tracked ttu">Price:</p>
+                      <p className="michroma f8 ml1">$400.00</p>
                     </div>
                   </div>
-                  <p className="flex w-100 pa1 michroma f8 b tracked ttu dark-gray mt1 mb2 bg-black-10">
+                  <p className="flex w-100 pa1 michroma f8 b tracked ttu light-gray mt1 mb2 bg-black-10">
                     this package's event info :
                   </p>
                   <div className="flex flex-column flex-grow-1 self-start mb2">
-                    <div className="flex items-center flex-grow-1 justify-between ph1 mb1">
-                      <p className="michroma f8 b tracked ttu black">
-                        Start Time:
-                      </p>
-                      <p className="michroma f8 ml1 mid-gray">8:00pm</p>
+                    <div className="flex items-center flex-grow-1 justify-between ph1 mb1 white">
+                      <p className="michroma f8 b tracked ttu">Start Time:</p>
+                      <p className="michroma f8 ml1">8:00pm</p>
                     </div>
-                    <div className="flex items-center flex-grow-1 justify-between ph1 mb1">
-                      <p className="michroma f8 b tracked ttu black">
-                        End Time:
-                      </p>
-                      <p className="michroma f8 ml1 mid-gray">2:00am</p>
+                    <div className="flex items-center flex-grow-1 justify-between ph1 mb1 white">
+                      <p className="michroma f8 b tracked ttu">End Time:</p>
+                      <p className="michroma f8 ml1">2:00am</p>
                     </div>
                   </div>
-                  <div className="flex flex-column mid-gray flex-grow-1 self-end tr">
+                  <div className="flex flex-column white flex-grow-1 self-end tr">
                     <p className="michroma f8 b tracked ttu mb1">
                       Night Club Name
                     </p>
@@ -186,7 +191,7 @@ class BrowseContainer extends Component {
                       Orlando, Fl 32825
                     </p>
                   </div>
-                  <p className="flex w-100 flex-row items-center michroma f8 b tracked ttu black pointer">
+                  <p className="flex w-100 flex-row items-center michroma f8 b tracked ttu white pointer">
                     <span className="w0 pr1">
                       <img src={eventIcon} width="100%" height="auto" />
                     </span>
