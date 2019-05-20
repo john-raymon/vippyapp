@@ -24,7 +24,7 @@ class Homepage extends Component {
           <div className="mw6">
             <img src={heroBackgroundImage} width="100%" />
           </div>
-          <div className="flex flex-column w-auto mw5 self-end nt5">
+          <div className="flex flex-column w-auto mw5 self-end nt5 mr2">
             <div className="w-auto">
               <TextField
                 label="search by zipcode"
