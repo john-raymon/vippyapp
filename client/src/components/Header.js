@@ -38,11 +38,7 @@ class Header extends Component {
   }
 
   render() {
-    const {
-      classes,
-      isAuth = false,
-      user = { firstname: "John" }
-    } = this.props;
+    const { classes, isAuth = true, user = { firstname: "John" } } = this.props;
     return (
       <header className="pv4 mw8 center">
         <Drawer
