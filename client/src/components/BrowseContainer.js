@@ -2,6 +2,12 @@ import React, { Component } from "react";
 
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
+import Card from "@material-ui/core/Card";
+import CardHeader from "@material-ui/core/CardHeader";
+import Avatar from "@material-ui/core/Avatar";
+import IconButton from "@material-ui/core/IconButton";
+import MoreVertIcon from "@material-ui/icons/MoreVert";
+import CardMedia from "@material-ui/core/CardMedia";
 
 class BrowseContainer extends Component {
   constructor(props) {
@@ -26,7 +32,7 @@ class BrowseContainer extends Component {
     const { currentTab, tabs, listings, events } = this.state;
 
     const eventsTabContent = () => {
-      if (events.length === 0) {
+      if (events.length !== 0) {
         return (
           <p>
             Looks like we havn't expanded to your area yet. Advocate for it by
@@ -34,6 +40,31 @@ class BrowseContainer extends Component {
           </p>
         );
       }
+      return (
+        <Card className="flex flex-column">
+          <CardHeader
+            avatar={
+              <Avatar aria-label="Recipe" className="">
+                R
+              </Avatar>
+            }
+            action={
+              <IconButton>
+                <MoreVertIcon />
+              </IconButton>
+            }
+            title="DJ KHALED AT TIER - Ladies in Free"
+            subheader="June 1, 2019"
+            titleTypographyProps={{ className: "f8-important" }}
+            subheaderTypographyProps={{ className: "f8-important" }}
+          />
+          <CardMedia
+            className="aspect-ratio aspect-ratio--16x9"
+            image="https://res.cloudinary.com/vippy/image/upload/v1558318218/vippy-event-images/nightclub-image_l5lcmq.jpg"
+            title="Club Tier"
+          />
+        </Card>
+      );
     };
 
     const listingsTabContent = () => {
@@ -58,12 +89,13 @@ class BrowseContainer extends Component {
           indicatorColor="primary"
           textColorInherit="primary"
           textColor="primary"
+          className="mb3"
         >
           {tabs.map(tab => {
             return (
               <Tab
                 value={tab}
-                className="white-important ttu tr michroma-important f8-important right-0 relative-important lh-small tracked-05"
+                className="white-important ttu tl michroma-important f8-important lh-small tracked"
                 label={tab}
                 textColorInherit="primary"
                 textColor="primary"
