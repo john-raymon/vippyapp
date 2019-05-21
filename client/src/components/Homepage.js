@@ -5,6 +5,9 @@ import { connect } from "react-redux";
 // redux actions
 import { queryByZipCode } from "./../state/actions/queriedActions";
 
+// selectors
+import getEventsAndListings from "./../state/selectors/getEventsAndListings";
+
 // mui components
 import TextField from "@material-ui/core/TextField";
 import BrowseContainer from "./BrowseContainer";
@@ -117,9 +120,13 @@ class Homepage extends Component {
   }
 }
 
-const mapStateToProps = ({
-  queried: { isLoading, eventsCount, events, listingsCount, listings, error }
-}) => {
+const mapStateToProps = state => {
+  const {
+    queried: { isLoading, error }
+  } = state;
+  const { events, listings, eventsCount, listingsCount } = getEventsAndListings(
+    state
+  );
   return {
     isBrowserLoading: isLoading,
     eventsCount,
