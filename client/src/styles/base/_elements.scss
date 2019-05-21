@@ -24,7 +24,8 @@
 }
 
 .vippyButton {
-  @extend .relative, .dim, .pointer;
+  @extend .relative, .pointer;
+  border: none;
   border-radius: 1rem;
   padding: 0.14rem 0.11rem;
   height: 2.45rem;
