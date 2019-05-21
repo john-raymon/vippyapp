@@ -1,6 +1,9 @@
 import React, { Component } from "react";
-// import { connect } from "react-redux";
+import { connect } from "react-redux";
 // import { Route } from "react-router";
+
+// redux actions
+import { queryByZipCode } from "./../state/actions/queriedActions";
 
 // mui components
 import TextField from "@material-ui/core/TextField";
@@ -10,7 +13,48 @@ import BrowseContainer from "./BrowseContainer";
 import heroBackgroundImage from "./../images/vippy-hero-background.png";
 
 class Homepage extends Component {
+  constructor(props) {
+    super(props);
+    this.handleZipCodeChange = this.handleZipCodeChange.bind(this);
+    this.onZipCodeSearchClick = this.onZipCodeSearchClick.bind(this);
+    this.validateSearch = this.validateSearch.bind(this);
+    this.state = {
+      zipCode: ""
+    };
+  }
+
+  handleZipCodeChange(e) {
+    this.setState({
+      [e.target.name]: e.target.value
+    });
+  }
+
+  validateSearch(zipCode = "") {
+    let isError = false;
+    if (!zipCode.trim()) {
+      isError = true;
+    }
+    return isError;
+  }
+
+  onZipCodeSearchClick() {
+    // validate
+    const isError = this.validateSearch(this.state.zipCode);
+    if (!isError) {
+      this.props.queryByZipCode(this.state.zipCode);
+    }
+  }
+
   render() {
+    const { zipCode } = this.state;
+    const {
+      isBrowserLoading,
+      eventsCount,
+      events,
+      listingsCount,
+      listings,
+      browseError
+    } = this.props;
     return (
       <div className="homepage flex flex-column mw8 center justify-center pb4">
         <div className="homepage__hero flex flex-column">
@@ -23,7 +67,11 @@ class Homepage extends Component {
           <div className="flex flex-column w-auto mw5 self-end nt5 mr2">
             <div className="w-auto">
               <TextField
-                label="search by zipcode"
+                onChange={this.handleZipCodeChange}
+                value={zipCode}
+                name="zipCode"
+                type="search"
+                label="search by zip code"
                 placeholder="ex. 55333"
                 margin="normal"
                 fullWidth={true}
@@ -40,23 +88,49 @@ class Homepage extends Component {
                 }}
               />
             </div>
-            <div className="vippyButton mt2 mw1 self-end">
+            <button
+              className="vippyButton mt2 mw1 self-end"
+              onClick={this.onZipCodeSearchClick}
+            >
               <div className="vippyButton__innerColorBlock">
                 <div className="w-100 h-100 flex flex-column justify-center">
-                  <p className="michroma f8 f7-l tracked-1 b ttu lh-extra white-90 center pb1">
+                  <p className="michroma f8 tracked-1 b ttu lh-extra white-90 center pb1">
                     search
                   </p>
                 </div>
               </div>
-            </div>
+            </button>
           </div>
         </div>
-        <div className="homepage__browseContainerWrapper mt4 flex flex-column">
-          <BrowseContainer />
+        <div className="homepage__browseContainerWrapper mt5 flex flex-column">
+          <BrowseContainer
+            isLoading={isBrowserLoading}
+            events={events}
+            listings={listings}
+            eventsCount={eventsCount}
+            listingsCount={listingsCount}
+            error={browseError}
+          />
         </div>
       </div>
     );
   }
 }
 
-export default Homepage;
+const mapStateToProps = ({
+  queried: { isLoading, eventsCount, events, listingsCount, listings, error }
+}) => {
+  return {
+    isBrowserLoading: isLoading,
+    eventsCount,
+    events,
+    listingsCount,
+    listings,
+    browseError: error
+  };
+};
+
+export default connect(
+  mapStateToProps,
+  { queryByZipCode }
+)(Homepage);
