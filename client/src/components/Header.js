@@ -39,7 +39,7 @@ class Header extends Component {
   render() {
     const { classes, isAuth = true, user = { firstname: "John" } } = this.props;
     return (
-      <header className="pv4 mw8 center">
+      <header className="pv1 ph3 mw8 center sticky top-0 z-999 bg-vippy">
         <Drawer
           classes={{ paper: classes.paper }}
           open={this.state.drawerState}
@@ -107,8 +107,8 @@ class Header extends Component {
             </div>
           </div>
         </Drawer>
-        <div className="flex flex-row items-center w-100 justify-between mt4">
-          <div className="logoContainer">
+        <div className="flex flex-row items-center w-100 justify-between mt4 mb2">
+          <div className="logoContainer ml1">
             <VippyLogo />
           </div>
           <IconButton color="primary" onClick={() => this.toggleDrawer(true)}>
