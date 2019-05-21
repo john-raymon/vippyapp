@@ -1,6 +1,6 @@
 import { createSelector } from "reselect";
 import _get from "lodash/get";
-import format from "date-fns/format";
+import { formatEventDate } from "./../../utils/dateFns";
 
 export default createSelector(
   state => {
@@ -21,7 +21,7 @@ export default createSelector(
       events &&
       events.map(event => ({
         ...event,
-        date: format(new Date(event.date), "MMMM MM, YYYY, [on a] dddd")
+        date: formatEventDate(event.date)
       }));
     return {
       ...state,
