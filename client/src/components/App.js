@@ -63,9 +63,9 @@ class App extends Component {
     const { auth } = this.props;
     return (
       <MuiThemeProvider theme={theme}>
-        <div className="bg-vippy ph3">
+        <div className="bg-vippy">
           <Header auth={auth} logout={logout} />
-          <main className="mainContainer">
+          <main className="mainContainer ph3">
             <Switch>
               <Route path="/" exact component={Homepage} />
               <Route path="/*" component={NotFound} />
