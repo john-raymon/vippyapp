@@ -7,6 +7,7 @@ class Agent {
   constructor(token = null, API_ROOT = "/") {
     this.token = token;
     this.API_ROOT = API_ROOT;
+    this._tokenPlugin = this._tokenPlugin.bind(this);
   }
 
   _tokenPlugin(req) {
