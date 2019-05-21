@@ -65,7 +65,7 @@ class BrowseContainer extends Component {
         );
       }
       return events.map((event, key) => {
-        return <EventCard key={key} />;
+        return <EventCard key={key} eventDate={event.date} />;
       });
       // return (
       //   <div className="mv2 w-100 pb1 ph1">
