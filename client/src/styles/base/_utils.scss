@@ -27,6 +27,11 @@
   font-size: 0.85rem !important;
 }
 
+// offset nav
+.top-from-nav {
+  top: 94px;
+}
+
 
 .lh-small {
   line-height: 0.5rem;
@@ -56,9 +61,15 @@
 .bg-vippy-1 {
   background: #1d1d1d;
 }
+
 .b--white-important {
   border: white !important;
 }
+
+.bg-vippy-2 {
+  background: #373737;
+}
+
 
 .white-important {
   color: white !important;
@@ -98,4 +109,16 @@
 .MuiInput-underline-60:after {
     border-bottom: 2px solid white !important;
     pointer-events: none;
+}
+
+.MuiPaper-root-128 {
+    background-color: #2C2C2C !important;
+}
+
+.MuiInputBase-input-79 {
+  padding-bottom: 1rem !important;
+}
+
+html,body {
+  @extend .bg-vippy;
 }
