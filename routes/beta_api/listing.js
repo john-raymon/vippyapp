@@ -2,6 +2,9 @@ var express = require("express");
 var router = express.Router();
 var querystring = require("querystring");
 var request = require("request");
+const differenceInMinutes = require("date-fns/difference_in_minutes");
+const isFuture = require("date-fns/is_future");
+const isValid = require("date-fns/is_valid");
 
 // cloudinary
 var cloudinary = require("cloudinary");
@@ -54,7 +57,8 @@ router.patch(
   imageParser.array("listingImages", 5),
   async function(req, res, next) {
     const { vippyHost, vippyPromoter, listing: vippyListing } = req;
-    console.log("got here");
+    const { event } = vippyListing;
+
     // if host , check if event belongs to host/
     // if promoter, check if event belongs to promoter's host
     if (
@@ -68,11 +72,24 @@ router.patch(
       });
     }
 
-    const whitelistedKeys = [
-      "quantity",
-      "unlimitedQuantity",
-      "bookingDeadline"
-    ];
+    if (vippyListing.cancelled) {
+      return next({
+        name: "BadRequestError",
+        message:
+          "You can no longer update listings for this event as the event has been cancelled."
+      });
+    }
+
+    // check if event startTime is still in the future
+    if (!isFuture(new Date(event.startTime))) {
+      return next({
+        name: "BadRequestError",
+        message:
+          "You can no longer update listings for this event as it's start time has passed"
+      });
+    }
+
+    const whitelistedKeys = ["quantity", "unlimitedQuantity"];
     // changes to date, starttime, endtime, address are not allowed to be updated after creation of event,
     // a deactivation of this event along with a new event with the
     // preferred date, startTime, endtime, address will need to take be created
@@ -84,6 +101,40 @@ router.patch(
       if (whitelistedKeys.includes(prop)) {
         vippyListing[prop] = req.body[prop];
       }
+    }
+
+    // check if bookingDeadline falls atleast 30 minutes before event.endTime
+    if (req.body.bookingDeadline) {
+      if (!isValid(new Date(req.body.bookingDeadline))) {
+        return next({
+          name: "ValidationError",
+          message:
+            "The booking deadline your entired is not a valid date and time"
+        });
+      }
+
+      if (!isFuture(new Date(req.body.bookingDeadline))) {
+        return next({
+          name: "ValidationError",
+          message:
+            "Your booking deadline is set in the past, it can only be in the future."
+        });
+      }
+
+      const minutesDif = differenceInMinutes(
+        new Date(event.endTime),
+        new Date(req.body.bookingDeadline)
+      );
+
+      if (minutesDif < 30) {
+        return next({
+          name: "ValidationError",
+          message:
+            "The booking deadline must be at least 30 minutes before the event's end time."
+        });
+      }
+
+      vippyListing.bookingDeadline = req.body.bookingDeadline;
     }
 
     let newImages = {};
@@ -196,6 +247,57 @@ router.post(
               "You must the venue host of this event or promoter of the venue host of this event with proper permissions to create listings for this event"
           });
         }
+
+        // check if event startTime is still in the future
+        // return res.json({ date: event.startTime })
+        if (!isFuture(new Date(event.startTime))) {
+          return next({
+            name: "BadRequestError",
+            message:
+              "You can no longer create a listing for this event as it's start time has passed"
+          });
+        }
+
+        if (event.cancelled) {
+          return next({
+            name: "BadRequestError",
+            message:
+              "You can no longer create listings for this event as it has been cancelled."
+          });
+        }
+
+        // check if bookingDeadline falls atleast 30 minutes before event.endTime
+        if (req.body.bookingDeadline) {
+          if (!isValid(new Date(req.body.bookingDeadline))) {
+            return next({
+              name: "ValidationError",
+              message: "The booking deadline is not a valid date and time"
+            });
+          }
+          if (!isFuture(new Date(req.body.bookingDeadline))) {
+            return next({
+              name: "ValidationError",
+              message:
+                "Your booking deadline is set in the past, it can only be in the future."
+            });
+          }
+
+          const minutesDif = differenceInMinutes(
+            new Date(event.endTime),
+            new Date(req.body.bookingDeadline)
+          );
+
+          if (minutesDif < 30) {
+            // sure you can book 40 minutes before the event ends 🤷
+            return next({
+              name: "ValidationError",
+              message:
+                "The booking deadline must be at least 30 minutes before your event's end time." +
+                minutesDif
+            });
+          }
+        }
+
         // proceed to create listing
         const listing = new Listing({
           name: req.body.name,
@@ -207,8 +309,8 @@ router.post(
             req.body.disclaimers +
             " You must be able to receive a verfication code to the phone number on your account at the door in order to redeem your reservation.",
           quantity: req.body.unlimitedQuantity ? 0 : req.body.quantity,
-          unlimitedQuantity: req.body.unlimitedQuantity
-          // bookingDeadline: only allow this to be set to up to 6 hours before event's startTime.
+          unlimitedQuantity: req.body.unlimitedQuantity,
+          bookingDeadline: req.body.bookingDeadline
         });
 
         listing.host = host ? host : vippyPromoter.venue;
