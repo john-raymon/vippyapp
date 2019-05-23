@@ -110,8 +110,8 @@ class Homepage extends Component {
             isLoading={isBrowserLoading}
             events={events}
             listings={listings}
-            eventsCount={eventsCount}
-            listingsCount={listingsCount}
+            eventsCount={events ? events.length : 0}
+            listingsCount={listings ? listings.length : 0}
             error={browseError}
           />
         </div>
@@ -124,15 +124,20 @@ const mapStateToProps = state => {
   const {
     queried: { isLoading, error }
   } = state;
-  const { events, listings, eventsCount, listingsCount } = getEventsAndListings(
-    state
-  );
+  const {
+    eventsById,
+    events,
+    listings,
+    eventsCount,
+    listingsCount
+  } = getEventsAndListings(state);
   return {
     isBrowserLoading: isLoading,
     eventsCount,
     events,
     listingsCount,
     listings,
+    eventsById,
     browseError: error
   };
 };
