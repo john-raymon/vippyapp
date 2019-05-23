@@ -12,7 +12,11 @@ var ReservSchema = mongoose.Schema(
     stripeTransferId: String,
     paidToHost: { type: Boolean, default: false },
     redeemed: { type: Boolean, default: false },
-    paid: { type: Boolean, default: false }
+    paid: { type: Boolean, default: false },
+    cancelled: {
+      type: Boolean,
+      default: false
+    }
     // receipts/transactions: [ { type: mongoose.Schema.Types.ObjectId, ref: "Receipt"}]
   },
   { id: false, timestamps: true }
@@ -31,7 +35,8 @@ ReservSchema.methods.toProfileJSON = function() {
     payAndWait,
     totalPrice,
     stripeChargeId,
-    redeemed
+    redeemed,
+    cancelled
   } = this;
 
   return {
@@ -43,7 +48,8 @@ ReservSchema.methods.toProfileJSON = function() {
     payAndWait,
     totalPrice,
     stripeChargeId,
-    redeemed
+    redeemed,
+    cancelled
   };
 };
 
