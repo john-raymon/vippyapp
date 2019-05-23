@@ -1,12 +1,23 @@
-const format = require("date-fns/format");
+import moment from "moment-timezone";
+const defaultTimezone = "America/New_York";
 
 export function formatEventDate(date) {
-  return format(new Date(date), "MMMM MM, YYYY [on a] dddd");
+  const dateFormat = "MMMM Do, YYYY [on a] dddd";
+  return moment.tz(new Date(date), defaultTimezone).format(dateFormat);
 }
 
 export function formatEventTimes(startTimeDate, endTimeDate) {
-  const startTime = format(new Date(startTimeDate), "h:mma");
-  const endTime = format(new Date(endTimeDate), "h:mma");
+  const timeFormat = "h:mma [EST]";
+  const startTime = moment
+    .tz(new Date(startTimeDate), defaultTimezone)
+    .format(timeFormat);
+  const endTime = moment
+    .tz(new Date(endTimeDate), defaultTimezone)
+    .format(timeFormat);
+  return {
+    startTime,
+    endTime
+  };
   // console.log(startTime, endTime)
 }
 
