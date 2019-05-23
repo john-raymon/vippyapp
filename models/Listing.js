@@ -21,8 +21,11 @@ var ListingSchema = mongoose.Schema({
   disclaimers: String,
   quantity: Number,
   unlimitedQuantity: Boolean,
-  bookingDeadline: Date,
-  activeListing: { type: Boolean, default: true }
+  bookingDeadline: {
+    type: Date,
+    required: true
+  },
+  cancelled: { type: Boolean, default: false }
 });
 
 ListingSchema.methods.toJSONForHost = function(currentHost) {
@@ -44,7 +47,8 @@ ListingSchema.methods.toJSONForHost = function(currentHost) {
     disclaimers,
     quantity,
     unlimitedQuantity,
-    bookingDeadline
+    bookingDeadline,
+    cancelled
   } = this;
 
   return {
@@ -60,7 +64,8 @@ ListingSchema.methods.toJSONForHost = function(currentHost) {
     disclaimers,
     quantity,
     unlimitedQuantity,
-    bookingDeadline
+    bookingDeadline,
+    cancelled
   };
 };
 
@@ -77,7 +82,8 @@ ListingSchema.methods._toJSON = function() {
     disclaimers,
     quantity,
     unlimitedQuantity,
-    bookingDeadline
+    bookingDeadline,
+    cancelled
   } = this;
 
   return {
@@ -92,7 +98,8 @@ ListingSchema.methods._toJSON = function() {
     disclaimers,
     quantity,
     unlimitedQuantity,
-    bookingDeadline
+    bookingDeadline,
+    cancelled
   };
 };
 
