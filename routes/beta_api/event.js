@@ -2,6 +2,10 @@ var express = require("express");
 var router = express.Router();
 var querystring = require("querystring");
 var request = require("request");
+const differenceInMinutes = require("date-fns/difference_in_minutes");
+const isFuture = require("date-fns/is_future");
+const isValid = require("date-fns/is_valid");
+const isAfter = require("date-fns/is_after");
 
 // cloudinary
 var cloudinary = require("cloudinary");
@@ -73,10 +77,53 @@ router.post(
       });
     }
 
+    // validate startTime and end time
+    if (!isValid(new Date(req.body.startTime))) {
+      return next({
+        name: "ValidationError",
+        message: "The start time is not a valid date and time"
+      });
+    }
+
+    if (!isValid(new Date(req.body.endTime))) {
+      return next({
+        name: "ValidationError",
+        message: "The end time is not a valid date and time"
+      });
+    }
+
+    // make sure startTime is set in the future
+    if (!isFuture(new Date(req.body.startTime))) {
+      return next({
+        name: "ValidationError",
+        message: "The start time must be in the future"
+      });
+    }
+
+    // make sure end time is set after the starttime
+    if (!isAfter(new Date(req.body.endTime), new Date(req.body.startTime))) {
+      return next({
+        name: "ValidationError",
+        message: "The end time must be after the start of the event"
+      });
+    }
+    // make sure the difference in the endtime and startTime minutes are no less than 30 minutes
+    if (
+      differenceInMinutes(
+        new Date(req.body.endTime),
+        new Date(req.body.startTime)
+      ) < 30
+    ) {
+      return next({
+        name: "ValidationError",
+        message: "Your event duration must be at least half an hour long"
+      });
+    }
+
     const event = new Event({
       name: req.body.name,
       host: host ? host : vippyPromoter.venue,
-      date: req.body.eventDate || req.body.date,
+      date: req.body.startTime,
       startTime: req.body.startTime,
       endTime: req.body.endTime,
       address: {
@@ -147,6 +194,21 @@ router.patch(
       });
     }
 
+    if (vippyEvent.cancelled) {
+      return next({
+        name: "BadRequestError",
+        message: "You can no longer update this event as it has been cancelled."
+      });
+    }
+
+    // make sure event is still active
+    if (!isFuture(new Date(vippyEvent.endTime))) {
+      return next({
+        name: "ValidationError",
+        message: "You can longer update this event as it has passed"
+      });
+    }
+
     const whitelistedKeys = ["name"];
     // changes to date, starttime, endtime, address are not allowed to be updated after creation of event,
     // a deactivation of this event along with a new event with the
@@ -160,7 +222,6 @@ router.patch(
         vippyEvent[prop] = req.body[prop];
       }
     }
-
     let newImages = {};
     if (req.files) {
       newImages = req.files.reduce((newImagesObj, file) => {
