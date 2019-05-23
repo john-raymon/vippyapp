@@ -5,6 +5,7 @@ var querystring = require("querystring");
 var request = require("request");
 var crypto = require("crypto");
 var stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+const isFuture = require("date-fns/is_future");
 
 // auth middleware
 var auth = require("../authMiddleware");
@@ -21,7 +22,7 @@ var config = require("./../../config");
 
 router.param("reservationId", function(req, res, next, reservationId) {
   // attempt to locate reservation
-  Reservation.findById(reservationId)
+  return Reservation.findById(reservationId)
     .populate("host")
     .populate("customer")
     .exec()
@@ -31,7 +32,8 @@ router.param("reservationId", function(req, res, next, reservationId) {
       }
       req.vippyReservation = reservation;
       next();
-    });
+    })
+    .catch(next);
 });
 
 // begin redeeming of reservation
@@ -53,6 +55,22 @@ router.post(
         success: false,
         error:
           "You must be the venue host, promoter, or the customer on this reservation"
+      });
+    }
+
+    if (vippyReservation.cancelled) {
+      return next({
+        name: "BadRequestError",
+        message:
+          "The event you were trying to reserve for has been cancelled, we apologize for the inconvenience."
+      });
+    }
+
+    if (!isFuture(new Date(vippyReservation.listing.endTime))) {
+      return next({
+        name: "BadRequestError",
+        message:
+          "This listing can no longer be redeemed as the event has passed, we apologize for the inconvenience."
       });
     }
 
@@ -149,6 +167,7 @@ router.post(
   }
 );
 
+// create a reservation
 router.post("/", auth.required, auth.setUserOrHost, function(req, res, next) {
   if (!req.vippyUser) {
     return res.status(403).json({
@@ -188,6 +207,23 @@ router.post("/", auth.required, auth.setUserOrHost, function(req, res, next) {
             "We could not locate a Listing with the ID of" + req.query.listing
         });
       }
+
+      if (listing.cancelled) {
+        return next({
+          name: "BadRequestError",
+          message:
+            "You can no longer update this event as it has been cancelled."
+        });
+      }
+
+      if (!isFuture(new Date(listing.bookingDeadline))) {
+        return next({
+          name: "BadRequestError",
+          message:
+            "This listing can no longer be reserved as it's booking deadline has passed, we apologize for the inconvenience."
+        });
+      }
+
       if (!listing.unlimitedQuantity && listing.quantity === 0) {
         return res.status(400).json({
           success: false,
@@ -202,7 +238,6 @@ router.post("/", auth.required, auth.setUserOrHost, function(req, res, next) {
       const reservationConfirmationCode = crypto
         .randomBytes(24)
         .toString("hex");
-      console.log("0307b after variable", reservationConfirmationCode);
       return stripe.charges
         .create({
           amount: +listing.bookingPrice * 100,
@@ -275,6 +310,7 @@ router.post("/", auth.required, auth.setUserOrHost, function(req, res, next) {
     .catch(next);
 });
 
+// get a reservation
 router.get("/", auth.required, auth.setUserOrHost, function(req, res, next) {
   if (!req.vippyUser && !req.vippyHost && !req.vippyPromoter) {
     return res.status(403).json({
