@@ -1,4 +1,5 @@
-var mongoose = require("mongoose");
+const mongoose = require("mongoose");
+const isFuture = require("date-fns/is_future");
 
 // Host model
 var Host = require("./Host");
@@ -9,7 +10,6 @@ var Listing = require("./Listing");
 var EventSchema = mongoose.Schema({
   name: { type: String, required: [true, "is required"] },
   host: { type: mongoose.Schema.Types.ObjectId, ref: "Host" },
-  active: { type: Boolean, default: true },
   currentListings: [{ type: mongoose.Schema.Types.ObjectId, ref: "Listing" }],
   date: { type: Date, required: [true, "is required"] },
   startTime: { type: Date, required: [true, "is required"] },
@@ -27,6 +27,10 @@ var EventSchema = mongoose.Schema({
       public_id: { type: String, index: true }
     },
     default: new Map()
+  },
+  cancelled: {
+    type: Boolean,
+    default: false
   }
 });
 
@@ -41,6 +45,7 @@ EventSchema.methods.toJSONFor = function(user) {
     endTime,
     address,
     images,
+    cancelled,
     _id: id
   } = this;
 
@@ -56,7 +61,8 @@ EventSchema.methods.toJSONFor = function(user) {
     startTime,
     endTime,
     address,
-    images
+    images,
+    cancelled
   };
 };
 
@@ -70,6 +76,7 @@ EventSchema.methods.toNestedJSON = function() {
     endTime,
     address,
     images,
+    cancelled,
     _id: id
   } = this;
 
@@ -81,8 +88,13 @@ EventSchema.methods.toNestedJSON = function() {
     startTime,
     endTime,
     address,
-    images
+    images,
+    cancelled
   };
+};
+
+EventSchema.methods.isStartTimeInFuture = function() {
+  return isFuture(new Date(this.startTime));
 };
 
 var Event = mongoose.model("Event", EventSchema);
