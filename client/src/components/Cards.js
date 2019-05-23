@@ -1,4 +1,6 @@
 import React, { Fragment } from "react";
+import { formatEventDate, formatEventTimes } from "./../utils/dateFns";
+import distanceInWordsToNow from "date-fns/distance_in_words_to_now";
 
 import Card from "@material-ui/core/Card";
 import CardHeader from "@material-ui/core/CardHeader";
@@ -15,15 +17,16 @@ import Button from "@material-ui/core/Button";
 import eventIcon from "./../images/event-icon.png";
 
 export function EventCard({
-  venueInitial = "H",
-  eventTitle = "Event Title",
-  eventDate = "June 1, 2019",
-  eventStartTime = "8:00pm",
-  eventEndTime = "2:00am",
-  venueName = "Club Name",
-  venueStreetAddress = "123 Street",
-  venueCityZipCode = "Orlando, Fl 32825"
+  venueInitial = "",
+  eventTitle = "n/a",
+  eventStartTime = "--:--",
+  eventEndTime = "--:--",
+  venueName = "n/a",
+  venueStreetAddress = "n/a",
+  venueCityZipCode = "n/a"
 }) {
+  const { startTime, endTime } = formatEventTimes(eventStartTime, eventEndTime);
+  const eventStartDate = formatEventDate(eventStartTime);
   return (
     <div className="mv2 w-100 pb1 ph1">
       <Card className="flex flex-column">
@@ -40,7 +43,7 @@ export function EventCard({
             </IconButton>
           }
           title={eventTitle}
-          subheader={eventDate}
+          subheader={eventStartDate}
           titleTypographyProps={{
             className: "f7-important white-important"
           }}
@@ -53,7 +56,17 @@ export function EventCard({
           className="bg-vippy-2 padding-top-025-important"
         >
           <div className="flex flex-row flex-wrap flex-grow-0 mw6">
-            <div className="flex flex-column white flex-grow-1 self-end tl">
+            <div className="flex flex-column flex-grow-1 self-end mb2">
+              <div className="flex items-center flex-grow-1 justify-between ph1 mb1 white">
+                <p className="michroma f8 b tracked ttu">Start Time:</p>
+                <p className="michroma f8 ml1">{startTime}</p>
+              </div>
+              <div className="flex items-center flex-grow-1 justify-between ph1 mb1 white">
+                <p className="michroma f8 b tracked ttu">End Time:</p>
+                <p className="michroma f8 ml1">{endTime}</p>
+              </div>
+            </div>
+            <div className="flex flex-column white flex-grow-1 self-end tr">
               <p className="michroma f8 b tracked ttu mb1">{venueName}</p>
               <p className="michroma f8 b tracked ttu mb1">
                 {venueStreetAddress}
@@ -61,16 +74,6 @@ export function EventCard({
               <p className="michroma f8 b tracked ttu mb1">
                 {venueCityZipCode}
               </p>
-            </div>
-            <div className="flex flex-column flex-grow-1 self-end mb2">
-              <div className="flex items-center flex-grow-1 justify-between ph1 mb1 white">
-                <p className="michroma f8 b tracked ttu">Start Time:</p>
-                <p className="michroma f8 ml1">{eventStartTime}</p>
-              </div>
-              <div className="flex items-center flex-grow-1 justify-between ph1 mb1 white">
-                <p className="michroma f8 b tracked ttu">End Time:</p>
-                <p className="michroma f8 ml1">{eventEndTime}</p>
-              </div>
             </div>
           </div>
         </CardContent>
@@ -97,16 +100,26 @@ export function EventCard({
 }
 
 export function ListingCard({
-  packageTitle = "Package Title",
-  eventDate = "June 1, 2019",
-  eventStartTime = "8:00pm",
-  eventEndTime = "2:00am",
-  guestCount = "8",
-  price = "100.00",
-  venueName = "Club Name",
-  venueStreetAddress = "123 Street",
-  venueCityZipCode = "Orlando, Fl 32825"
+  packageTitle = "n/a",
+  eventDate = "n/a",
+  eventStartTime = "-:--",
+  eventEndTime = "-:--",
+  guestCount = "--",
+  price = "--.--",
+  venueName = "n/a",
+  venueStreetAddress = "n/a",
+  venueCityZipCode = "n/a",
+  bookingDeadline = ""
 }) {
+  const formattedBookingDeadline = distanceInWordsToNow(
+    new Date(bookingDeadline),
+    {
+      addSuffix: true,
+      includeSeconds: true
+    }
+  );
+  const { startTime, endTime } = formatEventTimes(eventStartTime, eventEndTime);
+  const eventStartDate = formatEventDate(eventStartTime);
   return (
     <Fragment>
       <div className="mv2 w-100 pb1 ph1">
@@ -119,18 +132,21 @@ export function ListingCard({
               </IconButton>
             }
             title={packageTitle}
-            subheader={`at ${venueName} on ${eventDate}`}
+            subheader={`at ${venueName} on ${eventStartDate}`}
             titleTypographyProps={{
-              className: "f7-important white-important"
+              className: "f7-important white-important michroma-important"
             }}
             subheaderTypographyProps={{
-              className: "f7-important white-wash-important"
+              className: "f8-important white-wash-important michroma-important"
             }}
           />
           <CardContent
             component="div"
             className="padding-top-025-important bg-vippy-2"
           >
+            <p className="flex w-100 pa1 michroma f8 b tracked ttu white mt1 mb3">
+              Booking ends {formattedBookingDeadline}
+            </p>
             <div className="flex flex-row flex-wrap flex-grow-0">
               <div className="flex pv1 pr1">
                 <div className="flex items-center justify-between ph1 mb1 white">
@@ -150,11 +166,11 @@ export function ListingCard({
               <div className="flex flex-column flex-grow-1 self-start mb2">
                 <div className="flex items-center flex-grow-1 justify-between ph1 mb1 white">
                   <p className="michroma f8 b tracked ttu">Start Time:</p>
-                  <p className="michroma f8 ml1">{eventStartTime}</p>
+                  <p className="michroma f8 ml1">{startTime}</p>
                 </div>
                 <div className="flex items-center flex-grow-1 justify-between ph1 mb1 white">
                   <p className="michroma f8 b tracked ttu">End Time:</p>
-                  <p className="michroma f8 ml1">{eventEndTime}</p>
+                  <p className="michroma f8 ml1">{endTime}</p>
                 </div>
               </div>
               <div className="flex flex-column white flex-grow-1 self-end tr">
