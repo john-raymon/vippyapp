@@ -249,7 +249,6 @@ router.post(
         }
 
         // check if event startTime is still in the future
-        // return res.json({ date: event.startTime })
         if (!isFuture(new Date(event.startTime))) {
           return next({
             name: "BadRequestError",
