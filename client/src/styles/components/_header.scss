@@ -1,0 +1,10 @@
+@import '../base/settings/sizing';
+
+.Header {
+  min-height: $headerMinHeight;
+  max-height: $headerMinHeight;
+  @media screen and (min-width: 60em) {
+    min-height: $headerMinHeightLarge;
+    max-height: $headerMinHeightLarge;
+  }
+}
