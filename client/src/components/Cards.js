@@ -36,7 +36,7 @@ export function EventCard({
   const { startTime, endTime } = formatEventTimes(eventStartTime, eventEndTime);
   const eventStartDate = formatEventDate(eventStartTime);
   return (
-    <div className="fl w-50 pa2">
+    <div className="fl w-50 w-third-l pa2">
       <div className="eventCard flex flex-column">
         <div
           style={{
@@ -176,7 +176,7 @@ export function ListingCard({
             backgroundSize: "contain",
             backgroundImage: `url(${getFirstImageUrl(images)})`
           }}
-          className="listingCard__image-container dim aspect-ratio aspect-ratio--5x8 bg-white-10"
+          className="listingCard__image-container dim aspect-ratio aspect-ratio--3x4 bg-white-10"
         />
         <div className="listingCard__content-container flex flex-column">
           <p className="michroma f9 tracked lh-title white-50 pv2 ttu tl">
