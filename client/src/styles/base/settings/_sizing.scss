@@ -14,10 +14,13 @@ $spacer: (
   'xl': spacing(16),
 );
 
+// Header Sizing Settings
+$headerMinHeight: 94px;
+$headerMinHeightLarge: 110px;
 
 // Footer Height
 $footerHeight: 0rem;
 
 // Logo width/height units to use
 $logoWidthUnits: 20;
-$logoWidthDesktopUnits: 40;
+$logoWidthDesktopUnits: 25;
