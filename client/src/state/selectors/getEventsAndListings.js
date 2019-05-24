@@ -21,6 +21,8 @@ export default createSelector(
     const allEvents =
       events &&
       events.filter(event => {
+        // console.log('testing end time isfuture',isFuture(new Date(event.endTime)))
+        // console.log("distance in words", distanceInWordsToNow(new Date(event.endTime)))
         return !event.cancelled && isFuture(new Date(event.endTime));
       });
     const eventsById = events
