@@ -50,18 +50,20 @@ class BrowseContainer extends Component {
     const eventsTabContent = () => {
       if (events !== null && events.length === 0) {
         return (
-          <a
-            href={`mailto:?subject=${encodeURIComponent(
-              "GetVippy.com City Request"
-            )}&body=${encodeURIComponent(
-              "Hello, I would love for Vippy to expand near my city ... "
-            )}`}
-            className="michroma f7 tracked lh-extra white-90 pv2 ph3 tl no-underline"
-          >
-            Looks like we havn't expanded to your area yet. Try a different zip
-            code, or advocate for it by reaching out{" "}
-            <span className="underline">here</span>.
-          </a>
+          <div className="bg-vippy-1 pa2">
+            <a
+              href={`mailto:?subject=${encodeURIComponent(
+                "GetVippy.com City Request"
+              )}&body=${encodeURIComponent(
+                "Hello, I would love for Vippy to expand near my city ... "
+              )}`}
+              className="michroma f7 tracked lh-extra white-90 pv2 tl no-underline"
+            >
+              Looks like we havn't expanded to your area yet. Try a different
+              zip code, or advocate for it by reaching out{" "}
+              <span className="underline">here</span>.
+            </a>
+          </div>
         );
       }
       return events.map((event, key) => {
@@ -78,6 +80,7 @@ class BrowseContainer extends Component {
             venueCityZipCode={`${event.address.city},${event.address.state} ${
               event.address.zip
             }`}
+            images={event.images}
           />
         );
       });
@@ -86,23 +89,25 @@ class BrowseContainer extends Component {
     const listingsTabContent = () => {
       if (events !== null && events.length === 0) {
         return (
-          <a
-            href={`mailto:?subject=${encodeURIComponent(
-              "GetVippy.com City Request"
-            )}&body=${encodeURIComponent(
-              "Hello, I would love for Vippy to expand near my city ... "
-            )}`}
-            className="michroma f7 tracked lh-extra white-90 pv2 ph3 tl no-underline"
-          >
-            Looks like we havn't expanded to your area yet. Try a different zip
-            code, or advocate for it by reaching out{" "}
-            <span className="underline">here</span>.
-          </a>
+          <div className="bg-vippy-1 pa2">
+            <a
+              href={`mailto:?subject=${encodeURIComponent(
+                "GetVippy.com City Request"
+              )}&body=${encodeURIComponent(
+                "Hello, I would love for Vippy to expand near my city ... "
+              )}`}
+              className="michroma f7 tracked lh-extra white-90 pv2 tl no-underline"
+            >
+              Looks like we havn't expanded to your area yet. Try a different
+              zip code, or advocate for it by reaching out{" "}
+              <span className="underline">here</span>.
+            </a>
+          </div>
         );
       }
       if (listings !== null && listings.length === 0) {
         return (
-          <p className="michroma f7 tracked lh-extra white-90 pv2 ph3 tl">
+          <p className="michroma f7 tracked lh-extra bg-vippy-1 white-90 pv2 ph3 tl">
             Looks like there aren't any listings near you.
           </p>
         );
@@ -123,20 +128,21 @@ class BrowseContainer extends Component {
             venueCityZipCode={`${listing.event.address.city},${
               listing.event.address.state
             } ${listing.event.address.zip}`}
+            images={listing.images}
           />
         );
       });
     };
 
     return (
-      <div className="browseContainer w-100 w-50-l br2 self-end">
+      <div className="browseContainer w-100 br2 self-end">
         {!listings || !events ? (
           <p className="michroma f7 tracked lh-extra white-90 pv2 ph3 tl">
             Enter your zip code above to browse nearby events and packages/vips.
           </p>
         ) : (
           <Fragment>
-            <div className="flex flex-row items-center sticky top-from-nav mb2 z-5 bg-vippy-1">
+            <div className="flex flex-row items-center sticky top-from-nav z-5 bg-vippy-1">
               <Tabs
                 value={currentTab}
                 onChange={this.handleTabChange}
@@ -176,12 +182,12 @@ class BrowseContainer extends Component {
               )}
             </div>
             {currentTab === "events" && (
-              <div className="browseContainer__eventsTabContainer white flex flex-column">
+              <div className="browseContainer__eventsTabContainer cf bg-vippy white">
                 {!isLoading && eventsTabContent()}
               </div>
             )}
             {currentTab === "vips/packages" && (
-              <div className="browseContainer__listingsTabContainer white flex flex-column">
+              <div className="browseContainer__listingsTabContainer cf bg-vippy white">
                 {!isLoading && listingsTabContent()}
               </div>
             )}
