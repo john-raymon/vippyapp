@@ -39,4 +39,18 @@
     @extend .absolute--fill, .bg-black, .h-100, .w-100;
     border-radius: 1rem;
   }
+
+  &--smaller {
+    padding: 0.09rem 0.08rem;
+    height: 2.25rem;
+    min-width: 130px;
+    width: 100%;
+  }
+}
+
+.marketingBox {
+  background: url("../images/vippy-marketing-stock.jpg");
+  background-position: top center;
+  background-repeat: no-repeat;
+  background-size: cover;
 }
