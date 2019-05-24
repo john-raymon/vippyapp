@@ -1,7 +1,15 @@
+@import 'settings/sizing';
+
 // positioning
 .sticky {
   position: sticky;
 }
+
+// borders
+.bw05 {
+ border-width: 0.02rem;
+}
+
 // font sizes
 .f8 {
   font-size: 0.50rem;
@@ -29,9 +37,12 @@
 
 // offset nav
 .top-from-nav {
-  top: 94px;
+  top: $headerMinHeight;
+  // large and up
+  @media screen and (min-width: 60em) {
+    top: $headerMinHeightLarge;
+  }
 }
-
 
 .lh-small {
   line-height: 0.5rem;
@@ -45,6 +56,10 @@
   line-height: 1.50rem;
 }
 
+.lh-extra-1 {
+  line-height: 1.75rem;
+}
+
 .tracked-1 {
   letter-spacing: 0.3rem;
 }
@@ -55,9 +70,10 @@
 
 // colors
 .bg-vippy {
-  background: #0D0C0C;
+  background: #000001;
   // border: 0.2rem solid #b6c36b;
 }
+
 .bg-vippy-1 {
   background: #1d1d1d;
 }
@@ -70,7 +86,6 @@
   background: #373737;
 }
 
-
 .white-important {
   color: white !important;
 }
@@ -82,6 +97,7 @@
 .bg-secondary {
   background: "#151515"
 }
+
 // padding important
 .padding-top-025-important {
   padding-top: 0.2rem !important;
@@ -93,6 +109,12 @@
 }
 
 // overrides
+@media screen and (min-width: 60em) {
+  .dn-l-important {
+      display: none !important;
+  }
+}
+
 .MuiInputLabel-shrink-45 {
     transform: translate(0%, 3.5px) scale(0.75) !important;
     transform-origin: top right !important;
@@ -117,6 +139,18 @@
 
 .MuiInputBase-input-79 {
   padding-bottom: 1rem !important;
+}
+
+// object-fit
+.object-fit-contain {
+  object-fit: contain;
+}
+
+// text-overflow
+.ellipses {
+  @extend .overflow-hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 html,body {
