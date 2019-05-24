@@ -7,7 +7,7 @@ export function formatEventDate(date) {
 }
 
 export function formatEventTimes(startTimeDate, endTimeDate) {
-  const timeFormat = "h:mma [EST]";
+  const timeFormat = "h:mma";
   const startTime = moment
     .tz(new Date(startTimeDate), defaultTimezone)
     .format(timeFormat);
