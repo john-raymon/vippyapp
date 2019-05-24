@@ -37,9 +37,13 @@ class Header extends Component {
   }
 
   render() {
-    const { classes, isAuth = true, user = { firstname: "John" } } = this.props;
+    const {
+      classes,
+      isAuth = false,
+      user = { firstname: "John" }
+    } = this.props;
     return (
-      <header className="pv1 ph3 mw8 center sticky top-0 z-999 bg-vippy">
+      <header className="Header pv1 ph3 ph2-l mw8 center sticky top-0 z-999 bg-vippy">
         <Drawer
           classes={{ paper: classes.paper }}
           open={this.state.drawerState}
@@ -111,9 +115,43 @@ class Header extends Component {
           <div className="logoContainer ml1">
             <VippyLogo />
           </div>
-          <IconButton color="primary" onClick={() => this.toggleDrawer(true)}>
+          <IconButton
+            color="primary"
+            classes={{ root: "dn-l-important" }}
+            onClick={() => this.toggleDrawer(true)}
+          >
             <MenuIcon />
           </IconButton>
+          <div className="Header__largeNavMenu dn flex-l pa3 mv1 ba b--white-10 br1 white">
+            <ul className="flex items-center">
+              <li>
+                <a className="michroma f8 tracked-mega ttu lh-extra pointer dim mh1">
+                  sign in
+                </a>
+                <span className="br bw05 b--white-70 mh3 h-100" />
+              </li>
+              <li>
+                <a className="michroma f8 tracked-mega ttu lh-extra pointer dim mh1">
+                  create an account
+                </a>
+                <span className="br bw05 b--white-70 mh3 h-100" />
+              </li>
+              <li>
+                <a className="michroma f8 tracked-mega ttu lh-extra pointer dim mh1">
+                  help
+                </a>
+                <span className="br bw05 b--white-70 mh3 h-100" />
+              </li>
+              <li>
+                <button
+                  onClick={() => this.toggleDrawer(true)}
+                  className="bn michroma f8 bg-transparent outline-0 tracked-mega ttu lh-extra dim pointer mh1 white"
+                >
+                  more
+                </button>
+              </li>
+            </ul>
+          </div>
         </div>
       </header>
     );
