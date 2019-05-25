@@ -120,7 +120,6 @@
     transform-origin: top right !important;
 }
 
-
 .MuiInput-underline:before {
     border-bottom: 1px solid white !important;
 }
@@ -135,6 +134,23 @@
 
 .MuiInputBase-input {
   padding-bottom: 0.5rem;
+}
+
+.MUIRegisterOverride {
+  @extend .pv1, .mt2;
+  color: white !important;
+  input {
+    height: 100% !important;
+  }
+  & fieldset {
+    border-color: white !important;
+  }
+  &:before {
+    border-bottom: 1px solid white !important;
+  }
+  &:after {
+    border-bottom: 1px solid white !important;
+  }
 }
 
 // object-fit
