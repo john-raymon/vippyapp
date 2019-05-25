@@ -33,7 +33,10 @@ router.get("/send-onboard-code", function(req, res, next) {
     try {
       const parsedPhoneNumber = parsePhoneNumber(userNum, "US");
       if (!parsedPhoneNumber.isValid()) {
-        return res.status(400).json({ error: "The phone number is not valid" });
+        return res.status(400).json({
+          success: false,
+          error: "The phone number is not valid"
+        });
       }
       resolve(parsedPhoneNumber);
     } catch (error) {
@@ -48,7 +51,6 @@ router.get("/send-onboard-code", function(req, res, next) {
     .then(parsedPhoneNumber => {
       const nationalNumber = parsedPhoneNumber.nationalNumber;
       const countryCallingCode = parsedPhoneNumber.countryCallingCode;
-      console.log("line 45");
       return User.count({ phonenumber: nationalNumber })
         .exec()
         .then(function(count) {
@@ -76,7 +78,9 @@ router.get("/send-onboard-code", function(req, res, next) {
             },
             function(err, response, body) {
               if (!body.success) {
-                return res.status(400).json({ error: body.message });
+                return res
+                  .status(400)
+                  .json({ success: false, error: body.message });
               }
               return res.json(body);
             }
