@@ -5,6 +5,7 @@ import { createMuiTheme, MuiThemeProvider } from "@material-ui/core/styles";
 
 // Route Components
 import Homepage from "./Homepage";
+import UserRegister from "./UserRegister";
 
 // View Components
 import Header from "./Header";
@@ -31,14 +32,7 @@ const NotFound = props => {
   return <div>Not Found </div>;
 };
 
-const mapStateToProps = state => ({
-  isAuth: state.auth.isAuth
-});
-
-const ProtectedRoute = connect(
-  mapStateToProps,
-  null
-)(({ component: Component, isAuth, ...rest }) => {
+const ProtectedRoute = ({ component: Component, isAuth, ...rest }) => {
   return (
     <Route
       {...rest}
@@ -56,7 +50,7 @@ const ProtectedRoute = connect(
       }
     />
   );
-});
+};
 
 class App extends Component {
   render() {
@@ -68,6 +62,7 @@ class App extends Component {
           <main className="mainContainer ph3">
             <Switch>
               <Route path="/" exact component={Homepage} />
+              <Route path="/sign-up" exact component={UserRegister} />
               <Route path="/*" component={NotFound} />
             </Switch>
           </main>
@@ -78,6 +73,6 @@ class App extends Component {
 }
 
 export default connect(
-  state => ({ auth: state.auth }),
+  state => ({ isAuth: state.auth.isAuth }),
   { logout }
 )(App);
