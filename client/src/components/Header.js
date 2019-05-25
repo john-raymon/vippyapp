@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from "react";
-// import { NavLink } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { withStyles } from "@material-ui/core/styles";
 
 // Components
@@ -51,7 +51,9 @@ class Header extends Component {
         >
           <div className="drawerContainer w100 flex flex-column pr1 flex-grow-1">
             <div className="logoContainer--noQuery">
-              <VippyLogo />
+              <NavLink to="/" onClick={e => this.toggleDrawer()}>
+                <VippyLogo />
+              </NavLink>
             </div>
             {isAuth && (
               <p className="michroma f8 tracked-1 ttu lh-extra white-40 pt1">
@@ -76,9 +78,12 @@ class Header extends Component {
                 ) : (
                   <Fragment>
                     <li className="mv3" onClick={e => this.toggleDrawer()}>
-                      <p className="michroma f8 tracked-1 ttu lh-extra">
+                      <NavLink
+                        to="/sign-up"
+                        className="michroma f8 tracked-1 ttu lh-extra no-underline near-white"
+                      >
                         create an account
-                      </p>
+                      </NavLink>
                     </li>
                     <li className="mv3" onClick={e => this.toggleDrawer()}>
                       <p className="michroma f8 tracked-1 ttu lh-extra">
@@ -113,7 +118,9 @@ class Header extends Component {
         </Drawer>
         <div className="flex flex-row items-center w-100 justify-between mt4 mb2">
           <div className="logoContainer ml1">
-            <VippyLogo />
+            <NavLink to="/">
+              <VippyLogo />
+            </NavLink>
           </div>
           <IconButton
             color="primary"
@@ -131,9 +138,12 @@ class Header extends Component {
                 <span className="br bw05 b--white-70 mh3 h-100" />
               </li>
               <li>
-                <a className="michroma f8 tracked-mega ttu lh-extra pointer dim mh1">
+                <NavLink
+                  to="/sign-up"
+                  className="michroma f8 tracked-mega ttu lh-extra pointer dim mh1 no-underline near-white"
+                >
                   create an account
-                </a>
+                </NavLink>
                 <span className="br bw05 b--white-70 mh3 h-100" />
               </li>
               <li>
