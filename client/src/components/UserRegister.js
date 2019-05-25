@@ -8,18 +8,30 @@ const RegisterFormTextField = ({ ...rest }) => {
         className: `michroma-important lh-title f7-important MUIRegisterOverride`
       }}
       InputLabelProps={{
-        className: "michroma-important white-important"
+        className: "michroma-important white-important o-80"
       }}
       fullWidth={true}
       {...rest}
     />
   );
 };
-
+/**
+   * 1. on first submit, save all form date, init request to twilio withonly phone number
+   * 2. if first step successful, set state hasInitVerif to true, display neccessary UI such different submit button,
+   *    showing field for verification code, also showing resend code button, if not successful display errors
+   * 3. on second submit, with verifcation code, make request the CREATE users endpoint
+   *    attempt to create user with verification code, display errors if not successful
+        if user wants to verify with another number they will have to click a change number button and have the
+        the ui change accordingly to init proper request on future submit
+   * 4. if second submit successful, then user will be registered and proper state will be updated
+   */
 class UserRegister extends Component {
   constructor(props) {
     super(props);
     this.onFormSubmit = this.onFormSubmit.bind(this);
+    this.state = {
+      hasInitVerif: false
+    };
   }
   onFormSubmit(e) {
     e.preventDefault();
@@ -31,7 +43,8 @@ class UserRegister extends Component {
         <h1 className="michroma tracked lh-title white ttc f3 f2-ns pr4 mb4">
           easily register <br /> below
         </h1>
-        <form className="registerComponent__form flex flex-column mw6">
+        <p className="michroma f6 tracked ttc yellow o-70">error</p>
+        <form className="registerComponent__form flex flex-column mw6 mt4">
           <div className="mb3 w-100">
             <RegisterFormTextField
               placeholder="What's your email address?"
