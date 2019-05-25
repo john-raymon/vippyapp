@@ -1,5 +1,5 @@
 import localforage from "localforage";
-import Agent from "./../../utils/agent";
+import { Agent } from "./../../utils/agent";
 
 const agent = new Agent();
 
