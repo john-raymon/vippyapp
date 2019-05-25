@@ -46,7 +46,7 @@ router.post(
 
     // we have all the requiredProps so continue
     const userNum = req.body.phonenumber;
-    // validate phonenumber
+    // check if user email is unique
     User.count({ email: req.body.email })
       .exec()
       .then(function(count) {
@@ -61,6 +61,7 @@ router.post(
         return count;
       })
       .then(function() {
+        // validate phone number
         return new Promise((resolve, reject) => {
           try {
             const parsedPhoneNumber = parsePhoneNumber(userNum, "US");
