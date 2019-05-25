@@ -81,11 +81,11 @@ class Homepage extends Component {
                   }}
                   InputProps={{
                     className:
-                      "white-important w-100 tr b--white ttu michroma-important mt2-important tracked"
+                      "MuiInputBase-input white-important w-100 tr b--white ttu michroma-important mt2-important tracked MuiInput-underline"
                   }}
                   InputLabelProps={{
                     className:
-                      "white-important ttu tr michroma-important f8-important right-0 relative-important lh-small tracked-05"
+                      "MuiInputLabel-shrink white-important ttu tr michroma-important f8-important right-0 relative-important lh-small tracked-05"
                   }}
                 />
               </div>
