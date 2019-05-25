@@ -115,30 +115,26 @@
   }
 }
 
-.MuiInputLabel-shrink-45 {
-    transform: translate(0%, 3.5px) scale(0.75) !important;
+.MuiInputLabel-shrink {
+    transform: translate(0%, 3.5px) scale(0.75);
     transform-origin: top right !important;
 }
 
-.MuiInputLabel-root-38 {
-  transform-origin: top right !important;
+
+.MuiInput-underline:before {
+    border-bottom: 1px solid white !important;
 }
 
-.MuiInput-underline-60:before {
+.MuiInput-underline:after {
   border-bottom: 1px solid white !important;
-}
-
-.MuiInput-underline-60:after {
-    border-bottom: 2px solid white !important;
-    pointer-events: none;
 }
 
 .MuiPaper-root-128 {
     background-color: #2C2C2C !important;
 }
 
-.MuiInputBase-input-79 {
-  padding-bottom: 1rem !important;
+.MuiInputBase-input {
+  padding-bottom: 0.5rem;
 }
 
 // object-fit
