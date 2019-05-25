@@ -169,12 +169,12 @@ class BrowseContainer extends Component {
               ) : (
                 <div className="flex-grow-1 h-100">
                   {currentTab === "events" && (
-                    <p className="michroma f8 tracked lh-extra white-70 pv1 ph3 tc tr-m tc-l">
+                    <p className="michroma f8 tracked lh-extra white-70 pv1 ph3 tc tr-ns">
                       {`${eventsCount} nearby`}
                     </p>
                   )}
                   {currentTab === "vips/packages" && (
-                    <p className="michroma f8 tracked lh-extra white-70 pv1 ph3 tc tr-m tc-l">
+                    <p className="michroma f8 tracked lh-extra white-70 pv1 ph3 tc tr-ns">
                       {`${listingsCount} nearby`}
                     </p>
                   )}
