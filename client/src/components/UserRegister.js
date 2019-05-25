@@ -1,4 +1,20 @@
 import React, { Component } from "react";
+import TextField from "@material-ui/core/TextField";
+
+const RegisterFormTextField = ({ ...rest }) => {
+  return (
+    <TextField
+      InputProps={{
+        className: `michroma-important lh-title f7-important MUIRegisterOverride`
+      }}
+      InputLabelProps={{
+        className: "michroma-important white-important"
+      }}
+      fullWidth={true}
+      {...rest}
+    />
+  );
+};
 
 class UserRegister extends Component {
   constructor(props) {
@@ -12,12 +28,47 @@ class UserRegister extends Component {
   render() {
     return (
       <div className="registerComponent flex flex-column mw8 center justify-center pv4 ph2">
-        <h1 className="michroma tracked lh-title white ttc f3 f2-ns pr4">
+        <h1 className="michroma tracked lh-title white ttc f3 f2-ns pr4 mb4">
           easily register <br /> below
         </h1>
-        <form className="registerComponent__form">
+        <form className="registerComponent__form flex flex-column mw6">
+          <div className="mb3 w-100">
+            <RegisterFormTextField
+              placeholder="What's your email address?"
+              type="email"
+              label="Email"
+            />
+          </div>
+          <div className="mb3 w-100">
+            <RegisterFormTextField
+              placeholder="Enter your Phone Number"
+              type="text"
+              label="Phone Number"
+            />
+          </div>
+          <div className="mb3 w-100">
+            <RegisterFormTextField
+              placeholder="Create a password"
+              type="password"
+              label="Password"
+            />
+          </div>
+          <div className="mb3 w-100">
+            <RegisterFormTextField
+              placeholder="Confirm your password"
+              type="password"
+              label="Confirm Password"
+            />
+          </div>
+          <div className="mb3 w-100">
+            <RegisterFormTextField
+              placeholder="Ex. Nova Rae"
+              type="text"
+              label="Full Name"
+            />
+          </div>
           <button
-            className="vippyButton mt2 mw1 self-end"
+            className="vippyButton mt4 mw1 self-end"
             onClick={this.onFormSubmit}
             type="submit"
           >
