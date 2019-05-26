@@ -26,7 +26,8 @@
     "redux-thunk": "^2.3.0",
     "reselect": "^4.0.0",
     "superagent": "^5.0.2",
-    "superagent-promise": "^1.1.0"
+    "superagent-promise": "^1.1.0",
+    "yup": "^0.27.0"
   },
   "scripts": {
     "build-css": "node-sass-chokidar --include-path ./node_modules/ ./src -o ./src",
