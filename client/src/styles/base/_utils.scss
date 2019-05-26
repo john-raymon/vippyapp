@@ -165,6 +165,11 @@
   white-space: nowrap;
 }
 
+// .active NavLink
+.active {
+  color: #a9a91c !important;
+}
+
 html,body {
   @extend .bg-vippy;
 }
