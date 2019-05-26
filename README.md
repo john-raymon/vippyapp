@@ -20,4 +20,7 @@ GOOGLE_GEOCODING_API_KEY=
 - [Models](#models)  
 
 ## Models
-
+  - `Users`
+  - `Host` (These are venues)
+  - `Events`
+  - `Listings`
