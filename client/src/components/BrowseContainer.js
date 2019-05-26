@@ -3,22 +3,8 @@ import React, { Component, Fragment } from "react";
 // components
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
-import Card from "@material-ui/core/Card";
-import CardHeader from "@material-ui/core/CardHeader";
-import Avatar from "@material-ui/core/Avatar";
-import IconButton from "@material-ui/core/IconButton";
-import MoreVertIcon from "@material-ui/icons/MoreVert";
-import CardMedia from "@material-ui/core/CardMedia";
-import CardContent from "@material-ui/core/CardContent";
-import CardActionArea from "@material-ui/core/CardActionArea";
-import CardActions from "@material-ui/core/CardActions";
-import Button from "@material-ui/core/Button";
-import Divider from "@material-ui/core/Divider";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import { EventCard, ListingCard } from "./Cards";
-
-// images
-import eventIcon from "./../images/event-icon.png";
 
 class BrowseContainer extends Component {
   constructor(props) {
@@ -50,18 +36,10 @@ class BrowseContainer extends Component {
     const eventsTabContent = () => {
       if (events !== null && events.length === 0) {
         return (
-          <div className="bg-vippy-1 pa2">
-            <a
-              href={`mailto:?subject=${encodeURIComponent(
-                "GetVippy.com City Request"
-              )}&body=${encodeURIComponent(
-                "Hello, I would love for Vippy to expand near my city ... "
-              )}`}
-              className="michroma f7 tracked lh-extra white-90 pv2 tl no-underline"
-            >
-              Looks like we havn't expanded to your area yet. Try a different
-              zip code, or advocate for it by reaching out{" "}
-              <span className="underline">here</span>.
+          <div className="bg-vippy-1 pv2 ph3 pa2-l">
+            <a className="michroma f7 tracked lh-extra white-90 pv2 tl no-underline">
+              Sorry, there aren't any events nearby right now. You can try a
+              different zip code or try again later.
             </a>
           </div>
         );
@@ -89,18 +67,10 @@ class BrowseContainer extends Component {
     const listingsTabContent = () => {
       if (events !== null && events.length === 0) {
         return (
-          <div className="bg-vippy-1 pa2">
-            <a
-              href={`mailto:?subject=${encodeURIComponent(
-                "GetVippy.com City Request"
-              )}&body=${encodeURIComponent(
-                "Hello, I would love for Vippy to expand near my city ... "
-              )}`}
-              className="michroma f7 tracked lh-extra white-90 pv2 tl no-underline"
-            >
-              Looks like we havn't expanded to your area yet. Try a different
-              zip code, or advocate for it by reaching out{" "}
-              <span className="underline">here</span>.
+          <div className="bg-vippy-1 pv2 ph3 pa2-l">
+            <a className="michroma f7 tracked lh-extra white-90 pv2 tl no-underline">
+              Sorry, there are't any listings nearby right now, you can try a
+              different zipcode.
             </a>
           </div>
         );
@@ -108,7 +78,7 @@ class BrowseContainer extends Component {
       if (listings !== null && listings.length === 0) {
         return (
           <p className="michroma f7 tracked lh-extra bg-vippy-1 white-90 pv2 ph3 tl">
-            Looks like there aren't any listings near you.
+            Sorry there aren't any listings near you right now.
           </p>
         );
       }
@@ -163,9 +133,9 @@ class BrowseContainer extends Component {
                 })}
               </Tabs>
               {isLoading ? (
-                <p className="michroma f8 tracked lh-extra white-70 pv1 ph3 tc tr-m tc-l">
+                <div className="michroma f8 tracked lh-extra white-70 pv1 ph3 tc tr-m tc-l">
                   <CircularProgress color="primary" size="20px" />
-                </p>
+                </div>
               ) : (
                 <div className="flex-grow-1 h-100">
                   {currentTab === "events" && (
