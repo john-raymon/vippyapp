@@ -1,20 +1,6 @@
-import React, { Fragment } from "react";
+import React from "react";
 import { formatEventDate, formatEventTimes } from "./../utils/dateFns";
 import distanceInWordsToNow from "date-fns/distance_in_words_to_now";
-
-import Card from "@material-ui/core/Card";
-import CardHeader from "@material-ui/core/CardHeader";
-import Avatar from "@material-ui/core/Avatar";
-import IconButton from "@material-ui/core/IconButton";
-import MoreVertIcon from "@material-ui/icons/MoreVert";
-import CardMedia from "@material-ui/core/CardMedia";
-import CardContent from "@material-ui/core/CardContent";
-import CardActionArea from "@material-ui/core/CardActionArea";
-import CardActions from "@material-ui/core/CardActions";
-import Button from "@material-ui/core/Button";
-
-// images
-import eventIcon from "./../images/event-icon.png";
 
 const getFirstImageUrl = images => {
   const allImages = Object.keys(images);
