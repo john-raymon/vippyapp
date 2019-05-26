@@ -1,5 +1,5 @@
 # VippyBeta 
-Vippy BETA - MERN App
+Vippy BETA - Monolithic Fullstack MERN App
 
 Look into `.env.example` for required environment variables
 ```
