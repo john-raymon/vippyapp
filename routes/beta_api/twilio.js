@@ -28,6 +28,7 @@ router.get("/send-onboard-code", function(req, res, next) {
     });
   }
   const userNum = req.query.phonenumber;
+  const userEmail = req.query.email;
   // validate phonenumber
   new Promise((resolve, reject) => {
     try {
@@ -51,41 +52,50 @@ router.get("/send-onboard-code", function(req, res, next) {
     .then(parsedPhoneNumber => {
       const nationalNumber = parsedPhoneNumber.nationalNumber;
       const countryCallingCode = parsedPhoneNumber.countryCallingCode;
-      return User.count({ phonenumber: nationalNumber })
-        .exec()
-        .then(function(count) {
-          if (count > 0) {
-            return res.status(422).json({
-              success: false,
-              error: "This phone number is already linked to a user account"
-            });
-          }
-          // the phonenumber is free to register so continue
-          request(
-            {
-              url:
-                "https://api.authy.com/protected/json/phones/verification/start",
-              method: "POST",
-              headers: {
-                "X-Authy-API-Key": process.env.TWILIO_ACCOUNT_SECURITY_API_KEY
-              },
-              form: {
-                via: "sms",
-                phone_number: nationalNumber,
-                country_code: countryCallingCode
-              },
-              json: true
+      Promise.all([
+        User.count({ email: userEmail }).exec(),
+        User.count({ phonenumber: nationalNumber }).exec()
+      ]).then(function([emailUserCount, numberUserCount]) {
+        if (numberUserCount > 0) {
+          return res.status(422).json({
+            success: false,
+            error: "This phone number is already linked to a user account",
+            errorType: "TAKEN_PHONE_NUMBER"
+          });
+        }
+        if (emailUserCount > 0) {
+          return res.status(422).json({
+            success: false,
+            error: "Your email is already linked to an existing account.",
+            errorType: "TAKEN_EMAIL"
+          });
+        }
+        // the phonenumber is free to register so continue
+        request(
+          {
+            url:
+              "https://api.authy.com/protected/json/phones/verification/start",
+            method: "POST",
+            headers: {
+              "X-Authy-API-Key": process.env.TWILIO_ACCOUNT_SECURITY_API_KEY
             },
-            function(err, response, body) {
-              if (!body.success) {
-                return res
-                  .status(400)
-                  .json({ success: false, error: body.message });
-              }
-              return res.json(body);
+            form: {
+              via: "sms",
+              phone_number: nationalNumber,
+              country_code: countryCallingCode
+            },
+            json: true
+          },
+          function(err, response, body) {
+            if (!body.success) {
+              return res
+                .status(400)
+                .json({ success: false, error: body.message });
             }
-          );
-        });
+            return res.json(body);
+          }
+        );
+      });
     })
     .catch(next);
 });
