@@ -1,8 +1,6 @@
 import { createSelector } from "reselect";
-import _get from "lodash/get";
 import isFuture from "date-fns/is_future";
-import distanceInWordsToNow from "date-fns/distance_in_words_to_now";
-import { formatEventDate, formatEventTimes } from "./../../utils/dateFns";
+// import distanceInWordsToNow from "date-fns/distance_in_words_to_now";
 
 export default createSelector(
   state => {
