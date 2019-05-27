@@ -23,6 +23,23 @@ export const attemptLogin = (email, password) => dispatch => {
   });
 };
 
+export const register = (user, userAgent) => dispatch => {
+  const body = {
+    ...user,
+    verification_code: user.verificationCode,
+    fullname: user.fullName,
+    phonenumber: user.phoneNumber,
+    zipcode: user.zipCode
+  };
+  return dispatch({
+    type: "USER_REGISTER",
+    payload: userAgent.create(body).catch(error => {
+      console.log("RAVEN: error in authActions register thunk", error);
+      throw error;
+    })
+  });
+};
+
 export const logout = () => dispatch => {
   agent.setToken(null);
   localforage.setItem("jwt", "");
