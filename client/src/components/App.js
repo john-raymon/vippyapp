@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Route, Redirect, Switch } from "react-router";
+import { Route, Redirect, Switch, Link } from "react-router-dom";
 import { createMuiTheme, MuiThemeProvider } from "@material-ui/core/styles";
 
 // Route Components
@@ -32,13 +32,17 @@ const NotFound = props => {
   return <div>Not Found </div>;
 };
 
-const ProtectedRoute = ({ component: Component, isAuth, ...rest }) => {
+const ProtectedRoute = ({ component: Component, render, isAuth, ...rest }) => {
   return (
     <Route
       {...rest}
       render={props =>
         isAuth ? (
-          <Component {...props} />
+          Component ? (
+            <Component {...props} />
+          ) : (
+            render()
+          )
         ) : (
           <Redirect
             to={{
@@ -54,15 +58,48 @@ const ProtectedRoute = ({ component: Component, isAuth, ...rest }) => {
 
 class App extends Component {
   render() {
-    const { auth } = this.props;
+    const { isAuth } = this.props;
     return (
       <MuiThemeProvider theme={theme}>
         <div className="bg-vippy">
-          <Header auth={auth} logout={logout} />
+          <Header isAuth={isAuth} logout={logout} />
           <main className="mainContainer ph3">
             <Switch>
               <Route path="/" exact component={Homepage} />
-              <Route path="/sign-up" exact component={UserRegister} />
+              <Route
+                path="/login"
+                exact
+                render={props => {
+                  return (
+                    <div className="white">
+                      <Link
+                        to={{
+                          pathname: "/sign-up",
+                          state: {
+                            from:
+                              props.location.state && props.location.state.from
+                          }
+                        }}
+                      >
+                        or create an account
+                      </Link>
+                    </div>
+                  );
+                }}
+              />
+              <Route
+                path="/sign-up"
+                exact
+                render={props => {
+                  return <UserRegister {...props} isAuth={isAuth} />;
+                }}
+              />
+              <ProtectedRoute
+                isAuth={isAuth}
+                path="/dashboard"
+                exact
+                render={props => <div className="white">Dashboard</div>}
+              />
               <Route path="/*" component={NotFound} />
             </Switch>
           </main>
