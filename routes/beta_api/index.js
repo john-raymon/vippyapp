@@ -7,7 +7,7 @@ router.use("/user", require("./user"));
 router.use("/event", require("./event"));
 router.use("/listing", require("./listing"));
 router.use("/reservation", require("./reservation"));
-router.use("/phone", require("./twilio"));
+router.use("/phone", require("./twilio").router);
 
 // error handler; catches ValidationErrors, UnauthorizedErrors, otherwise calls next errorhandler in stack
 router.use(function(err, req, res, next) {
@@ -15,11 +15,13 @@ router.use(function(err, req, res, next) {
     if (typeof err.message === "string") {
       return res.status(422).json({
         success: false,
+        name: "ValidationError",
         message: err.message
       });
     }
     return res.status(422).json({
       success: false,
+      name: "ValidationError",
       errors: Object.keys(err.errors).reduce(function(errors, key) {
         errors[key] = err.errors[key].message;
 
