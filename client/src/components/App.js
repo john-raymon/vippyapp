@@ -6,6 +6,7 @@ import { createMuiTheme, MuiThemeProvider } from "@material-ui/core/styles";
 // Route Components
 import Homepage from "./Homepage";
 import UserRegister from "./UserRegister";
+import Snackbar from "@material-ui/core/Snackbar";
 
 // View Components
 import Header from "./Header";
@@ -57,11 +58,40 @@ const ProtectedRoute = ({ component: Component, render, isAuth, ...rest }) => {
 };
 
 class App extends Component {
+  constructor(props) {
+    super(props);
+    this.setSnackbar = this.setSnackbar.bind(this);
+    this.hideSnackbar = this.hideSnackbar.bind(this);
+    this.state = {
+      snackbar: {
+        open: false,
+        message: ""
+      }
+    };
+  }
+  setSnackbar(message = "") {
+    console.log("set snackbar with", message);
+    this.setState({
+      snackbar: {
+        open: true,
+        message
+      }
+    });
+  }
+  hideSnackbar() {
+    this.setState({
+      ...this.state,
+      snackbar: {
+        open: false,
+        message: ""
+      }
+    });
+  }
   render() {
     const { isAuth } = this.props;
     return (
       <MuiThemeProvider theme={theme}>
-        <div className="bg-vippy">
+        <section className="bg-vippy">
           <Header isAuth={isAuth} logout={logout} />
           <main className="mainContainer ph3">
             <Switch>
@@ -91,19 +121,57 @@ class App extends Component {
                 path="/sign-up"
                 exact
                 render={props => {
-                  return <UserRegister {...props} isAuth={isAuth} />;
+                  return (
+                    <UserRegister
+                      {...props}
+                      isAuth={isAuth}
+                      setSnackbar={this.setSnackbar}
+                    />
+                  );
                 }}
               />
               <ProtectedRoute
                 isAuth={isAuth}
                 path="/dashboard"
                 exact
-                render={props => <div className="white">Dashboard</div>}
+                render={props => (
+                  <div
+                    className="white"
+                    onClick={() =>
+                      this.setSnackbar(
+                        "Yay, your account was created successfully!"
+                      )
+                    }
+                  >
+                    Dashboard
+                  </div>
+                )}
               />
               <Route path="/*" component={NotFound} />
             </Switch>
           </main>
-        </div>
+          <figure>
+            <Snackbar
+              anchorOrigin={{
+                vertical: "bottom",
+                horizontal: "center"
+              }}
+              autoHideDuration={7500}
+              open={this.state.snackbar.open}
+              onClose={this.hideSnackbar}
+              ContentProps={{
+                "aria-describedby": "message-id"
+              }}
+            >
+              <span
+                id="message-id"
+                className="michroma f7 pv3 ph3 black br2 bg-white b lh-copy tracked tl mb4"
+              >
+                {this.state.snackbar.message}
+              </span>
+            </Snackbar>
+          </figure>
+        </section>
       </MuiThemeProvider>
     );
   }
