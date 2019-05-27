@@ -16,6 +16,35 @@ var User = require("../../models/User");
 var Listing = require("../../models/Listing");
 var Reservation = require("../../models/Reservation");
 
+const twilioErrorCodes = {
+  "60000":
+    "There was an error while trying to verify your phone number. Please try again later or contact us at info@vippy.com",
+  "60001":
+    "We're experiencing issues on our end, we apologize for the inconvenience.",
+  "60003":
+    "You have made too many attempts to verify this number, please try again later.",
+  "60004": "Your phone number seems to be invalid",
+  "60008":
+    "We're experiencing issues on our end, we apologize for the inconvenience.",
+  "60009":
+    "We're experiencing issues on our end, we apologize for the inconvenience.",
+  "60013":
+    "We apologize but we're unable to verify phone number's with that country code.",
+  "60015":
+    "There was an error while trying to verify your phone number. Please try again later or contact us at info@vippy.com",
+  "60017":
+    "There was an error while trying to verify your phone number. Please try again later or contact us at info@vippy.com",
+  "60018":
+    "There was an error while trying to verify your phone number. Please try again later or contact us at info@vippy.com",
+  "60021":
+    "There was an error while trying to verify your phone number. Please try again later or contact us at info@vippy.com",
+  "60022":
+    "Your verification code is not correct, please try again or request for your code to be resent",
+  "60033":
+    "There was an error while trying to verify your phone number. Please try again later or contact us at info@vippy.com",
+  "60057":
+    "We're experiencing issues on our end, we apologize for the inconvenience."
+};
 // config
 var config = require("./../../config");
 
@@ -87,10 +116,21 @@ router.get("/send-onboard-code", function(req, res, next) {
             json: true
           },
           function(err, response, body) {
+            if (process.env.NODE_ENV === "development") {
+              return res.json({
+                success: true
+              });
+            }
             if (!body.success) {
               return res
                 .status(400)
-                .json({ success: false, error: body.message });
+                .json({
+                  ...body,
+                  success: false,
+                  message:
+                    twilioErrorCodes[body.error_code] ||
+                    `We're expericing issues while trying to verify your phone number, please try again later.`
+                });
             }
             return res.json(body);
           }
@@ -100,4 +140,7 @@ router.get("/send-onboard-code", function(req, res, next) {
     .catch(next);
 });
 
-module.exports = router;
+module.exports = {
+  router,
+  twilioErrorCodes
+};
