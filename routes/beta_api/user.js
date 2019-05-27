@@ -310,13 +310,20 @@ router.patch(
 );
 
 router.post("/login", function(req, res, next) {
-  if (!req.body.email || !req.body.password) {
-    return res.status(422).json({
-      success: false,
-      error: "email and password are required to login"
+  const { phoneNumber, email } = req.body.emailOrPhoneNumber || {};
+  if (!email && !phoneNumber) {
+    return next({
+      name: "ValidationError",
+      message: "Your email or phone number is required to sign in"
     });
   }
-
+  if (!req.body.password) {
+    return res.status(422).json({
+      success: false,
+      error: "Please enter your password then try again."
+    });
+  }
+  req.body.username = email ? email : phoneNumber;
   userPassport.authenticate("local", function(err, user, data) {
     if (err) {
       return next(err);
