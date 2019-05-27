@@ -1,6 +1,7 @@
 var express = require("express");
 var router = express.Router();
 var request = require("request");
+var twilioErrorCodes = require("./twilio").twilioErrorCodes;
 var { parsePhoneNumber, ParseError } = require("libphonenumber-js");
 
 // cloudinary
@@ -107,7 +108,22 @@ router.post(
             },
             function(err, response, body) {
               if (!body.success) {
-                reject({ name: "BadRequestError", message: body.message });
+                if (process.env.NODE_ENV === "development") {
+                  console.log("the node env is ", process.env.NODE_ENV);
+                  return resolve([
+                    { success: true },
+                    nationalNumber,
+                    countryCallingCode
+                  ]);
+                } else {
+                  return reject({
+                    ...body,
+                    name: "BadRequestError",
+                    message:
+                      twilioErrorCodes[body.error_code] ||
+                      `We're expericing issues while trying to verify your phone number, please try again later.`
+                  });
+                }
               }
               // if verification was successful then resolve promise with twilio response body, and create the account
               resolve([body, nationalNumber, countryCallingCode]);
@@ -211,13 +227,25 @@ router.patch(
             },
             function(err, response, body) {
               if (!body.success) {
-                return reject({
-                  name: "BadRequestError",
-                  message: body.message
-                });
+                if (process.env.NODE_ENV === "development") {
+                  console.log("the node env is ", process.env.NODE_ENV);
+                  return resolve([
+                    { success: true },
+                    nationalNumber,
+                    countryCallingCode
+                  ]);
+                } else {
+                  return reject({
+                    ...body,
+                    name: "BadRequestError",
+                    message:
+                      twilioErrorCodes[body.error_code] ||
+                      `We're expericing issues while trying to verify your phone number, please try again later.`
+                  });
+                }
               }
               // if verification was successful then resolve promise with twilio response body, and create the account
-              resolve([body, nationalNumber, countryCallingCode]);
+              return resolve([body, nationalNumber, countryCallingCode]);
             }
           );
         });
