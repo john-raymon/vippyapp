@@ -179,7 +179,13 @@ class UserRegister extends Component {
           prevValidatedUser: validatedNewUser
         });
         if (continueRegistration) {
-          return this.props.registerDispatch(validatedNewUser, this.userAgent);
+          return this.props
+            .registerDispatch(validatedNewUser, this.userAgent)
+            .then(() => {
+              this.props.setSnackbar(
+                "Yay, your account was created successfully!"
+              );
+            });
         }
         return this.sendOnBoardCode(
           validatedNewUser.phoneNumber,
@@ -257,7 +263,7 @@ class UserRegister extends Component {
         )}
         {hasInitVerif && !error && (
           <p className="michroma f6 tracked ttc yellow o-70 pt3 pb2 lh-copy">
-            We're texting you a verifcation code, enter it below.
+            We sent you a verification code, please enter it below.
           </p>
         )}
         <form
@@ -270,7 +276,7 @@ class UserRegister extends Component {
                 <RegisterFormTextField
                   placeholder="Enter your verfication code"
                   type="text"
-                  label="Verfication Code"
+                  label="Code"
                   name="verificationCode"
                   value={this.state.verifcationCode}
                 />
