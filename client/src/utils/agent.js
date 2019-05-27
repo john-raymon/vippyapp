@@ -83,8 +83,16 @@ export class UserEndpointAgent extends Agent {
 
   sendOnBoardCode(phoneNumber, email) {
     return this._get(
-      `api/phone/send-onboard-code?phonenumber=${phoneNumber}&email=${email}`
+      `api/phone/send-onboard-code?phonenumber=${phoneNumber}&email=${encodeURIComponent(
+        email
+      )}`
     ).catch(error => {
+      throw error.response.body;
+    });
+  }
+
+  create(body) {
+    return this._post(`api/user`, body).catch(error => {
       throw error.response.body;
     });
   }
