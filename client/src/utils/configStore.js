@@ -57,7 +57,7 @@ const configureStore = persistedState => {
     promiseMiddleware,
     routerMiddleware(history),
     setTokenInStorageMiddleware({
-      setActions: ["USER_LOGIN", "USER_REGISTER"],
+      setActions: ["USER_LOGIN_FULFILLED", "USER_REGISTER_FULFILLED"],
       unsetActions: ["LOGOUT"]
     }),
     createStateSyncMiddleware({ blacklist: ["@@router/LOCATION_CHANGE"] })
