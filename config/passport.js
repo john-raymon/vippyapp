@@ -11,15 +11,21 @@ var Promoter = require("../models/Promoter");
 userPassport.use(
   new LocalStategy(
     {
-      usernameField: "email",
-      passwordField: "password"
+      usernameField: "username",
+      passwordField: "password",
+      passReqToCallback: true
     },
-    function(email, password, done) {
-      User.findOne({ email: email })
+    function(req, username, password, done) {
+      const { email, phoneNumber } = req.body.emailOrPhoneNumber;
+      User.findOne({ [email ? "email" : "phonenumber"]: username })
         .then(function(user) {
           if (!user || !user.validPassword(password)) {
             return done(null, false, {
-              errors: { "email or password": "is invalid" }
+              error: {
+                message: `The ${
+                  email ? "email" : "phone number"
+                } or password you entered is incorrect. Try again.`
+              }
             });
           }
           return done(null, user);
