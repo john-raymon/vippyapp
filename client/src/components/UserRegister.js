@@ -47,6 +47,7 @@ class UserRegister extends Component {
     this.handleFormChange = this.handleFormChange.bind(this);
     this.sendOnBoardCode = this.sendOnBoardCode.bind(this);
     this.verifyAndCreateUser = this.verifyAndCreateUser.bind(this);
+    this.revertInitOfVerif = this.revertInitOfVerif.bind(this);
     this.userAgent = new UserAgent();
     this.state = {
       hasInitVerif: false,
@@ -77,7 +78,7 @@ class UserRegister extends Component {
       if (locationState) {
         history.push(locationState.from);
       } else {
-        history.push("/");
+        history.push("/dashboard");
       }
     }
   }
@@ -131,9 +132,12 @@ class UserRegister extends Component {
         .oneOf([yup.ref("password"), null], "Passwords don't match")
         .required("You must confirm the password"),
       fullName: yup.string().required("Your full name is required"),
-      zipCode: yup.string().matches(zipCodeRegExp, {
-        message: "Please enter a valid zip code"
-      }),
+      zipCode: yup
+        .string()
+        .matches(zipCodeRegExp, {
+          message: "Please enter a valid zip code"
+        })
+        .required("Please enter a zip code"),
       verificationCode: yup.string().when("$continueRegistration", {
         is: true,
         then: yup.string().required("Please enter your verification code"),
@@ -148,6 +152,12 @@ class UserRegister extends Component {
   handleFormChange(e) {
     this.setState({
       [e.target.name]: e.target.value
+    });
+  }
+  revertInitOfVerif() {
+    this.setState({
+      ...this.state,
+      hasInitVerif: false
     });
   }
   onFormSubmit(e, continueRegistration = false) {
@@ -264,13 +274,27 @@ class UserRegister extends Component {
                   name="verificationCode"
                   value={this.state.verifcationCode}
                 />
+                <div className="flex flex-row items-center pt1">
+                  <button
+                    className="michroma outline-0 bn bg-transparent f8 white-90 o-60 pa0 tracked lh-title pointer"
+                    onClick={this.revertInitOfVerif}
+                  >
+                    verify a different number
+                  </button>
+                  <p className="flex white-50 mh1 self-center pt1">|</p>
+                  <button
+                    className="michroma outline-0 bn bg-transparent f8 white-90 o-60 pa0 tracked lh-title pointer"
+                    onClick={this.onFormSubmit}
+                  >
+                    resend code
+                  </button>
+                </div>
                 {this.state.verificationCodeError && (
                   <p className="michroma f7 red o-60 pt1 tracked lh-copy">
                     {this.state.verificationCodeError}
                   </p>
                 )}
               </div>
-
               <button
                 className="vippyButton mt3 mb4 mw1 self-end dim"
                 onClick={e => this.onFormSubmit(e, true)}
@@ -306,9 +330,20 @@ class UserRegister extends Component {
               type="text"
               label="Phone Number"
               name="phoneNumber"
+              className={`${hasInitVerif ? "o-30" : ""}`}
               value={this.state.phoneNumber}
               disabled={hasInitVerif}
             />
+            {hasInitVerif && (
+              <div className="flex flex-row items-center pt2">
+                <button
+                  className="michroma outline-0 bn bg-transparent f8 white-90 o-60 pa0 tracked lh-title pointer"
+                  onClick={this.revertInitOfVerif}
+                >
+                  verify a different number
+                </button>
+              </div>
+            )}
             {this.state.phoneNumberError && (
               <p className="michroma f7 red o-60 pt1 tracked lh-copy">
                 {this.state.phoneNumberError}
