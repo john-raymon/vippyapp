@@ -1,10 +1,15 @@
 import React, { Component, Fragment } from "react";
+import { connect } from "react-redux";
 import * as yup from "yup";
 import {
   phoneNumber as phoneNumberRegExp,
-  password as passwordRegExp
+  password as passwordRegExp,
+  zipCode as zipCodeRegExp
 } from "./../utils/regExp";
 import { UserEndpointAgent as UserAgent } from "./../utils/agent";
+
+// Redux Actions
+import { register as registerDispatch } from "./../state/actions/authActions";
 
 // material-ui components
 import TextField from "@material-ui/core/TextField";
@@ -41,6 +46,7 @@ class UserRegister extends Component {
     this.resetErrorsState = this.resetErrorsState.bind(this);
     this.handleFormChange = this.handleFormChange.bind(this);
     this.sendOnBoardCode = this.sendOnBoardCode.bind(this);
+    this.verifyAndCreateUser = this.verifyAndCreateUser.bind(this);
     this.userAgent = new UserAgent();
     this.state = {
       hasInitVerif: false,
@@ -49,8 +55,31 @@ class UserRegister extends Component {
       password: "",
       confirmPassword: "",
       fullName: "",
+      verificationCode: "",
       error: ""
     };
+  }
+  componentDidMount() {
+    const { isAuth, location, history } = this.props;
+    const { state: locationState } = location;
+    if (isAuth) {
+      if (locationState) {
+        history.push(locationState.from);
+      } else {
+        history.push("/dashboard");
+      }
+    }
+  }
+  componentDidUpdate() {
+    const { isAuth, location, history } = this.props;
+    const { state: locationState } = location;
+    if (isAuth) {
+      if (locationState) {
+        history.push(locationState.from);
+      } else {
+        history.push("/");
+      }
+    }
   }
   resetErrorsState() {
     const allErrors = Object.keys(this.state).reduce((allErrors, key) => {
@@ -65,10 +94,18 @@ class UserRegister extends Component {
       ...allErrors
     });
   }
+  verifyAndCreateUser(user) {
+    return this.userAgent.create({
+      ...user,
+      verification_code: user.verificationCode,
+      fullname: user.fullName,
+      phonenumber: user.phoneNumber
+    });
+  }
   sendOnBoardCode(phoneNumber, email) {
     return this.userAgent.sendOnBoardCode(phoneNumber, email);
   }
-  validate(user) {
+  validate(user, continueRegistration) {
     const userSchema = yup.object().shape({
       email: yup
         .string()
@@ -93,16 +130,27 @@ class UserRegister extends Component {
         .string()
         .oneOf([yup.ref("password"), null], "Passwords don't match")
         .required("You must confirm the password"),
-      fullName: yup.string().required("Your full name is required")
+      fullName: yup.string().required("Your full name is required"),
+      zipCode: yup.string().matches(zipCodeRegExp, {
+        message: "Please enter a valid zip code"
+      }),
+      verificationCode: yup.string().when("$continueRegistration", {
+        is: true,
+        then: yup.string().required("Please enter your verification code"),
+        otherwise: yup.string()
+      })
     });
-    return userSchema.validate(user, { abortEarly: false });
+    return userSchema.validate(user, {
+      abortEarly: false,
+      context: { continueRegistration }
+    });
   }
   handleFormChange(e) {
     this.setState({
       [e.target.name]: e.target.value
     });
   }
-  onFormSubmit(e) {
+  onFormSubmit(e, continueRegistration = false) {
     e.preventDefault();
     this.resetErrorsState();
     const newUser = {
@@ -111,43 +159,62 @@ class UserRegister extends Component {
       password: this.state.password,
       confirmPassword: this.state.confirmPassword,
       fullName: this.state.fullName,
-      verficationCode: ""
+      zipCode: this.state.zipCode,
+      verificationCode: this.state.verificationCode || ""
     };
-    return this.validate(newUser)
-      .then(user => {
+    this.validate(newUser, continueRegistration)
+      .then(validatedNewUser => {
         this.setState({
           ...this.state,
-          prevValidatedUser: user
+          prevValidatedUser: validatedNewUser
         });
-        return this.sendOnBoardCode(user.phoneNumber, user.email);
-      })
-      .then(res => {
-        if (res.success) {
-          return this.setState({
-            ...this.state,
-            hasInitVerif: true
-          });
-        } else {
-          return Promise.reject({
-            message:
-              res.error ||
-              "We are experiencing issues while attempting to send your number a verification. Please try a different number or try again later."
-          });
+        if (continueRegistration) {
+          return this.props.registerDispatch(validatedNewUser, this.userAgent);
         }
+        return this.sendOnBoardCode(
+          validatedNewUser.phoneNumber,
+          validatedNewUser.email
+        ).then(res => {
+          if (res.success) {
+            return this.setState({
+              ...this.state,
+              hasInitVerif: true
+            });
+          } else {
+            return Promise.reject({
+              message:
+                res.error ||
+                "We are experiencing issues while attempting to send your number a verification. Please try a different number or try again later."
+            });
+          }
+        });
       })
       .catch(error => {
         // catch validation errors, and map them path/state name
         if (error.name === "ValidationError") {
-          const errorsByPath = error.inner.reduce((errorsByPath, error) => {
-            errorsByPath[`${error.path}Error`] = error.message;
-            return errorsByPath;
-          }, {});
+          let allOtherErrors = {};
+          let errorsByPath = {};
+          if (!error.inner) {
+            allOtherErrors = Object.keys(error.errors).reduce(
+              (allOtherErrors, key) => {
+                allOtherErrors[`${key}Error`] = error.errors[key];
+                return allOtherErrors;
+              },
+              {}
+            );
+          } else {
+            errorsByPath = error.inner.reduce((errorsByPath, error) => {
+              errorsByPath[`${error.path}Error`] = error.message;
+              return errorsByPath;
+            }, {});
+          }
           return this.setState({
             ...this.state,
+            ...allOtherErrors,
             ...errorsByPath
           });
         }
-        this.setState({
+        return this.setState({
           error: error.message || error.error
         });
       });
@@ -167,7 +234,6 @@ class UserRegister extends Component {
             {`Almost done ${
               prevValidatedUser.fullName.split(" ")[0]
             }, thank you for trying Vippy!`}
-            ,
           </h1>
         ) : (
           <h1 className="michroma tracked lh-title white ttc f3 f2-ns pr4 mb2">
@@ -175,11 +241,11 @@ class UserRegister extends Component {
           </h1>
         )}
         {error && (
-          <p className="michroma f6 tracked ttc yellow lh-copy o-70 pt2 pb4">
+          <p className="michroma f6 tracked ttc yellow lh-copy o-70 pt3 pb3">
             {error}
           </p>
         )}
-        {hasInitVerif && (
+        {hasInitVerif && !error && (
           <p className="michroma f6 tracked ttc yellow o-70 pt3 pb2 lh-copy">
             We're texting you a verifcation code, enter it below.
           </p>
@@ -195,13 +261,19 @@ class UserRegister extends Component {
                   placeholder="Enter your verfication code"
                   type="text"
                   label="Verfication Code"
-                  name="verficationCode"
+                  name="verificationCode"
                   value={this.state.verifcationCode}
                 />
+                {this.state.verificationCodeError && (
+                  <p className="michroma f7 red o-60 pt1 tracked lh-copy">
+                    {this.state.verificationCodeError}
+                  </p>
+                )}
               </div>
+
               <button
-                className="vippyButton mt3 mb4 mw1 self-end"
-                onClick={this.onFormSubmit}
+                className="vippyButton mt3 mb4 mw1 self-end dim"
+                onClick={e => this.onFormSubmit(e, true)}
                 type="submit"
               >
                 <div className="vippyButton__innerColorBlock">
@@ -240,6 +312,20 @@ class UserRegister extends Component {
             {this.state.phoneNumberError && (
               <p className="michroma f7 red o-60 pt1 tracked lh-copy">
                 {this.state.phoneNumberError}
+              </p>
+            )}
+          </div>
+          <div className="mb3 w-100">
+            <RegisterFormTextField
+              placeholder="Enter Your Zip Code"
+              type="text"
+              label="Zip Code"
+              name="zipCode"
+              value={this.state.zipCode}
+            />
+            {this.state.zipCodeError && (
+              <p className="michroma f7 red o-60 pt1 tracked lh-copy">
+                {this.state.zipCodeError}
               </p>
             )}
           </div>
@@ -287,7 +373,7 @@ class UserRegister extends Component {
           </div>
           {!hasInitVerif && (
             <button
-              className="vippyButton mt4 mw1 self-end"
+              className="vippyButton mt4 mw1 self-end dim"
               onClick={this.onFormSubmit}
               type="submit"
             >
@@ -306,4 +392,7 @@ class UserRegister extends Component {
   }
 }
 
-export default UserRegister;
+export default connect(
+  null,
+  { registerDispatch }
+)(UserRegister);
