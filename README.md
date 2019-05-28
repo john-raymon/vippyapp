@@ -27,7 +27,7 @@ GOOGLE_GEOCODING_API_KEY=
 
 ## React Frontend
 
-  All request returning a promise made in the thunks/actions be caught in the component dependent of it immeditaly.
+  All request returning a promise made in the thunks/actions should be caught in the component dependent of it immeditaly.
 ```
 export const login = (userCredentials, userAgent) => dispatch => {
   const body = {
