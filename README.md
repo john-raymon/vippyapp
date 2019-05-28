@@ -24,3 +24,27 @@ GOOGLE_GEOCODING_API_KEY=
   - `Host` (These are venues)
   - `Events`
   - `Listings`
+
+## React Frontend
+
+  All request made in thunks/actions should be reflected to the UI dependent of it immeditaly, so it should simply catch it in the component method it was invoked in. 
+```
+export const login = (userCredentials, userAgent) => dispatch => {
+  const body = {
+    emailOrPhoneNumber: {
+      email: userCredentials.email,
+      phoneNumber: userCredentials.phoneNumber
+    },
+    password: userCredentials.password
+  }
+  return dispatch({
+    type: "USER_LOGIN",
+    payload: userAgent.login(body)
+  })
+}
+```
+
+This will return a promise. We aren't concerned with catching it in our thunk, instead we leave the catching as the responsibility of the caller, which I imagine may be coming from a method in a component.
+```
+userAgent.login
+```
