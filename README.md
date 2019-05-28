@@ -27,7 +27,7 @@ GOOGLE_GEOCODING_API_KEY=
 
 ## React Frontend
 
-  All request made in thunks/actions should be reflected to the UI dependent of it immeditaly, so it should simply catch it in the component method it was invoked in. 
+  All request returning a promise made in the thunks/actions be caught in the component dependent of it immeditaly.
 ```
 export const login = (userCredentials, userAgent) => dispatch => {
   const body = {
