@@ -46,5 +46,10 @@ export const login = (userCredentials, userAgent) => dispatch => {
 
 This will return a promise. We aren't concerned with catching it in our thunk, instead we leave the catching as the responsibility of the caller, which I imagine may be coming from a method in a component.
 ```
-userAgent.login
+    ...
+    payload: userAgent.login(body) 
+    // Promise 
+    // .then(res => res)  
+    // .catch(err => err)
+    ...
 ```
