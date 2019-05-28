@@ -17,8 +17,8 @@ GOOGLE_GEOCODING_API_KEY=
 ```
 
 ##### Table of Contents  
-- [Models](#models)  
-
+- [Models](#models)
+- [React Frontend](#react-frontend)
 ## Models
   - `Users`
   - `Host` (These are venues)
