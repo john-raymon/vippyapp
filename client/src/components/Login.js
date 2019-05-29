@@ -1,0 +1,195 @@
+import React, { Component } from "react";
+import { connect } from "react-redux";
+import { Link } from "react-router-dom";
+import * as yup from "yup";
+import { UserEndpointAgent as UserAgent } from "./../utils/agent";
+
+// reg exp
+import {
+  phoneNumber as phoneNumberRegExp,
+  password as passwordRegExp,
+  zipCode as zipCodeRegExp
+} from "./../utils/regExp";
+
+// redux action
+import { login as loginDispatch } from "./../state/actions/authActions";
+
+// components
+import FormField from "./FormField";
+
+class Login extends Component {
+  constructor(props) {
+    super(props);
+    this.handleFormChange = this.handleFormChange.bind(this);
+    this.onFormSubmit = this.onFormSubmit.bind(this);
+    this.validate = this.validate.bind(this);
+    this.userAgent = new UserAgent();
+    this.resetErrors = this.resetErrors.bind(this);
+    this.state = {
+      emailOrPhoneNumber: "",
+      password: "",
+      error: "",
+      errors: []
+    };
+  }
+  componentDidUpdate() {
+    const { isAuth, location, history } = this.props;
+    const { state: locationState } = location;
+    if (isAuth) {
+      if (locationState) {
+        history.push(locationState.from);
+      } else {
+        history.push("/dashboard");
+      }
+    }
+  }
+  componentDidMount() {
+    const { isAuth, location, history } = this.props;
+    const { state: locationState } = location;
+    if (isAuth) {
+      if (locationState) {
+        history.push(locationState.from);
+      } else {
+        history.push("/dashboard");
+      }
+    }
+  }
+  resetErrors() {
+    this.setState({
+      error: ""
+    });
+  }
+  handleFormChange(e) {
+    this.setState({
+      [e.target.name]: e.target.value
+    });
+  }
+  validate(credentials, isEmail) {
+    const schema = yup.object().shape({
+      emailOrPhoneNumber: yup.string().when("$isEmail", {
+        is: true,
+        then: yup
+          .string()
+          .email()
+          .required("You must enter a valid email")
+          .label("Email"),
+        otherwise: yup
+          .string()
+          .required("Please enter a valid phone number or email")
+      }),
+      password: yup.string().required("Please enter your password")
+    });
+    return schema.validate(credentials, {
+      abortEarly: true,
+      context: { isEmail }
+    });
+  }
+  onFormSubmit(e) {
+    e.preventDefault();
+    this.resetErrors();
+    const isEmail = this.state.emailOrPhoneNumber.includes("@");
+    const credentials = {
+      emailOrPhoneNumber: this.state.emailOrPhoneNumber,
+      password: this.state.password
+    };
+    this.validate(credentials, isEmail)
+      .then(validatedCredentials => {
+        return this.props.loginDispatch(
+          {
+            email: isEmail ? this.state.emailOrPhoneNumber : "",
+            phoneNumber: this.state.emailOrPhoneNumber,
+            password: this.state.password
+          },
+          this.userAgent
+        );
+      })
+      .catch(error => {
+        if (error.statusCode) {
+          if (error.statusCode === 500) {
+            return this.setState({
+              error:
+                "We are experiencing issues right now, we apologize for the inconvenience."
+            });
+          }
+          return this.setState({
+            error:
+              "The credentials you provided are incorrect, please try again."
+          });
+        }
+        if (error.name === "ValidationError") {
+          this.setState({
+            error: error.message
+          });
+        }
+      });
+  }
+  render() {
+    const { error } = this.state;
+    return (
+      <div className="login-component mw8 center pt4 ph1">
+        <h1 className="login-component__header michroma tracked lh-title white ttc f3 f2-ns pr4 mb3">
+          sign in
+        </h1>
+        {error && (
+          <p className="michroma f6 tracked ttc yellow lh-copy o-70 pt3 pb3">
+            {error}
+          </p>
+        )}
+        <form
+          className="flex flex-column mw6 mt2"
+          onChange={this.handleFormChange}
+        >
+          <div className="mb2">
+            <FormField
+              placeholder="Enter your phone number or email"
+              type="text"
+              label="Phone Number or Email"
+              name="emailOrPhoneNumber"
+              value={this.state.emailOrPhoneNumber}
+            />
+          </div>
+          <div className="mb2">
+            <FormField
+              placeholder="Enter your password"
+              type="text"
+              label="Password"
+              name="password"
+              value={this.state.password}
+            />
+          </div>
+          <button
+            className="vippyButton mt4 mw1 self-end dim"
+            onClick={this.onFormSubmit}
+            type="submit"
+          >
+            <div className="vippyButton__innerColorBlock">
+              <div className="w-100 h-100 flex flex-column justify-center">
+                <p className="michroma f8 tracked-1 b ttu lh-extra white-90 center pb1">
+                  login
+                </p>
+              </div>
+            </div>
+          </button>
+        </form>
+
+        <Link
+          to={{
+            pathname: "/sign-up",
+            state: {
+              from: this.props.location.state && this.props.location.state.from
+            }
+          }}
+        >
+          or create an account
+        </Link>
+      </div>
+    );
+  }
+}
+
+export default connect(
+  null,
+  {
+    loginDispatch
+  }
+)(Login);
