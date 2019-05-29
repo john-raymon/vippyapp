@@ -16,10 +16,10 @@ export default (state = initialState, { type, payload = {} }) => {
       };
     case `USER_REGISTER_REJECTED`:
       return { ...state, isAuth: initialState.isAuth, user: initialState.user };
-    case `${"LOGIN"}_FULFILLED`:
+    case `${"USER_LOGIN"}_FULFILLED`:
       return { ...state, isAuth: true, user: payload.user };
-    case "LOGOUT":
-    case `${"LOGIN"}_REJECTED`:
+    case "USER_LOGOUT":
+    case `${"USER_LOGIN"}_REJECTED`:
       return { ...state, isAuth: initialState.isAuth, user: initialState.user };
     default:
       return state;
