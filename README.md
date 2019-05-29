@@ -53,3 +53,10 @@ This will return a promise. We aren't concerned with catching it in our thunk, i
     // .catch(err => err)
     ...
 ```
+
+We use thunk actions creators in combination with redux-promise-middleware in order to create a seamless flow from the dispatch to the thunk making the request, and then to the store, which will handle dispatching different actions reflecting the status of the promise, allowing us to update state accordingly while we do some asynchronous stuff. 
+```
+... // in thunk, creation action creator for dispatch being returned
+  payload: something.makeRequestReturnAPromise.catch(res => { throw res.response.body.error.message }) // intercept, only return nested error message
+...
+```
