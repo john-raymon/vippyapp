@@ -91,6 +91,12 @@ export class UserEndpointAgent extends Agent {
     });
   }
 
+  login(body) {
+    return this._post(`api/user/login`, body).catch(error => {
+      throw error.response;
+    });
+  }
+
   create(body) {
     return this._post(`api/user`, body).catch(error => {
       throw error.response.body;
