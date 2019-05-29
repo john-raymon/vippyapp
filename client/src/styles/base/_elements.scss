@@ -7,7 +7,6 @@
 .drawerContainer {
   &__list {
     li {
-      @extend .dim;
       cursor: pointer;
     }
   }
