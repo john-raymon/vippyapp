@@ -330,7 +330,7 @@ router.post("/login", function(req, res, next) {
     }
 
     if (!user) {
-      return res.status(422).json(data);
+      return res.status(422).json({ ...data, success: false });
     }
     return res.json({ success: true, user: user.toAuthJSON() });
   })(req, res, next);
