@@ -40,10 +40,28 @@ export const register = (user, userAgent) => dispatch => {
   });
 };
 
-export const logout = () => dispatch => {
-  agent.setToken(null);
-  localforage.setItem("jwt", "");
+export const login = (userCredentials, userAgent) => dispatch => {
+  const body = {
+    emailOrPhoneNumber: {
+      email: userCredentials.email,
+      phoneNumber: userCredentials.phoneNumber
+    },
+    password: userCredentials.password
+  };
   return dispatch({
-    type: "LOGOUT"
+    type: "USER_LOGIN",
+    payload: userAgent.login(body)
+  });
+};
+
+export const logout = () => dispatch => {
+  return dispatch({
+    type: "USER_LOGOUT"
+  });
+};
+
+export const initUser = () => dispatch => {
+  return dispatch({
+    type: "INIT_USER"
   });
 };
