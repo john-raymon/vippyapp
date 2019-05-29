@@ -11,23 +11,9 @@ import { UserEndpointAgent as UserAgent } from "./../utils/agent";
 // Redux Actions
 import { register as registerDispatch } from "./../state/actions/authActions";
 
-// material-ui components
-import TextField from "@material-ui/core/TextField";
+// components
+import RegisterFormTextField from "./FormField";
 
-const RegisterFormTextField = ({ ...rest }) => {
-  return (
-    <TextField
-      InputProps={{
-        className: `michroma-important lh-title f7-important MUIRegisterOverride`
-      }}
-      InputLabelProps={{
-        className: "michroma-important white-important o-80"
-      }}
-      fullWidth={true}
-      {...rest}
-    />
-  );
-};
 /**
    * 1. on first submit, save all form date, init request to twilio withonly phone number
    * 2. if first step successful, set state hasInitVerif to true, display neccessary UI such different submit button,
@@ -244,7 +230,7 @@ class UserRegister extends Component {
       }
     } = this.state;
     return (
-      <div className="registerComponent flex flex-column mw8 center justify-center pv4 ph2">
+      <div className="registerComponent flex flex-column mw8 center justify-center pv4 ph2-ns">
         {hasInitVerif ? (
           <h1 className="michroma tracked lh-title white ttc f3 f2-ns pr4 mb2 mw6">
             {`Almost done ${
