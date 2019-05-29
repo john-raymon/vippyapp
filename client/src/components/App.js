@@ -1,18 +1,20 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Route, Redirect, Switch, Link } from "react-router-dom";
+import { Route, Redirect, Switch, Link, withRouter } from "react-router-dom";
 import { createMuiTheme, MuiThemeProvider } from "@material-ui/core/styles";
 
 // Route Components
 import Homepage from "./Homepage";
 import UserRegister from "./UserRegister";
 import Snackbar from "@material-ui/core/Snackbar";
+import Login from "./Login";
+import Dashboard from "./Dashboard";
 
 // View Components
 import Header from "./Header";
 
 // Redux Actions
-import { logout } from "../state/actions/authActions";
+import { logout, initUser } from "../state/actions/authActions";
 
 // Styles
 import "../styles/application.css";
@@ -42,7 +44,7 @@ const ProtectedRoute = ({ component: Component, render, isAuth, ...rest }) => {
           Component ? (
             <Component {...props} />
           ) : (
-            render()
+            render(props)
           )
         ) : (
           <Redirect
@@ -62,12 +64,18 @@ class App extends Component {
     super(props);
     this.setSnackbar = this.setSnackbar.bind(this);
     this.hideSnackbar = this.hideSnackbar.bind(this);
+    this.logoutDispatchWrapper = this.logoutDispatchWrapper.bind(this);
     this.state = {
       snackbar: {
         open: false,
         message: ""
       }
     };
+  }
+  componentDidUpdate(prevProps, prevState) {
+    if (!prevProps.isAuth && this.props.isAuth) {
+      this.props.initUser();
+    }
   }
   setSnackbar(message = "") {
     console.log("set snackbar with", message);
@@ -87,8 +95,13 @@ class App extends Component {
       }
     });
   }
+  logoutDispatchWrapper() {
+    this.props.history.push("/login");
+    this.props.logout();
+  }
   render() {
     const { isAuth } = this.props;
+    const logout = this.logoutDispatchWrapper;
     return (
       <MuiThemeProvider theme={theme}>
         <section className="bg-vippy">
@@ -100,21 +113,7 @@ class App extends Component {
                 path="/login"
                 exact
                 render={props => {
-                  return (
-                    <div className="white">
-                      <Link
-                        to={{
-                          pathname: "/sign-up",
-                          state: {
-                            from:
-                              props.location.state && props.location.state.from
-                          }
-                        }}
-                      >
-                        or create an account
-                      </Link>
-                    </div>
-                  );
+                  return <Login {...props} isAuth={isAuth} />;
                 }}
               />
               <Route
@@ -134,18 +133,15 @@ class App extends Component {
                 isAuth={isAuth}
                 path="/dashboard"
                 exact
-                render={props => (
-                  <div
-                    className="white"
-                    onClick={() =>
-                      this.setSnackbar(
-                        "Yay, your account was created successfully!"
-                      )
-                    }
-                  >
-                    Dashboard
-                  </div>
-                )}
+                component={Dashboard}
+              />
+              <Route
+                path="/logout"
+                exact
+                render={() => {
+                  this.props.logout();
+                  return <div>test</div>;
+                }}
               />
               <Route path="/*" component={NotFound} />
             </Switch>
@@ -179,5 +175,5 @@ class App extends Component {
 
 export default connect(
   state => ({ isAuth: state.auth.isAuth }),
-  { logout }
-)(App);
+  { logout, initUser }
+)(withRouter(App));
