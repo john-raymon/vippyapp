@@ -17,10 +17,46 @@ GOOGLE_GEOCODING_API_KEY=
 ```
 
 ##### Table of Contents  
-- [Models](#models)  
-
+- [Models](#models)
+- [React Frontend](#react-frontend)
 ## Models
   - `Users`
   - `Host` (These are venues)
   - `Events`
   - `Listings`
+
+## React Frontend
+
+  All request returning a promise made in the thunks/actions should be caught in the component dependent of it immeditaly.
+```
+export const login = (userCredentials, userAgent) => dispatch => {
+  const body = {
+    emailOrPhoneNumber: {
+      email: userCredentials.email,
+      phoneNumber: userCredentials.phoneNumber
+    },
+    password: userCredentials.password
+  }
+  return dispatch({
+    type: "USER_LOGIN",
+    payload: userAgent.login(body)
+  })
+}
+```
+
+This will return a promise. We aren't concerned with catching it in our thunk, instead we leave the catching as the responsibility of the caller, which I imagine may be coming from a method in a component.
+```
+    ...
+    payload: userAgent.login(body) 
+    // Promise 
+    // .then(res => res)  
+    // .catch(err => err)
+    ...
+```
+
+We use thunk actions creators in combination with redux-promise-middleware in order to create a seamless flow from the dispatch to the thunk making the request, and then to the store, which will handle dispatching different actions reflecting the status of the promise, allowing us to update state accordingly while we do some asynchronous stuff. 
+```
+... // in thunk, creation action creator for dispatch being returned
+  payload: something.makeRequestReturnAPromise.catch(res => { throw res.response.body.error.message }) // intercept, only return nested error message
+...
+```
