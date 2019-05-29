@@ -13,7 +13,7 @@ import VippyLogo from "../svgs/logo";
 
 const styles = theme => ({
   paper: {
-    background: "#2C2C2C",
+    background: "#151515",
     maxWidth: "400px",
     width: "75%",
     paddingLeft: "1rem",
@@ -61,49 +61,69 @@ class Header extends Component {
               </p>
             )}
             <div className="flex flex-grow-1 flex-column justify-between pb4">
-              <ul className="drawerContainer__list mt3 ph1 near-white">
+              <ul className="drawerContainer__list mt3 ph1 near-white flex flex-column">
                 {isAuth ? (
                   <Fragment>
-                    <li className="mv3" onClick={e => this.toggleDrawer()}>
-                      <p className="michroma f8 tracked-1 ttu lh-extra">
-                        my account
-                      </p>
+                    <li className="mv2">
+                      <NavLink
+                        to="/dashboard"
+                        onClick={e => this.toggleDrawer()}
+                        className="michroma f8 tracked-1 ttu lh-extra no-underline near-white"
+                      >
+                        Dashboard
+                      </NavLink>
                     </li>
-                    <li className="mv3" onClick={e => this.toggleDrawer()}>
+                    <li className="mv2">
                       <p className="michroma f8 tracked-1 ttu lh-extra">
                         my reservations
                       </p>
                     </li>
+                    <li className="mv2 order-8">
+                      <button
+                        onClick={() => {
+                          this.toggleDrawer();
+                          this.props.logout();
+                        }}
+                        className="bn michroma f8 bg-transparent outline-0 tracked-1 pa0 ttu lh-extra dim pointer silver"
+                      >
+                        logout
+                      </button>
+                    </li>
                   </Fragment>
                 ) : (
                   <Fragment>
-                    <li className="mv3" onClick={e => this.toggleDrawer()}>
+                    <li className="mv2">
                       <NavLink
                         to="/sign-up"
+                        onClick={e => this.toggleDrawer()}
                         className="michroma f8 tracked-1 ttu lh-extra no-underline near-white"
                       >
                         create an account
                       </NavLink>
                     </li>
-                    <li className="mv3" onClick={e => this.toggleDrawer()}>
-                      <p className="michroma f8 tracked-1 ttu lh-extra">
+                    <li className="mv2">
+                      <NavLink
+                        to="/login"
+                        onClick={e => this.toggleDrawer()}
+                        className="michroma f8 tracked-1 ttu lh-extra no-underline near-white"
+                      >
                         sign in
-                      </p>
+                      </NavLink>
                     </li>
                   </Fragment>
                 )}
-                <li className="mt3 mb3" onClick={e => this.toggleDrawer()}>
+                <li className="mv2" onClick={e => this.toggleDrawer()}>
                   <p className="michroma f8 tracked-1 ttu lh-extra">
                     browse events near you
                   </p>
                 </li>
                 <Divider />
-                <li className="mv3" onClick={e => this.toggleDrawer()}>
+                <li className="mv2" onClick={e => this.toggleDrawer()}>
                   <p className="michroma f8 tracked-1 ttu lh-extra">
                     more info/faq
                   </p>
                 </li>
-                <li className="mv3" onClick={e => this.toggleDrawer()}>
+                <li className="mv2" onClick={e => this.toggleDrawer()}>
                   <p className="michroma f8 tracked-1 ttu lh-extra">
                     customer support
                   </p>
@@ -117,10 +137,17 @@ class Header extends Component {
           </div>
         </Drawer>
         <div className="flex flex-row items-center w-100 justify-between mt4 mb2">
-          <div className="logoContainer ml1">
-            <NavLink to="/">
-              <VippyLogo />
-            </NavLink>
+          <div className="flex flex-column">
+            <div className="logoContainer ml1">
+              <NavLink to="/">
+                <VippyLogo />
+              </NavLink>
+            </div>
+            {isAuth && (
+              <p className="michroma f8 tracked-1 ttu lh-extra white-40 pt1">
+                {`hello ${user.firstname}`}
+              </p>
+            )}
           </div>
           <IconButton
             color="primary"
@@ -130,37 +157,77 @@ class Header extends Component {
             <MenuIcon />
           </IconButton>
           <div className="Header__largeNavMenu dn flex-l pa3 mv1 ba b--white-10 br1 white">
-            <ul className="flex items-center">
-              <li>
-                <a className="michroma f8 tracked-mega ttu lh-extra pointer dim mh1">
-                  sign in
-                </a>
-                <span className="br bw05 b--white-70 mh3 h-100" />
-              </li>
-              <li>
-                <NavLink
-                  to="/sign-up"
-                  className="michroma f8 tracked-mega ttu lh-extra pointer dim mh1 no-underline near-white"
-                >
-                  create an account
-                </NavLink>
-                <span className="br bw05 b--white-70 mh3 h-100" />
-              </li>
-              <li>
-                <a className="michroma f8 tracked-mega ttu lh-extra pointer dim mh1">
-                  help
-                </a>
-                <span className="br bw05 b--white-70 mh3 h-100" />
-              </li>
-              <li>
-                <button
-                  onClick={() => this.toggleDrawer(true)}
-                  className="bn michroma f8 bg-transparent outline-0 tracked-mega ttu lh-extra dim pointer mh1 white"
-                >
-                  more
-                </button>
-              </li>
-            </ul>
+            {isAuth ? (
+              <ul className="flex items-center">
+                <li>
+                  <NavLink
+                    to="/dashboard"
+                    className="michroma f8 tracked-mega ttu lh-extra pointer dim mh1 no-underline near-white"
+                  >
+                    dashboard
+                  </NavLink>
+                  <span className="br bw05 b--white-70 mh3 h-100" />
+                </li>
+                <li>
+                  <NavLink
+                    to="/sign-up"
+                    className="michroma f8 tracked-mega ttu lh-extra pointer dim mh1 no-underline near-white"
+                  >
+                    settings
+                  </NavLink>
+                  <span className="br bw05 b--white-70 mh3 h-100" />
+                </li>
+                <li>
+                  <a className="michroma f8 tracked-mega ttu lh-extra pointer dim mh1">
+                    help
+                  </a>
+                  <span className="br bw05 b--white-70 mh3 h-100" />
+                </li>
+                <li>
+                  <button
+                    onClick={() => this.props.logout()}
+                    className="bn michroma f8 bg-transparent outline-0 tracked-mega ttu lh-extra dim pointer mh1 white"
+                  >
+                    sign out
+                  </button>
+                </li>
+              </ul>
+            ) : (
+              <ul className="flex items-center">
+                <li>
+                  <NavLink
+                    to="/login"
+                    className="michroma f8 tracked-mega ttu lh-extra pointer dim mh1 no-underline near-white"
+                  >
+                    sign in
+                  </NavLink>
+                  <span className="br bw05 b--white-70 mh3 h-100" />
+                </li>
+                <li>
+                  <NavLink
+                    to="/sign-up"
+                    className="michroma f8 tracked-mega ttu lh-extra pointer dim mh1 no-underline near-white"
+                  >
+                    create an account
+                  </NavLink>
+                  <span className="br bw05 b--white-70 mh3 h-100" />
+                </li>
+                <li>
+                  <a className="michroma f8 tracked-mega ttu lh-extra pointer dim mh1">
+                    help
+                  </a>
+                  <span className="br bw05 b--white-70 mh3 h-100" />
+                </li>
+                <li>
+                  <button
+                    onClick={() => this.toggleDrawer(true)}
+                    className="bn michroma f8 bg-transparent outline-0 tracked-mega ttu lh-extra dim pointer mh1 white"
+                  >
+                    more
+                  </button>
+                </li>
+              </ul>
+            )}
           </div>
         </div>
       </header>
