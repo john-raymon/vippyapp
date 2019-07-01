@@ -1,5 +1,6 @@
-import React, { Component } from "react";
+import React, { Component, Fragment } from "react";
 import { connect } from "react-redux";
+import { ListingCard } from "./Cards";
 
 // Redux Actions
 import { fetchReservationsForUser } from "./../state/actions/authActions";
@@ -18,7 +19,11 @@ class Dashboard extends Component {
   }
 
   render() {
-    const { activeReservationsCount, pastReservationsCount } = this.props;
+    const {
+      activeReservationsCount,
+      pastReservationsCount,
+      pastReservations
+    } = this.props;
 
     const allActiveReservations = () => {
       if (!activeReservationsCount) {
@@ -33,10 +38,34 @@ class Dashboard extends Component {
     const allPastReservations = () => {
       if (pastReservationsCount) {
         return (
-          <p className="michroma f8 tracked lh-extra white-70 pv2 tl no-underline">
-            You have {pastReservationsCount} past reservation
-            {pastReservationsCount > 1 ? `s` : ""}.
-          </p>
+          <Fragment>
+            <p className="michroma f8 tracked lh-extra white-70 pv2 tl no-underline">
+              You have {pastReservationsCount} past reservation
+              {pastReservationsCount > 1 ? `s` : ""}.
+            </p>
+            <div className="cf w-100">
+              {pastReservations.map(({ listing }, key) => {
+                return (
+                  <ListingCard
+                    key={key}
+                    bookingDeadline={listing.bookingDeadline}
+                    packageTitle={listing.name}
+                    eventStartTime={listing.event.startTime}
+                    eventEndTime={listing.event.endTime}
+                    venueName={listing.host.venueName}
+                    guestCount={listing.guestCount}
+                    price={listing.bookingPrice}
+                    venueStreetAddress={listing.event.address.street}
+                    venueCityZipCode={`${listing.event.address.city},${
+                      listing.event.address.state
+                    } ${listing.event.address.zip}`}
+                    images={listing.images}
+                    widthClassName="w-25"
+                  />
+                );
+              })}
+            </div>
+          </Fragment>
         );
       }
       if (!pastReservationsCount) {
