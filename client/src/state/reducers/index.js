@@ -5,7 +5,7 @@ import { connectRouter } from "connected-react-router";
 // Example
 import auth from "./auth";
 import queried from "./queried";
-// import errors from './errors'
+import reservations from "./reservations";
 // import dashboard from './dashboard'
 // import globals from './globals'
 
@@ -13,6 +13,7 @@ export default history => {
   return combineReducers({
     auth,
     queried,
+    reservations,
     router: connectRouter(history)
   });
 };
