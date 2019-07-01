@@ -6,7 +6,6 @@ import {
   password as passwordRegExp,
   zipCode as zipCodeRegExp
 } from "./../utils/regExp";
-import { UserEndpointAgent as UserAgent } from "./../utils/agent";
 
 // Redux Actions
 import { register as registerDispatch } from "./../state/actions/authActions";
@@ -34,7 +33,6 @@ class UserRegister extends Component {
     this.sendOnBoardCode = this.sendOnBoardCode.bind(this);
     this.verifyAndCreateUser = this.verifyAndCreateUser.bind(this);
     this.revertInitOfVerif = this.revertInitOfVerif.bind(this);
-    this.userAgent = new UserAgent();
     this.state = {
       hasInitVerif: false,
       email: "",
@@ -82,7 +80,7 @@ class UserRegister extends Component {
     });
   }
   verifyAndCreateUser(user) {
-    return this.userAgent.create({
+    return this.props.userAgent.create({
       ...user,
       verification_code: user.verificationCode,
       fullname: user.fullName,
@@ -90,7 +88,7 @@ class UserRegister extends Component {
     });
   }
   sendOnBoardCode(phoneNumber, email) {
-    return this.userAgent.sendOnBoardCode(phoneNumber, email);
+    return this.props.userAgent.sendOnBoardCode(phoneNumber, email);
   }
   validate(user, continueRegistration) {
     const userSchema = yup.object().shape({
@@ -166,7 +164,7 @@ class UserRegister extends Component {
         });
         if (continueRegistration) {
           return this.props
-            .registerDispatch(validatedNewUser, this.userAgent)
+            .registerDispatch(validatedNewUser, this.props.userAgent)
             .then(() => {
               this.props.setSnackbar(
                 "Yay, your account was created successfully!"

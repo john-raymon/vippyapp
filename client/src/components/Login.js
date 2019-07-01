@@ -2,7 +2,6 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Link } from "react-router-dom";
 import * as yup from "yup";
-import { UserEndpointAgent as UserAgent } from "./../utils/agent";
 
 // reg exp
 import {
@@ -23,7 +22,6 @@ class Login extends Component {
     this.handleFormChange = this.handleFormChange.bind(this);
     this.onFormSubmit = this.onFormSubmit.bind(this);
     this.validate = this.validate.bind(this);
-    this.userAgent = new UserAgent();
     this.resetErrors = this.resetErrors.bind(this);
     this.state = {
       emailOrPhoneNumber: "",
@@ -100,7 +98,7 @@ class Login extends Component {
             phoneNumber: this.state.emailOrPhoneNumber,
             password: this.state.password
           },
-          this.userAgent
+          this.props.userAgent
         );
       })
       .catch(error => {
