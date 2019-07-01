@@ -28,6 +28,7 @@ GOOGLE_GEOCODING_API_KEY=
 ## React Frontend
 
   All request returning a promise made in the thunks/actions should be caught in the component dependent of it immeditaly.
+  The userAgent should always be injected as a dependency of the thunk action creator.
 ```
 export const login = (userCredentials, userAgent) => dispatch => {
   const body = {
@@ -60,3 +61,5 @@ We use thunk actions creators in combination with redux-promise-middleware in or
   payload: something.makeRequestReturnAPromise.catch(res => { throw res.response.body.error.message }) // intercept, only return nested error message
 ...
 ```
+
+
