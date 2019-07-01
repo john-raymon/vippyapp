@@ -25,7 +25,7 @@ export default createSelector(
     return {
       activeReservations,
       pastReservations,
-      reservationsCount: reservationsCount,
+      totalReservations: reservationsCount,
       activeReservationsCount: activeReservations.length,
       pastReservationsCount: pastReservations.length
     };
