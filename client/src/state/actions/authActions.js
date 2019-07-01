@@ -51,6 +51,9 @@ export const login = (userCredentials, userAgent) => dispatch => {
   return dispatch({
     type: "USER_LOGIN",
     payload: userAgent.login(body)
+  }).then(user => {
+    dispatch(initUser(userAgent));
+    return user;
   });
 };
 
@@ -60,8 +63,20 @@ export const logout = () => dispatch => {
   });
 };
 
-export const initUser = () => dispatch => {
+export const initUser = userAgent => dispatch => {
   return dispatch({
-    type: "INIT_USER"
+    type: "INIT_USER",
+    payload: new Promise((resolve, reject) => {
+      // fetch all user neccessary resources
+      return Promise.all[dispatch(fetchReservationsForUser(userAgent))];
+    })
+  });
+};
+
+export const fetchReservationsForUser = userAgent => dispatch => {
+  console.log("making dispatch now!");
+  return dispatch({
+    type: "FETCH_USERS_RESERVATIONS",
+    payload: userAgent.getAllReservations()
   });
 };
