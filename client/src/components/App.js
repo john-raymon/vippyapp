@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Route, Redirect, Switch, Link, withRouter } from "react-router-dom";
 import { createMuiTheme, MuiThemeProvider } from "@material-ui/core/styles";
+import { UserEndpointAgent as UserAgent } from "./../utils/agent";
 
 // Route Components
 import Homepage from "./Homepage";
@@ -65,6 +66,7 @@ class App extends Component {
     this.setSnackbar = this.setSnackbar.bind(this);
     this.hideSnackbar = this.hideSnackbar.bind(this);
     this.logoutDispatchWrapper = this.logoutDispatchWrapper.bind(this);
+    this.userAgent = new UserAgent();
     this.state = {
       snackbar: {
         open: false,
@@ -73,9 +75,9 @@ class App extends Component {
     };
   }
   componentDidUpdate(prevProps, prevState) {
-    if (!prevProps.isAuth && this.props.isAuth) {
-      this.props.initUser();
-    }
+    // if (!prevProps.isAuth && this.props.isAuth) {
+    //   this.props.initUser(this.userAgent);
+    // }
   }
   setSnackbar(message = "") {
     console.log("set snackbar with", message);
@@ -133,7 +135,9 @@ class App extends Component {
                 isAuth={isAuth}
                 path="/dashboard"
                 exact
-                component={Dashboard}
+                render={props => {
+                  return <Dashboard {...props} userAgent={this.userAgent} />;
+                }}
               />
               <Route
                 path="/logout"
