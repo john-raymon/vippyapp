@@ -141,7 +141,8 @@ export function ListingCard({
   venueStreetAddress = "n/a",
   venueCityZipCode = "n/a",
   bookingDeadline = "",
-  images = {}
+  images = {},
+  widthClassName = "w-50"
 }) {
   const formattedBookingDeadline = distanceInWordsToNow(
     new Date(bookingDeadline),
@@ -153,7 +154,7 @@ export function ListingCard({
   const { startTime, endTime } = formatEventTimes(eventStartTime, eventEndTime);
   const eventStartDate = formatEventDate(eventStartTime);
   return (
-    <div className="fl w-50 pa2">
+    <div className={`fl pa2 ${widthClassName}`}>
       <div className="listingCard flex flex-column">
         <div
           style={{
