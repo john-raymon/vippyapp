@@ -17,7 +17,7 @@ export class Agent {
 
   _tokenPlugin(req) {
     if (this.token) {
-      req.set("authorization", `${this.token}`);
+      req.set("authorization", `Token ${this.token}`);
     }
     return req;
   }
@@ -100,6 +100,12 @@ export class UserEndpointAgent extends Agent {
   create(body) {
     return this._post(`api/user`, body).catch(error => {
       throw error.response.body;
+    });
+  }
+
+  getAllReservations() {
+    return this._get("api/reservation").catch(error => {
+      throw error.response;
     });
   }
 }
