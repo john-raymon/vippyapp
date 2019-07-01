@@ -115,7 +115,13 @@ class App extends Component {
                 path="/login"
                 exact
                 render={props => {
-                  return <Login {...props} isAuth={isAuth} />;
+                  return (
+                    <Login
+                      {...props}
+                      isAuth={isAuth}
+                      userAgent={this.userAgent}
+                    />
+                  );
                 }}
               />
               <Route
@@ -127,6 +133,7 @@ class App extends Component {
                       {...props}
                       isAuth={isAuth}
                       setSnackbar={this.setSnackbar}
+                      userAgent={this.userAgent}
                     />
                   );
                 }}
