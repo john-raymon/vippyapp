@@ -155,7 +155,7 @@ export function ListingCard({
   const { startTime, endTime } = formatEventTimes(eventStartTime, eventEndTime);
   const eventStartDate = formatEventDate(eventStartTime);
   return (
-    <div className={`fl pr3 pb4 ${widthClassName}`}>
+    <div className={`fl pr3 pv3 ${widthClassName}`}>
       <div className="listingCard flex flex-column">
         <div
           style={{
