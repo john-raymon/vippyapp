@@ -156,7 +156,7 @@ class Header extends Component {
           >
             <MenuIcon />
           </IconButton>
-          <div className="Header__largeNavMenu dn flex-l pa3 mv1 ba b--white-10 br1 white">
+          <div className="Header__largeNavMenu dn flex-l pa3 mv1 ba b--white-30 br1 white">
             {isAuth ? (
               <ul className="flex items-center">
                 <li>
