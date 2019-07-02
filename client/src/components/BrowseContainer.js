@@ -87,6 +87,7 @@ class BrowseContainer extends Component {
         return (
           <ListingCard
             key={key}
+            listing={listing}
             bookingDeadline={listing.bookingDeadline}
             packageTitle={listing.name}
             eventStartTime={listing.event.startTime}
