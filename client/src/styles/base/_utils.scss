@@ -177,3 +177,15 @@
 html,body {
   @extend .bg-vippy;
 }
+
+
+.dim-1 {
+  opacity: 1; transition: opacity .15s ease-in;
+  &:hover, &:focus {
+    opacity: 0.7;
+  }
+  &:active {
+    opacity: 0.8;
+    transition-timing-function: ease-out;
+  }
+}
