@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import { formatEventDate, formatEventTimes } from "./../utils/dateFns";
 import distanceInWordsToNow from "date-fns/distance_in_words_to_now";
 
@@ -132,6 +133,7 @@ export function EventCard({
 }
 
 export function ListingCard({
+  listing = {},
   packageTitle = "n/a",
   eventDate = "n/a",
   eventStartTime = "-:--",
@@ -156,46 +158,48 @@ export function ListingCard({
   const eventStartDate = formatEventDate(eventStartTime);
   return (
     <div className={`fl pr3 pv3 ${widthClassName}`}>
-      <div className="listingCard flex flex-column">
-        <div
-          style={{
-            backgroundRepeat: "no-repeat",
-            backgroundPosition: "center",
-            backgroundSize: "contain",
-            backgroundImage: `url(${getFirstImageUrl(images)})`
-          }}
-          className="listingCard__image-container dim aspect-ratio aspect-ratio--7x5 bg-white-10"
-        />
-        <div className="listingCard__content-container flex flex-column">
-          <p className="michroma f9 tracked lh-title white-50 pv2 ttu tl">
-            {`@ ${venueName}`}
-          </p>
-          <p className="michroma f6 tracked lh-title white-90 pb2 ttu tl">
-            {`${packageTitle}`}
-          </p>
-          <p className="michroma f8 tracked lh-title white-80 pb2 tl">
-            {`${eventStartDate}`}
-          </p>
-          <p className="michroma f8 tracked lh-title white-80 pb2 tl">
-            {`${startTime} - ${endTime}`}
-            <span className="pt2 db ttc tracked f9 white-60">
-              * eastern time
-            </span>
-          </p>
-          <p className="michroma f7 tracked lh-title white-90 pb2 ttu tl">
-            {`$${price} / up to ${guestCount} guest`}
-          </p>
-        </div>
-        <button className="dn db-ns vippyButton vippyButton--smaller mt2 mw1 self-start dim">
-          <div className="vippyButton__innerColorBlock">
-            <div className="w-100 h-100 flex flex-column justify-center">
-              <p className="michroma f8 tracked-1 b ttu lh-extra white-90 center pb1">
-                view
-              </p>
-            </div>
+      <Link to={`/listing/${listing.id}`}>
+        <div className="listingCard flex flex-column dim-1">
+          <div
+            style={{
+              backgroundRepeat: "no-repeat",
+              backgroundPosition: "center",
+              backgroundSize: "contain",
+              backgroundImage: `url(${getFirstImageUrl(images)})`
+            }}
+            className="listingCard__image-container aspect-ratio aspect-ratio--7x5 bg-white-10"
+          />
+          <div className="listingCard__content-container flex flex-column">
+            <p className="michroma f9 tracked lh-title white-50 pv2 ttu tl">
+              {`@ ${venueName}`}
+            </p>
+            <p className="michroma f6 tracked lh-title white-90 pb2 ttu tl">
+              {`${packageTitle}`}
+            </p>
+            <p className="michroma f8 tracked lh-title white-80 pb2 tl">
+              {`${eventStartDate}`}
+            </p>
+            <p className="michroma f8 tracked lh-title white-80 pb2 tl">
+              {`${startTime} - ${endTime}`}
+              <span className="pt2 db ttc tracked f9 white-60">
+                * eastern time
+              </span>
+            </p>
+            <p className="michroma f7 tracked lh-title white-90 pb2 ttu tl">
+              {`$${price} / up to ${guestCount} guest`}
+            </p>
           </div>
-        </button>
-      </div>
+          <button className="dn db-ns vippyButton vippyButton--smaller mt2 mw1 self-start dim">
+            <div className="vippyButton__innerColorBlock">
+              <div className="w-100 h-100 flex flex-column justify-center">
+                <p className="michroma f8 tracked-1 b ttu lh-extra white-90 center pb1">
+                  view
+                </p>
+              </div>
+            </div>
+          </button>
+        </div>
+      </Link>
     </div>
   );
   // return (
