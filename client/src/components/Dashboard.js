@@ -26,6 +26,39 @@ class Dashboard extends Component {
     } = this.props;
 
     const allActiveReservations = () => {
+      if (allActiveReservations) {
+        return (
+          <Fragment>
+            <p className="michroma f8 tracked lh-extra white-70 pb2 tl no-underline">
+              You have {activeReservationsCount} active or upcoming reservation
+              {activeReservationsCount > 1 ? `s` : ""}.
+            </p>
+            <div className="cf w-100">
+              {pastReservations.map(({ listing }, key) => {
+                return (
+                  <ListingCard
+                    key={key}
+                    listing={listing}
+                    bookingDeadline={listing.bookingDeadline}
+                    packageTitle={listing.name}
+                    eventStartTime={listing.event.startTime}
+                    eventEndTime={listing.event.endTime}
+                    venueName={listing.host.venueName}
+                    guestCount={listing.guestCount}
+                    price={listing.bookingPrice}
+                    venueStreetAddress={listing.event.address.street}
+                    venueCityZipCode={`${listing.event.address.city},${
+                      listing.event.address.state
+                    } ${listing.event.address.zip}`}
+                    images={listing.images}
+                    widthClassName="w-50 w-25-l"
+                  />
+                );
+              })}
+            </div>
+          </Fragment>
+        );
+      }
       if (!activeReservationsCount) {
         return (
           <p className="michroma f8 tracked lh-extra white-70 pv2 tl no-underline">
@@ -39,7 +72,7 @@ class Dashboard extends Component {
       if (pastReservationsCount) {
         return (
           <Fragment>
-            <p className="michroma f8 tracked lh-extra white-70 pv2 tl no-underline">
+            <p className="michroma f8 tracked lh-extra white-70 pb2 tl no-underline">
               You have {pastReservationsCount} past reservation
               {pastReservationsCount > 1 ? `s` : ""}.
             </p>
@@ -82,14 +115,14 @@ class Dashboard extends Component {
         <h1 className="michroma tracked lh-title white ttc f3 f2-ns pr4 mb3 mw6 mt1">
           Dashboard
         </h1>
-        <div className="mb2">
-          <p className="michroma f7 tracked-1 ttu lh-extra yellow pt2">
+        <div className="mb3">
+          <p className="sticky top-from-nav z-1 bg-black michroma f8 tracked-1 ttu lh-title yellow pv2 bb">
             Active/Upcoming Reservations
           </p>
           {allActiveReservations()}
         </div>
-        <div className="mb2">
-          <p className="michroma f7 tracked-1 ttu lh-extra yellow pt2">
+        <div className="mb3">
+          <p className="sticky top-from-nav z-1 bg-black michroma f8 tracked-1 ttu lh-title yellow pv2 bb">
             Past Reservations
           </p>
           {allPastReservations()}
