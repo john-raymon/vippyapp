@@ -153,7 +153,7 @@ class UserRegister extends Component {
       password: this.state.password,
       confirmPassword: this.state.confirmPassword,
       fullName: this.state.fullName,
-      zipCode: this.state.zipCode,
+      zipCode: this.state.zipCode.trim(),
       verificationCode: this.state.verificationCode || ""
     };
     this.validate(newUser, continueRegistration)
