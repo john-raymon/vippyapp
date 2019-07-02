@@ -10,6 +10,7 @@ import UserRegister from "./UserRegister";
 import Snackbar from "@material-ui/core/Snackbar";
 import Login from "./Login";
 import Dashboard from "./Dashboard";
+import DetailedListing from "./DetailedListing";
 
 // View Components
 import Header from "./Header";
@@ -33,7 +34,7 @@ const theme = createMuiTheme({
 });
 
 const NotFound = props => {
-  return <div>Not Found </div>;
+  return <div className="yellow">Not Found </div>;
 };
 
 const ProtectedRoute = ({ component: Component, render, isAuth, ...rest }) => {
@@ -144,6 +145,14 @@ class App extends Component {
                 exact
                 render={props => {
                   return <Dashboard {...props} userAgent={this.userAgent} />;
+                }}
+              />
+              <Route
+                path="/listing/:listingId"
+                render={props => {
+                  return (
+                    <DetailedListing {...props} userAgent={this.userAgent} />
+                  );
                 }}
               />
               <Route
