@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from "react";
-
+import { EventCard } from "./Cards";
 import tableImage from "../images/table.png";
 
 class DetailedListing extends Component {
@@ -33,6 +33,7 @@ class DetailedListing extends Component {
       return <p className="red">{error}</p>;
     }
     if (listing) {
+      const { event } = listing;
       const [
         [firstImageKey, firstImage = { url: "" }] = [],
         [secondImageKey, secondImage = { url: "" }] = [],
@@ -81,6 +82,38 @@ class DetailedListing extends Component {
                 }}
                 className="dim aspect-ratio aspect-ratio--1x1 bg-vippy-1"
               />
+            </div>
+          </div>
+          <div className="flex flex-column flex-row-ns w-100 pt2 justify-between">
+            <div className="w-100 w-85-ns pr2">
+              <h1 className="michroma tracked lh-title ttu">{listing.name}</h1>
+              <p className="michroma f8 tracked lh-copy white-60 pb2 ttu tj">
+                <span className="db vippy-yellow lh-title pb1">
+                  disclaimers
+                </span>
+                {`${listing.disclaimers}`}
+              </p>
+              <p className="michroma f5 tracked lh-title yellow pb2 ttu tl">
+                {`$${listing.bookingPrice} / up to ${listing.guestCount} guest`}
+              </p>
+            </div>
+            <div className="flex-grow-1 pl2">
+              <div>
+                <EventCard
+                  eventTitle={event.name}
+                  venueInitial={event.host.venueName[0]}
+                  eventDate={event.date}
+                  eventStartTime={event.startTime}
+                  eventEndTime={event.endTime}
+                  venueName={event.host.venueName}
+                  venueStreetAddress={event.address.street}
+                  venueCityZipCode={`${event.address.city},${
+                    event.address.state
+                  } ${event.address.zip}`}
+                  images={event.images}
+                  widthClassName="w-100"
+                />
+              </div>
             </div>
           </div>
         </div>
