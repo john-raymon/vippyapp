@@ -186,9 +186,18 @@ class Header extends Component {
                 <li>
                   <button
                     onClick={() => this.props.logout()}
-                    className="bn michroma f8 bg-transparent outline-0 tracked-mega ttu lh-extra dim pointer mh1 white"
+                    className="bn michroma f8 bg-transparent outline-0 tracked-mega ttu lh-extra dim pointer ph0 white"
                   >
                     sign out
+                  </button>
+                  <span className="br bw05 b--white-70 mh3 h-100" />
+                </li>
+                <li>
+                  <button
+                    onClick={() => this.toggleDrawer(true)}
+                    className="bn michroma f8 bg-transparent outline-0 tracked-mega ttu lh-extra dim pointer mh1 ph0 white"
+                  >
+                    more
                   </button>
                 </li>
               </ul>
@@ -221,7 +230,7 @@ class Header extends Component {
                 <li>
                   <button
                     onClick={() => this.toggleDrawer(true)}
-                    className="bn michroma f8 bg-transparent outline-0 tracked-mega ttu lh-extra dim pointer mh1 white"
+                    className="bn michroma f8 bg-transparent outline-0 tracked-mega ttu lh-extra dim pointer mh1 ph0 white"
                   >
                     more
                   </button>
