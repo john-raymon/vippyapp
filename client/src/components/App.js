@@ -151,7 +151,11 @@ class App extends Component {
                 path="/listing/:listingId"
                 render={props => {
                   return (
-                    <DetailedListing {...props} userAgent={this.userAgent} />
+                    <DetailedListing
+                      {...props}
+                      isAuth={isAuth}
+                      userAgent={this.userAgent}
+                    />
                   );
                 }}
               />
