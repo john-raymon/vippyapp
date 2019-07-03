@@ -40,7 +40,7 @@ class DetailedListing extends Component {
         [thirdImageKey, thirdImage = { url: "" }] = []
       ] = Object.entries(listing.images);
       return (
-        <div className="pt4 mw8 center white">
+        <div className="pv4 mw8 center white">
           <div className="flex flex-row items-end w-100">
             <div className="w-third w-25-l mr2">
               <img
@@ -85,7 +85,7 @@ class DetailedListing extends Component {
             </div>
           </div>
           <div className="flex flex-column flex-row-ns w-100 pt2 justify-between">
-            <div className="w-100 w-85-ns pr2">
+            <div className="w-100 w-75-ns pr2">
               <h1 className="michroma tracked lh-title ttu">{listing.name}</h1>
               <p className="michroma f8 tracked lh-copy white-60 pb2 ttu tj">
                 <span className="db vippy-yellow lh-title pb1">
@@ -97,7 +97,7 @@ class DetailedListing extends Component {
                 {`$${listing.bookingPrice} / up to ${listing.guestCount} guest`}
               </p>
             </div>
-            <div className="flex-grow-1 pl2">
+            <div className="w-100 w-25-ns pl2">
               <div>
                 <EventCard
                   eventTitle={event.name}
@@ -114,6 +114,21 @@ class DetailedListing extends Component {
                   widthClassName="w-100"
                 />
               </div>
+            </div>
+          </div>
+          <div className="flex flex-column w-100">
+            <h1 className="michroma tracked lh-title white mb2">
+              Like this listing ?
+            </h1>
+            <p className="michroma f5 tracked b lh-copy white pa0 mb2">
+              Specify the essentials you'd like, pay & reserve.
+            </p>
+            <div className="ReservationForm__container bg-vippy-1 w-100 h5 mv2">
+              <form className="w-100">
+                <div className="flex">
+                  <input type="" />
+                </div>
+              </form>
             </div>
           </div>
         </div>
