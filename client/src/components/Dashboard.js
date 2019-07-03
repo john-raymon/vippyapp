@@ -22,7 +22,8 @@ class Dashboard extends Component {
     const {
       activeReservationsCount,
       pastReservationsCount,
-      pastReservations
+      pastReservations,
+      activeReservations
     } = this.props;
 
     const allActiveReservations = () => {
@@ -34,7 +35,7 @@ class Dashboard extends Component {
               {activeReservationsCount > 1 ? `s` : ""}.
             </p>
             <div className="cf w-100">
-              {pastReservations.map(({ listing }, key) => {
+              {activeReservations.map(({ listing }, key) => {
                 return (
                   <ListingCard
                     key={key}
@@ -81,6 +82,7 @@ class Dashboard extends Component {
                 return (
                   <ListingCard
                     key={key}
+                    listing={listing}
                     bookingDeadline={listing.bookingDeadline}
                     packageTitle={listing.name}
                     eventStartTime={listing.event.startTime}
