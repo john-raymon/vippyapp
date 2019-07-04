@@ -89,7 +89,7 @@ router.patch(
       });
     }
 
-    const whitelistedKeys = ["quantity", "unlimitedQuantity"];
+    const whitelistedKeys = ["quantity", "unlimitedQuantity", "description"];
     // changes to date, starttime, endtime, address are not allowed to be updated after creation of event,
     // a deactivation of this event along with a new event with the
     // preferred date, startTime, endtime, address will need to take be created
@@ -207,7 +207,8 @@ router.post(
       "guestCount",
       "bookingPrice",
       "unlimitedQuantity",
-      "quantity"
+      "quantity",
+      "description"
     ];
     const { hasMissingProps, propErrors } = isBodyMissingProps(
       requiredProps,
@@ -309,7 +310,8 @@ router.post(
             " You must be able to receive a verfication code to the phone number on your account at the door in order to redeem your reservation.",
           quantity: req.body.unlimitedQuantity ? 0 : req.body.quantity,
           unlimitedQuantity: req.body.unlimitedQuantity,
-          bookingDeadline: req.body.bookingDeadline
+          bookingDeadline: req.body.bookingDeadline,
+          description: req.body.description
         });
 
         listing.host = host ? host : vippyPromoter.venue;
