@@ -8,6 +8,7 @@ var ListingSchema = mongoose.Schema({
   currentReservations: [
     { type: mongoose.Schema.Types.ObjectId, ref: "Reservation" }
   ],
+  description: String,
   payAndWait: Boolean,
   images: {
     type: Map,
@@ -48,7 +49,8 @@ ListingSchema.methods.toJSONForHost = function(currentHost) {
     quantity,
     unlimitedQuantity,
     bookingDeadline,
-    cancelled
+    cancelled,
+    description
   } = this;
 
   return {
@@ -65,7 +67,8 @@ ListingSchema.methods.toJSONForHost = function(currentHost) {
     quantity,
     unlimitedQuantity,
     bookingDeadline,
-    cancelled
+    cancelled,
+    description
   };
 };
 
@@ -83,7 +86,8 @@ ListingSchema.methods._toJSON = function() {
     quantity,
     unlimitedQuantity,
     bookingDeadline,
-    cancelled
+    cancelled,
+    description
   } = this;
 
   return {
@@ -99,7 +103,8 @@ ListingSchema.methods._toJSON = function() {
     quantity,
     unlimitedQuantity,
     bookingDeadline,
-    cancelled
+    cancelled,
+    description
   };
 };
 
