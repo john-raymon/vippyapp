@@ -56,11 +56,21 @@ class _ReservationForm extends Component {
     return (
       <form
         className="flex flex-column items-center pv4 w-100"
-        onSubmit={this.props.handleSubmit}
+        onSubmit={e => {
+          e.preventDefault();
+          this.props.handleSubmit(this.props.stripe);
+        }}
       >
         <div className="flex flex-column flex-row-ns w-90">
           <div className="flex flex-column w-100 w-50-ns justify-center pb3">
-            <CardElement {...createOptions("1.1rem")} />
+            <CardElement
+              onReady={el =>
+                setTimeout(() => {
+                  el.focus();
+                }, 2000)
+              }
+              {...createOptions("1.1rem")}
+            />
           </div>
           <div className="flex flex-column w-100 w-50-ns ph4-ns pt2">
             <p className="michroma f8 tracked lh-copy white-60 pb2 ttu tj">
@@ -94,29 +104,71 @@ const ReservationForm = injectStripe(_ReservationForm);
 class DetailedListing extends Component {
   constructor(props) {
     super(props);
+    this.handleReservationFormSubmit = this.handleReservationFormSubmit.bind(
+      this
+    );
     this.state = {
       listing: null,
-      error: null
+      error: null,
+      formError: null
     };
   }
   componentDidMount() {
-    // fetch listing data
-    this.props.userAgent
-      ._get(`api/listing/${this.props.match.params.listingId}`)
-      .then(resp => {
-        this.setState({
-          listing: resp.listing,
-          error: null
+    console.log("the new state in location is", this.props.location.state);
+    if (
+      this.props.location.state &&
+      this.props.location.state.continueCheckout
+    ) {
+      // no need to fetch listing data, as user will be forwarded to dedicated
+      // checkout container component, which will handle everything with
+      // stripe token data (this.props.location.state.stripeTokenObject) created from the user's card information and also this listing's id.
+    } else {
+      // fetch listing data
+      this.props.userAgent
+        ._get(`api/listing/${this.props.match.params.listingId}`)
+        .then(resp => {
+          this.setState({
+            listing: resp.listing,
+            error: null
+          });
+        })
+        .catch(error => {
+          this.setState({
+            error: "Sorry, we can't load the listing right now."
+          });
         });
-      })
-      .catch(error => {
-        this.setState({
-          error: "Sorry, we can't load the listing right now."
-        });
-      });
+    }
   }
+  handleReservationFormSubmit(stripeObject) {
+    const { isAuth, history, location } = this.props;
+    // attempt to validate, and get token then worry about checking authentication.
+    stripeObject.createToken().then(res => {
+      if (res.error) {
+        return this.setState({
+          formError: res.error
+        });
+      }
+      if (res.token) {
+        if (!isAuth) {
+          return history.push({
+            pathname: "/sign-up",
+            state: {
+              from: {
+                ...location,
+                state: {
+                  continueCheckout: true,
+                  stripeTokenObject: JSON.stringify(res.token)
+                }
+              }
+            }
+          });
+        }
+      }
+    });
+  }
+
   render() {
-    const { error, listing } = this.state;
+    const { error, listing, formError } = this.state;
     console.log(listing);
     if (error) {
       return <p className="red">{error}</p>;
@@ -129,7 +181,7 @@ class DetailedListing extends Component {
         [thirdImageKey, thirdImage = { url: "" }] = []
       ] = Object.entries(listing.images);
       return (
-        <StripeProvider apiKey="pk_live_246W8WC2Fj4583W8Ml8V4NhY">
+        <StripeProvider apiKey="pk_test_2Txz4BEB02STeZraf70NgKYh">
           <Elements>
             <div className="pv4 mw8 center white">
               <div className="flex flex-row items-end w-100">
@@ -176,7 +228,7 @@ class DetailedListing extends Component {
                 </div>
               </div>
               <div className="flex flex-column flex-row-ns w-100 pt2 justify-between">
-                <div className="w-100 w-75-ns pr2">
+                <div className="w-100 w-75-l pr2">
                   <h1 className="michroma tracked lh-title ttu">
                     {listing.name}
                   </h1>
@@ -195,7 +247,7 @@ class DetailedListing extends Component {
                     } guest`}
                   </p>
                 </div>
-                <div className="w-100 w-25-ns pl2">
+                <div className="w-100 w-25-l pl2">
                   <div>
                     <EventCard
                       eventTitle={event.name}
@@ -221,11 +273,10 @@ class DetailedListing extends Component {
                 <p className="michroma f5 tracked b lh-copy white pa0 mb3">
                   Reserve below.
                 </p>
-                <div className="ReservationForm__container bg-vippy-1 w-100 mv2">
+                <div className="ReservationForm__container bg-vippy-1 w-100 mv2 br2">
                   <ReservationForm
-                    handleSubmit={() => {
-                      alert("submitted");
-                    }}
+                    handleSubmit={this.handleReservationFormSubmit}
+                    formError={formError}
                     guestCount={listing.guestCount}
                     bookingPrice={listing.bookingPrice}
                     disclaimers={listing.disclaimers}
