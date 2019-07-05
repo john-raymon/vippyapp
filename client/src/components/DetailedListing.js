@@ -151,12 +151,13 @@ class DetailedListing extends Component {
       if (res.token) {
         if (!isAuth) {
           return history.push({
-            pathname: "/sign-up",
+            pathname: "/login",
             state: {
               from: {
                 ...location,
                 state: {
                   continueCheckout: true,
+                  listingId: this.props.match.params.listingId,
                   stripeTokenObject: JSON.stringify(res.token)
                 }
               }
@@ -262,6 +263,7 @@ class DetailedListing extends Component {
                       } ${event.address.zip}`}
                       images={event.images}
                       widthClassName="w-100"
+                      aspectRatioClass="aspect-ratio--3x4"
                     />
                   </div>
                 </div>
@@ -288,7 +290,7 @@ class DetailedListing extends Component {
         </StripeProvider>
       );
     }
-    return <p>Loading</p>;
+    return <p className="white">Loading</p>;
   }
 }
 
