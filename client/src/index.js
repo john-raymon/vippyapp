@@ -1,6 +1,7 @@
-import React from "react";
+import React, { Component } from "react";
 import ReactDOM from "react-dom";
 import { Provider } from "react-redux";
+import { withRouter } from "react-router-dom";
 import { PersistGate } from "redux-persist/integration/react";
 import { ConnectedRouter } from "connected-react-router";
 import configureStore, { history } from "./utils/configStore";
@@ -11,11 +12,27 @@ import * as serviceWorker from "./serviceWorker";
 
 const { store, persistor } = configureStore();
 
+class _ScrollToTop extends Component {
+  componentDidUpdate(prevProps) {
+    if (this.props.location.pathname !== prevProps.location.pathname) {
+      window.scrollTo(0, 0);
+    }
+  }
+
+  render() {
+    return this.props.children;
+  }
+}
+
+const ScrollToTop = withRouter(_ScrollToTop);
+
 ReactDOM.render(
   <Provider store={store}>
     <PersistGate loading={null} persistor={persistor}>
       <ConnectedRouter history={history}>
-        <App />
+        <ScrollToTop>
+          <App />
+        </ScrollToTop>
       </ConnectedRouter>
     </PersistGate>
   </Provider>,
