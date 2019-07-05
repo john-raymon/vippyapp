@@ -176,6 +176,7 @@ class UserRegister extends Component {
           validatedNewUser.email
         ).then(res => {
           if (res.success) {
+            window.scrollTo(0, 0);
             return this.setState({
               ...this.state,
               hasInitVerif: true
