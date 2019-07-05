@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, Fragment } from "react";
 import { connect } from "react-redux";
 import { Link } from "react-router-dom";
 import * as yup from "yup";
@@ -15,6 +15,7 @@ import { login as loginDispatch } from "./../state/actions/authActions";
 
 // components
 import FormField from "./FormField";
+import ListingLineItem from "./ListingLineItem";
 
 class Login extends Component {
   constructor(props) {
@@ -124,62 +125,74 @@ class Login extends Component {
   render() {
     const { error } = this.state;
     return (
-      <div className="login-component mw8 center pt4 ph1">
-        <h1 className="login-component__header michroma tracked lh-title white ttc f3 f2-ns pr4 mb3">
-          sign in
-        </h1>
-        {error && (
-          <p className="michroma f6 tracked ttc yellow lh-copy o-70 pt3 pb3">
-            {error}
-          </p>
-        )}
-        <form
-          className="flex flex-column mw6 mt2"
-          onChange={this.handleFormChange}
-        >
-          <div className="mb2">
-            <FormField
-              placeholder="Enter your phone number or email"
-              type="text"
-              label="Phone Number or Email"
-              name="emailOrPhoneNumber"
-              value={this.state.emailOrPhoneNumber}
-            />
-          </div>
-          <div className="mb2">
-            <FormField
-              placeholder="Enter your password"
-              type="text"
-              label="Password"
-              name="password"
-              value={this.state.password}
-            />
-          </div>
-          <button
-            className="vippyButton mt4 mw1 self-end dim"
-            onClick={this.onFormSubmit}
-            type="submit"
+      <div className="flex flex-column flex-row-l mw8 center pt4 ph1">
+        <div className="w-100 w-50-l ph3-l mb3 mb0-l">
+          {this.props.location.state &&
+            this.props.location.state.from.state &&
+            this.props.location.state.from.state.continueCheckout && (
+              <ListingLineItem
+                listingId={this.props.location.state.from.state.listingId}
+                userAgent={this.props.userAgent}
+              />
+            )}
+        </div>
+        <div className="login-component w-100 w-50-l ph1 ph3-l">
+          <h1 className="login-component__header michroma tracked lh-title white ttc f3 f2-ns pr4 mb3">
+            sign in
+          </h1>
+          {error && (
+            <p className="michroma f6 tracked ttc yellow lh-copy o-70 pt3 pb3">
+              {error}
+            </p>
+          )}
+          <form
+            className="flex flex-column w-100 mt2"
+            onChange={this.handleFormChange}
           >
-            <div className="vippyButton__innerColorBlock">
-              <div className="w-100 h-100 flex flex-column justify-center">
-                <p className="michroma f8 tracked-1 b ttu lh-extra white-90 center pb1">
-                  login
-                </p>
-              </div>
+            <div className="mb2">
+              <FormField
+                placeholder="Enter your phone number or email"
+                type="text"
+                label="Phone Number or Email"
+                name="emailOrPhoneNumber"
+                value={this.state.emailOrPhoneNumber}
+              />
             </div>
-          </button>
-        </form>
-
-        <Link
-          to={{
-            pathname: "/sign-up",
-            state: {
-              from: this.props.location.state && this.props.location.state.from
-            }
-          }}
-        >
-          or create an account
-        </Link>
+            <div className="mb2">
+              <FormField
+                placeholder="Enter your password"
+                type="text"
+                label="Password"
+                name="password"
+                value={this.state.password}
+              />
+            </div>
+            <button
+              className="vippyButton mt4 mw1 self-end dim"
+              onClick={this.onFormSubmit}
+              type="submit"
+            >
+              <div className="vippyButton__innerColorBlock">
+                <div className="w-100 h-100 flex flex-column justify-center">
+                  <p className="michroma f8 tracked-1 b ttu lh-extra white-90 center pb1">
+                    login
+                  </p>
+                </div>
+              </div>
+            </button>
+          </form>
+          <Link
+            to={{
+              pathname: "/sign-up",
+              state: {
+                from:
+                  this.props.location.state && this.props.location.state.from
+              }
+            }}
+          >
+            or create an account
+          </Link>
+        </div>
       </div>
     );
   }

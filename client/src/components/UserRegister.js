@@ -12,6 +12,7 @@ import { register as registerDispatch } from "./../state/actions/authActions";
 
 // components
 import RegisterFormTextField from "./FormField";
+import ListingLineItem from "./ListingLineItem";
 
 /**
    * 1. on first submit, save all form date, init request to twilio withonly phone number
@@ -229,190 +230,202 @@ class UserRegister extends Component {
       }
     } = this.state;
     return (
-      <div className="registerComponent flex flex-column mw8 center justify-center pv4 ph2-ns">
-        {hasInitVerif ? (
-          <h1 className="michroma tracked lh-title white ttc f3 f2-ns pr4 mb2 mw6">
-            {`Almost done ${
-              prevValidatedUser.fullName.split(" ")[0]
-            }, thank you for trying Vippy!`}
-          </h1>
-        ) : (
-          <h1 className="michroma tracked lh-title white ttc f3 f2-ns pr4 mb2">
-            easily register <br /> below
-          </h1>
-        )}
-        {error && (
-          <p className="michroma f6 tracked ttc yellow lh-copy o-70 pt3 pb3">
-            {error}
-          </p>
-        )}
-        {hasInitVerif && !error && (
-          <p className="michroma f6 tracked ttc yellow o-70 pt3 pb2 lh-copy">
-            We sent you a verification code, please enter it below.
-          </p>
-        )}
-        <form
-          className="registerComponent__form flex flex-column mw6 mt2"
-          onChange={this.handleFormChange}
-        >
-          {hasInitVerif && (
-            <Fragment>
-              <div className="mb2 w-100">
-                <RegisterFormTextField
-                  placeholder="Enter your verfication code"
-                  type="text"
-                  label="Code"
-                  name="verificationCode"
-                  value={this.state.verifcationCode}
-                />
-                <div className="flex flex-row items-center pt1">
+      <div className="flex flex-column flex-row-l mw8 center pv4 ph1">
+        <div className="w-100 w-50-l ph3-l mb4 mb0-l">
+          {this.props.location.state &&
+            this.props.location.state.from.state.continueCheckout && (
+              <ListingLineItem
+                boxTitle="Almost done! Create an account before checking out and reserving"
+                listingId={this.props.location.state.from.state.listingId}
+                userAgent={this.props.userAgent}
+              />
+            )}
+        </div>
+        <div className="registerComponent flex flex-column w-100 w-50-l">
+          {hasInitVerif ? (
+            <h1 className="michroma tracked lh-title white ttc f3 f2-ns pr4 mb2 mw6 mt0">
+              {`Almost done ${
+                prevValidatedUser.fullName.split(" ")[0]
+              }, thank you for trying Vippy!`}
+            </h1>
+          ) : (
+            <h1 className="michroma tracked lh-title white ttc f3 f2-ns pr4 mb2 mt0">
+              easily register <br /> below
+            </h1>
+          )}
+          {error && (
+            <p className="michroma f6 tracked ttc yellow lh-copy o-70 pt3 pb3">
+              {error}
+            </p>
+          )}
+          {hasInitVerif && !error && (
+            <p className="michroma f6 tracked ttc yellow o-70 pt3 pb2 lh-copy">
+              We sent you a verification code, please enter it below.
+            </p>
+          )}
+          <form
+            className="registerComponent__form flex flex-column w-100 mt2"
+            onChange={this.handleFormChange}
+          >
+            {hasInitVerif && (
+              <Fragment>
+                <div className="mb2 w-100">
+                  <RegisterFormTextField
+                    placeholder="Enter your verfication code"
+                    type="text"
+                    label="Code"
+                    name="verificationCode"
+                    value={this.state.verifcationCode}
+                  />
+                  <div className="flex flex-row items-center pt1">
+                    <button
+                      className="michroma outline-0 bn bg-transparent f8 white-90 o-60 pa0 tracked lh-title pointer"
+                      onClick={this.revertInitOfVerif}
+                    >
+                      verify a different number
+                    </button>
+                    <p className="flex white-50 mh1 self-center pt1">|</p>
+                    <button
+                      className="michroma outline-0 bn bg-transparent f8 white-90 o-60 pa0 tracked lh-title pointer"
+                      onClick={this.onFormSubmit}
+                    >
+                      resend code
+                    </button>
+                  </div>
+                  {this.state.verificationCodeError && (
+                    <p className="michroma f7 red o-60 pt1 tracked lh-copy">
+                      {this.state.verificationCodeError}
+                    </p>
+                  )}
+                </div>
+                <button
+                  className="vippyButton mt3 mb4 mw1 self-end dim"
+                  onClick={e => this.onFormSubmit(e, true)}
+                  type="submit"
+                >
+                  <div className="vippyButton__innerColorBlock">
+                    <div className="w-100 h-100 flex flex-column justify-center">
+                      <p className="michroma f8 tracked-1 b ttu lh-extra white-90 center pb1">
+                        verify
+                      </p>
+                    </div>
+                  </div>
+                </button>
+              </Fragment>
+            )}
+            <div className="mb3 w-100">
+              <RegisterFormTextField
+                placeholder="What's your email address?"
+                type="email"
+                label="Email"
+                name="email"
+                value={this.state.email}
+              />
+              {this.state.emailError && (
+                <p className="michroma f7 red o-60 pt1 tracked lh-copy">
+                  {this.state.emailError}
+                </p>
+              )}
+            </div>
+            <div className="mb3 w-100">
+              <RegisterFormTextField
+                placeholder="Enter your Phone Number"
+                type="text"
+                label="Phone Number"
+                name="phoneNumber"
+                className={`${hasInitVerif ? "o-30" : ""}`}
+                value={this.state.phoneNumber}
+                disabled={hasInitVerif}
+              />
+              {hasInitVerif && (
+                <div className="flex flex-row items-center pt2">
                   <button
                     className="michroma outline-0 bn bg-transparent f8 white-90 o-60 pa0 tracked lh-title pointer"
                     onClick={this.revertInitOfVerif}
                   >
                     verify a different number
                   </button>
-                  <p className="flex white-50 mh1 self-center pt1">|</p>
-                  <button
-                    className="michroma outline-0 bn bg-transparent f8 white-90 o-60 pa0 tracked lh-title pointer"
-                    onClick={this.onFormSubmit}
-                  >
-                    resend code
-                  </button>
                 </div>
-                {this.state.verificationCodeError && (
-                  <p className="michroma f7 red o-60 pt1 tracked lh-copy">
-                    {this.state.verificationCodeError}
-                  </p>
-                )}
-              </div>
+              )}
+              {this.state.phoneNumberError && (
+                <p className="michroma f7 red o-60 pt1 tracked lh-copy">
+                  {this.state.phoneNumberError}
+                </p>
+              )}
+            </div>
+            <div className="mb3 w-100">
+              <RegisterFormTextField
+                placeholder="Enter Your Zip Code"
+                type="text"
+                label="Zip Code"
+                name="zipCode"
+                value={this.state.zipCode}
+              />
+              {this.state.zipCodeError && (
+                <p className="michroma f7 red o-60 pt1 tracked lh-copy">
+                  {this.state.zipCodeError}
+                </p>
+              )}
+            </div>
+            <div className="mb3 w-100">
+              <RegisterFormTextField
+                placeholder="Create a password"
+                type="password"
+                label="Password"
+                name="password"
+                value={this.state.password}
+              />
+              {this.state.passwordError && (
+                <p className="michroma f7 red o-60 pt1 tracked lh-copy">
+                  {this.state.passwordError}
+                </p>
+              )}
+            </div>
+            <div className="mb3 w-100">
+              <RegisterFormTextField
+                placeholder="Confirm your password"
+                type="password"
+                label="Confirm Password"
+                name="confirmPassword"
+                value={this.state.confirmPassword}
+              />
+              {this.state.confirmPasswordError && (
+                <p className="michroma f7 red o-60 pt1 tracked lh-copy">
+                  {this.state.confirmPasswordError}
+                </p>
+              )}
+            </div>
+            <div className="mb3 w-100">
+              <RegisterFormTextField
+                placeholder="Ex. Nova Rae"
+                type="text"
+                label="Full Name"
+                name="fullName"
+                value={this.state.fullName}
+              />
+              {this.state.fullNameError && (
+                <p className="michroma f7 red o-60 pt1 tracked lh-copy">
+                  {this.state.fullNameError}
+                </p>
+              )}
+            </div>
+            {!hasInitVerif && (
               <button
-                className="vippyButton mt3 mb4 mw1 self-end dim"
-                onClick={e => this.onFormSubmit(e, true)}
+                className="vippyButton mt4 mw1 self-end dim"
+                onClick={this.onFormSubmit}
                 type="submit"
               >
                 <div className="vippyButton__innerColorBlock">
                   <div className="w-100 h-100 flex flex-column justify-center">
                     <p className="michroma f8 tracked-1 b ttu lh-extra white-90 center pb1">
-                      verify
+                      sign up
                     </p>
                   </div>
                 </div>
               </button>
-            </Fragment>
-          )}
-          <div className="mb3 w-100">
-            <RegisterFormTextField
-              placeholder="What's your email address?"
-              type="email"
-              label="Email"
-              name="email"
-              value={this.state.email}
-            />
-            {this.state.emailError && (
-              <p className="michroma f7 red o-60 pt1 tracked lh-copy">
-                {this.state.emailError}
-              </p>
             )}
-          </div>
-          <div className="mb3 w-100">
-            <RegisterFormTextField
-              placeholder="Enter your Phone Number"
-              type="text"
-              label="Phone Number"
-              name="phoneNumber"
-              className={`${hasInitVerif ? "o-30" : ""}`}
-              value={this.state.phoneNumber}
-              disabled={hasInitVerif}
-            />
-            {hasInitVerif && (
-              <div className="flex flex-row items-center pt2">
-                <button
-                  className="michroma outline-0 bn bg-transparent f8 white-90 o-60 pa0 tracked lh-title pointer"
-                  onClick={this.revertInitOfVerif}
-                >
-                  verify a different number
-                </button>
-              </div>
-            )}
-            {this.state.phoneNumberError && (
-              <p className="michroma f7 red o-60 pt1 tracked lh-copy">
-                {this.state.phoneNumberError}
-              </p>
-            )}
-          </div>
-          <div className="mb3 w-100">
-            <RegisterFormTextField
-              placeholder="Enter Your Zip Code"
-              type="text"
-              label="Zip Code"
-              name="zipCode"
-              value={this.state.zipCode}
-            />
-            {this.state.zipCodeError && (
-              <p className="michroma f7 red o-60 pt1 tracked lh-copy">
-                {this.state.zipCodeError}
-              </p>
-            )}
-          </div>
-          <div className="mb3 w-100">
-            <RegisterFormTextField
-              placeholder="Create a password"
-              type="password"
-              label="Password"
-              name="password"
-              value={this.state.password}
-            />
-            {this.state.passwordError && (
-              <p className="michroma f7 red o-60 pt1 tracked lh-copy">
-                {this.state.passwordError}
-              </p>
-            )}
-          </div>
-          <div className="mb3 w-100">
-            <RegisterFormTextField
-              placeholder="Confirm your password"
-              type="password"
-              label="Confirm Password"
-              name="confirmPassword"
-              value={this.state.confirmPassword}
-            />
-            {this.state.confirmPasswordError && (
-              <p className="michroma f7 red o-60 pt1 tracked lh-copy">
-                {this.state.confirmPasswordError}
-              </p>
-            )}
-          </div>
-          <div className="mb3 w-100">
-            <RegisterFormTextField
-              placeholder="Ex. Nova Rae"
-              type="text"
-              label="Full Name"
-              name="fullName"
-              value={this.state.fullName}
-            />
-            {this.state.fullNameError && (
-              <p className="michroma f7 red o-60 pt1 tracked lh-copy">
-                {this.state.fullNameError}
-              </p>
-            )}
-          </div>
-          {!hasInitVerif && (
-            <button
-              className="vippyButton mt4 mw1 self-end dim"
-              onClick={this.onFormSubmit}
-              type="submit"
-            >
-              <div className="vippyButton__innerColorBlock">
-                <div className="w-100 h-100 flex flex-column justify-center">
-                  <p className="michroma f8 tracked-1 b ttu lh-extra white-90 center pb1">
-                    sign up
-                  </p>
-                </div>
-              </div>
-            </button>
-          )}
-        </form>
+          </form>
+        </div>
       </div>
     );
   }
