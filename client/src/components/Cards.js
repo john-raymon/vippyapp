@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { formatEventDate, formatEventTimes } from "./../utils/dateFns";
 import distanceInWordsToNow from "date-fns/distance_in_words_to_now";
 
-const getFirstImageUrl = images => {
+export const getFirstImageUrl = images => {
   const allImages = Object.keys(images);
   return allImages.length > 0
     ? images[allImages[0]].url
@@ -19,7 +19,8 @@ export function EventCard({
   venueStreetAddress = "n/a",
   venueCityZipCode = "n/a",
   images = {},
-  widthClassName = "w-50 w-third-l"
+  widthClassName = "w-50 w-third-l",
+  aspectRatioClass = "aspect-ratio--5x8"
 }) {
   const { startTime, endTime } = formatEventTimes(eventStartTime, eventEndTime);
   const eventStartDate = formatEventDate(eventStartTime);
@@ -33,9 +34,9 @@ export function EventCard({
             backgroundSize: "contain",
             backgroundImage: `url(${getFirstImageUrl(images)})`
           }}
-          className="eventCard__image-container dim aspect-ratio aspect-ratio--5x8 bg-white-10"
+          className={`eventCard__image-container dim aspect-ratio ${aspectRatioClass} bg-white-10`}
         />
-        <div className="eventCard__content-container flex flex-column">
+        <div className="eventCard__content-container flex flex-column pl1">
           <p className="michroma f9 tracked lh-title white-50 pv2 ttu tl">
             {`@ ${venueName}`}
           </p>
