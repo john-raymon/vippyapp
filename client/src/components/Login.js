@@ -38,7 +38,7 @@ class Login extends Component {
       if (locationState) {
         history.replace(locationState.from);
       } else {
-        history.push("/dashboard");
+        history.replace("/dashboard");
       }
     }
   }
@@ -49,7 +49,7 @@ class Login extends Component {
       if (locationState) {
         history.replace(locationState.from);
       } else {
-        history.push("/dashboard");
+        history.replace("/dashboard");
       }
     }
   }
