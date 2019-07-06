@@ -233,13 +233,35 @@ class UserRegister extends Component {
       <div className="flex flex-column flex-row-l mw8 center pv4 ph1">
         <div className="w-100 w-50-l ph3-l mb4 mb0-l">
           {this.props.location.state &&
-            this.props.location.state.from.state.continueCheckout && (
-              <ListingLineItem
-                boxTitle="Almost done! Create an account before checking out and reserving"
-                listingId={this.props.location.state.from.state.listingId}
-                userAgent={this.props.userAgent}
-              />
-            )}
+          this.props.location.state.from &&
+          this.props.location.state.from.state.continueCheckout ? (
+            <ListingLineItem
+              boxTitle="Almost done! Create an account before checking out and reserving"
+              listingId={this.props.location.state.from.state.listingId}
+              userAgent={this.props.userAgent}
+            />
+          ) : (
+            <div className="sticky top-from-nav mt4 mt0-l w-100 flex flex-column flex-row-m">
+              <p className="michroma f4 tracked b lh-copy white-90 pa3 w-70 z-2">
+                Know What To Expect Before Going Out by Reserving on Vippy.
+                <span className="db lh-copy white f8 pt3">
+                  We exclusively partner with venues to bring forth underrated,
+                  and reliable experiences.
+                  <span className="db f7 white pt1 underline">
+                    Learn how it works here.
+                  </span>
+                </span>
+              </p>
+              <div className="marketingBox absolute absolute--fill w-100 h-100 z-0">
+                <div className="bg-black-70 w-100 h-100" />
+                {
+                  // <p className="michroma tracked white-30 f9 absolute bottom-0 right-0 pa2">
+                  //   Photo by Benjamin Hung on Unsplash
+                  // </p>
+                }
+              </div>
+            </div>
+          )}
         </div>
         <div className="registerComponent flex flex-column w-100 w-50-l">
           {hasInitVerif ? (
