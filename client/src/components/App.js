@@ -11,6 +11,7 @@ import Snackbar from "@material-ui/core/Snackbar";
 import Login from "./Login";
 import Dashboard from "./Dashboard";
 import DetailedListing from "./DetailedListing";
+import Checkout from "./Checkout";
 
 // View Components
 import Header from "./Header";
@@ -157,6 +158,13 @@ class App extends Component {
                       userAgent={this.userAgent}
                     />
                   );
+                }}
+              />
+              <ProtectedRoute
+                isAuth={isAuth}
+                path="/checkout"
+                render={props => {
+                  return <Checkout {...props} userAgent={this.userAgent} />;
                 }}
               />
               <Route
