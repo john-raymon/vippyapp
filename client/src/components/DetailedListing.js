@@ -53,6 +53,11 @@ class _ReservationForm extends Component {
     super(props);
   }
   render() {
+    const {
+      cardElementWrapperWidthClass = "w-100 w-50-ns",
+      disclaimersWrapperWidthClass = "w-100 w-50-ns",
+      cardElementParentContainerClasses = "flex flex-column flex-row-ns w-90"
+    } = this.props;
     return (
       <form
         className="flex flex-column items-center pv4 w-100"
@@ -61,18 +66,22 @@ class _ReservationForm extends Component {
           this.props.handleSubmit(this.props.stripe);
         }}
       >
-        <div className="flex flex-column flex-row-ns w-90">
-          <div className="flex flex-column w-100 w-50-ns justify-center pb3">
+        <div className={`${cardElementParentContainerClasses}`}>
+          <div
+            className={`flex flex-column ${cardElementWrapperWidthClass} justify-center pb3`}
+          >
             <CardElement
               onReady={el =>
                 setTimeout(() => {
                   el.focus();
                 }, 2000)
               }
-              {...createOptions("1.1rem")}
+              {...createOptions("13px")}
             />
           </div>
-          <div className="flex flex-column w-100 w-50-ns ph4-ns pt2">
+          <div
+            className={`flex flex-column ${disclaimersWrapperWidthClass} ph4-ns pt2`}
+          >
             <p className="michroma f8 tracked lh-copy white-60 pb2 ttu tj">
               <span className="db vippy-yellow lh-title pb1">disclaimers</span>
               {`${this.props.disclaimers}`}
@@ -99,7 +108,7 @@ class _ReservationForm extends Component {
     );
   }
 }
-const ReservationForm = injectStripe(_ReservationForm);
+export const ReservationForm = injectStripe(_ReservationForm);
 
 class DetailedListing extends Component {
   constructor(props) {
@@ -114,30 +123,30 @@ class DetailedListing extends Component {
     };
   }
   componentDidMount() {
-    console.log("the new state in location is", this.props.location.state);
-    if (
-      this.props.location.state &&
-      this.props.location.state.continueCheckout
-    ) {
-      // no need to fetch listing data, as user will be forwarded to dedicated
-      // checkout container component, which will handle everything with
-      // stripe token data (this.props.location.state.stripeTokenObject) created from the user's card information and also this listing's id.
-    } else {
-      // fetch listing data
-      this.props.userAgent
-        ._get(`api/listing/${this.props.match.params.listingId}`)
-        .then(resp => {
-          this.setState({
-            listing: resp.listing,
-            error: null
-          });
-        })
-        .catch(error => {
-          this.setState({
-            error: "Sorry, we can't load the listing right now."
-          });
+    console.log("the new state in location is", this.props.location);
+    // if (
+    //   this.props.location.state &&
+    //   this.props.location.state.continueCheckout
+    // ) {
+    //   // no need to fetch listing data, as user will be forwarded to dedicated
+    //   // checkout container component, which will handle everything with
+    //   // stripe token data (this.props.location.state.stripeTokenObject) created from the user's card information and also this listing's id.
+    //
+    // } else {
+    // fetch listing data
+    this.props.userAgent
+      ._get(`api/listing/${this.props.match.params.listingId}`)
+      .then(resp => {
+        this.setState({
+          listing: resp.listing,
+          error: null
         });
-    }
+      })
+      .catch(error => {
+        this.setState({
+          error: "Sorry, we can't load the listing right now."
+        });
+      });
   }
   handleReservationFormSubmit(stripeObject) {
     const { isAuth, history, location } = this.props;
@@ -154,7 +163,7 @@ class DetailedListing extends Component {
             pathname: "/login",
             state: {
               from: {
-                ...location,
+                pathname: "/checkout",
                 state: {
                   continueCheckout: true,
                   listingId: this.props.match.params.listingId,
@@ -164,6 +173,14 @@ class DetailedListing extends Component {
             }
           });
         }
+        return history.push({
+          pathname: "/checkout",
+          state: {
+            continueCheckout: true,
+            listingId: this.props.match.params.listingId,
+            stripeTokenObject: JSON.stringify(res.token)
+          }
+        });
       }
     });
   }
