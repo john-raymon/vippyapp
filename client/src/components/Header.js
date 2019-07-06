@@ -170,7 +170,7 @@ class Header extends Component {
                 </li>
                 <li>
                   <NavLink
-                    to="/sign-up"
+                    to="/settings"
                     className="michroma f8 tracked-mega ttu lh-extra pointer dim mh1 no-underline near-white"
                   >
                     settings
