@@ -37,7 +37,7 @@ const createOptions = (fontSize, padding) => {
         letterSpacing: "0.02em",
         fontFamily: "michromaregular, Source Code Pro, monospace",
         "::placeholder": {
-          color: "#aab7c4"
+          color: "#ffffff"
         },
         padding
       },
