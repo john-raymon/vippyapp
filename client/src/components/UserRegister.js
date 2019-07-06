@@ -50,9 +50,9 @@ class UserRegister extends Component {
     const { state: locationState } = location;
     if (isAuth) {
       if (locationState) {
-        history.push(locationState.from);
+        history.replace(locationState.from);
       } else {
-        history.push("/dashboard");
+        history.replace("/dashboard");
       }
     }
   }
@@ -61,9 +61,9 @@ class UserRegister extends Component {
     const { state: locationState } = location;
     if (isAuth) {
       if (locationState) {
-        history.push(locationState.from);
+        history.replace(locationState.from);
       } else {
-        history.push("/dashboard");
+        history.replace("/dashboard");
       }
     }
   }
