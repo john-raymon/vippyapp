@@ -25,6 +25,20 @@ router.param("reservationId", function(req, res, next, reservationId) {
   return Reservation.findById(reservationId)
     .populate("host")
     .populate("customer")
+    .populate({
+      path: "listing",
+      populate: [
+        {
+          path: "host"
+        },
+        {
+          path: "event",
+          populate: {
+            path: "host"
+          }
+        }
+      ]
+    })
     .exec()
     .then(function(reservation) {
       if (!reservation) {
@@ -311,61 +325,88 @@ router.post("/", auth.required, auth.setUserOrHost, function(req, res, next) {
 });
 
 // get a reservation
-router.get("/", auth.required, auth.setUserOrHost, function(req, res, next) {
+router.get("/:reservationId?", auth.required, auth.setUserOrHost, function(
+  req,
+  res,
+  next
+) {
   if (!req.vippyUser && !req.vippyHost && !req.vippyPromoter) {
     return res.status(403).json({
       success: "false",
       error: "You must be an Authenticated host or user"
     });
   }
-  let query = {},
-    limit = 20,
-    offset = 0;
-  if (req.vippyHost) query.host = req.vippyHost._id;
-  if (req.vippyPromoter) query.host = req.vippyPromoter.venue._id;
-  if (req.vippyUser) query.customer = req.vippyUser._id;
-  if (req.query.limit) {
-    limit = req.query.limit;
-  }
-  if (req.query.offset) {
-    offset = req.query.offset;
-  }
-  Promise.all([
-    Reservation.find(query)
-      .limit(+limit)
-      .skip(+offset)
-      .populate("customer")
-      .populate("host")
-      .populate({
-        path: "listing",
-        populate: [
-          {
-            path: "host"
-          },
-          {
-            path: "event",
-            populate: {
-              path: "host"
-            }
-          }
-        ]
-      })
-      .exec(),
-    Reservation.count(query).exec()
-  ])
-    .then(([reservations, reservationsCount]) => {
-      res.json({
-        success: true,
-        reservations: reservations.map(r => {
-          return {
-            ...r.toProfileJSON(),
-            listing: r.listing._toJSON()
-          };
-        }),
-        reservationsCount
+  if (req.vippyReservation) {
+    if (
+      (req.vippyUser &&
+        req.vippyUser.id !== req.vippyReservation.customer.id) ||
+      (req.vippyHost && req.vippyHost.id !== req.vippyReservation.host.id) ||
+      (req.vippyPromoter &&
+        req.vippyPromoter.venueId !== req.vippyReservation.host.venueId)
+    ) {
+      return res.status(403).json({
+        success: false,
+        error:
+          "You must be the venue host, promoter, or the customer on this reservation"
       });
-    })
-    .catch(next);
+    }
+    return res.json({
+      success: true,
+      reservation: {
+        ...req.vippyReservation.toProfileJSON(),
+        listing: req.vippyReservation.listing._toJSON()
+      }
+    });
+  } else {
+    let query = {},
+      limit = 20,
+      offset = 0;
+    if (req.vippyHost) query.host = req.vippyHost._id;
+    if (req.vippyPromoter) query.host = req.vippyPromoter.venue._id;
+    if (req.vippyUser) query.customer = req.vippyUser._id;
+    if (req.query.limit) {
+      limit = req.query.limit;
+    }
+    if (req.query.offset) {
+      offset = req.query.offset;
+    }
+    Promise.all([
+      Reservation.find(query)
+        .limit(+limit)
+        .skip(+offset)
+        .populate("customer")
+        .populate("host")
+        .populate({
+          path: "listing",
+          populate: [
+            {
+              path: "host"
+            },
+            {
+              path: "event",
+              populate: {
+                path: "host"
+              }
+            }
+          ]
+        })
+        .exec(),
+      Reservation.count(query).exec()
+    ])
+      .then(([reservations, reservationsCount]) => {
+        res.json({
+          success: true,
+          reservations: reservations.map(r => {
+            return {
+              ...r.toProfileJSON(),
+              listing: r.listing._toJSON()
+            };
+          }),
+          reservationsCount
+        });
+      })
+      .catch(next);
+  }
 });
 
 module.exports = router;
