@@ -44,6 +44,9 @@ export default class Checkout extends Component {
     }
   }
   handleReservationFormSubmit(stripeObject) {
+    const {
+      listing: { id: listingId }
+    } = this.state;
     // attempt to validate, and get token then worry about checking authentication.
     this.setState({
       formError: null
@@ -56,9 +59,23 @@ export default class Checkout extends Component {
         });
       }
       if (res.token) {
-        return this.setState({
-          loading: false
-        });
+        this.props.userAgent
+          ._post(`api/reservation?listing=${listingId}`)
+          .then(res => {
+            this.setState({
+              loading: false
+            });
+            this.props.history.replace(
+              `/reservations/${res.reservation.id}?thankYou=true`
+            );
+          })
+          .catch(error => {
+            this.setState({
+              loading: false,
+              formError:
+                "We could not process your payment right now, please try again later or choose a different card."
+            });
+          });
       }
     });
   }
