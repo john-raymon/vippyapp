@@ -3,6 +3,7 @@ import { connect } from "react-redux";
 import { Route, Redirect, Switch, Link, withRouter } from "react-router-dom";
 import { createMuiTheme, MuiThemeProvider } from "@material-ui/core/styles";
 import { UserEndpointAgent as UserAgent } from "./../utils/agent";
+import queryString from "query-string";
 
 // Route Components
 import Homepage from "./Homepage";
@@ -178,11 +179,18 @@ class App extends Component {
               />
               <ProtectedRoute
                 isAuth={isAuth}
-                path="/reservation/:id/:thank-you"
+                path="/reservation/:id"
                 render={props => {
+                  const propsWithParsedLocationSearch = {
+                    ...props,
+                    location: {
+                      ...props.location,
+                      parsedSearch: queryString.parse(props.location.search)
+                    }
+                  };
                   return (
                     <DetailedReservation
-                      {...props}
+                      {...propsWithParsedLocationSearch}
                       userAgent={this.userAgent}
                     />
                   );
