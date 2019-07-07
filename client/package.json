@@ -11,6 +11,7 @@
     "localforage": "^1.7.3",
     "lodash": "^4.17.11",
     "moment-timezone": "^0.5.25",
+    "query-string": "^6.8.1",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
     "react-redux": "^7.0.3",
