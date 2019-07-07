@@ -1,15 +1,19 @@
 import React, { Component, Fragment } from "react";
 import ListingLineItem from "./ListingLineItem";
-import { ReservationForm } from "./DetailedListing";
+import ReservationForm from "./ReservationForm";
 import { Elements, StripeProvider } from "react-stripe-elements";
 
 export default class Checkout extends Component {
   constructor(props) {
     super(props);
+    this.handleReservationFormSubmit = this.handleReservationFormSubmit.bind(
+      this
+    );
     this.state = {
       listing: null,
       error: null,
-      formError: null
+      formError: null,
+      loading: false
     };
   }
   componentDidMount() {
@@ -39,9 +43,29 @@ export default class Checkout extends Component {
       });
     }
   }
+  handleReservationFormSubmit(stripeObject) {
+    // attempt to validate, and get token then worry about checking authentication.
+    this.setState({
+      formError: null
+    });
+    stripeObject.createToken().then(res => {
+      if (res.error) {
+        return this.setState({
+          formError: res.error,
+          loading: false
+        });
+      }
+      if (res.token) {
+        return this.setState({
+          loading: false
+        });
+      }
+    });
+  }
   render() {
     const { listing, formError } = this.state;
     const { userAgent } = this.props;
+    console.log("the error", formError);
     if (listing) {
       return (
         <StripeProvider apiKey="pk_test_2Txz4BEB02STeZraf70NgKYh">
@@ -62,6 +86,7 @@ export default class Checkout extends Component {
                   <Elements>
                     <ReservationForm
                       formError={formError}
+                      handleSubmit={this.handleReservationFormSubmit}
                       guestCount={listing.guestCount}
                       bookingPrice={listing.bookingPrice}
                       disclaimers={listing.disclaimers}
