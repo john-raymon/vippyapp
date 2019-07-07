@@ -12,6 +12,7 @@ import Login from "./Login";
 import Dashboard from "./Dashboard";
 import DetailedListing from "./DetailedListing";
 import Checkout from "./Checkout";
+import DetailedReservation from "./DetailedReservation";
 
 // View Components
 import Header from "./Header";
@@ -173,6 +174,18 @@ class App extends Component {
                 render={() => {
                   this.props.logout();
                   return <div>test</div>;
+                }}
+              />
+              <ProtectedRoute
+                isAuth={isAuth}
+                path="/reservation/:id/:thank-you"
+                render={props => {
+                  return (
+                    <DetailedReservation
+                      {...props}
+                      userAgent={this.userAgent}
+                    />
+                  );
                 }}
               />
               <Route path="/*" component={NotFound} />
