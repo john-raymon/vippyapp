@@ -179,7 +179,7 @@ class App extends Component {
               />
               <ProtectedRoute
                 isAuth={isAuth}
-                path="/reservation/:id"
+                path="/reservations/:reservationId"
                 render={props => {
                   const propsWithParsedLocationSearch = {
                     ...props,
