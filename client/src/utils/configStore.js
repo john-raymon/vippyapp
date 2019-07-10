@@ -15,7 +15,7 @@ import { routerMiddleware } from "connected-react-router";
 const setTokenInStorageMiddleware = ({
   setActions = [],
   unsetActions = []
-}) => store => next => action => {
+}) => store => next => async action => {
   const debugMode = () => {
     if (process.env.NODE_ENV === "development") {
       console.log(`The current action is: ${action.type}`);
@@ -24,7 +24,7 @@ const setTokenInStorageMiddleware = ({
   };
   if (setActions.includes(`${action.type}`)) {
     debugMode();
-    localforage.setItem(
+    await localforage.setItem(
       "jwt",
       action.payload.user.token || action.payload.token || ""
     );
