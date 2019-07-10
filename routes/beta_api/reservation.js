@@ -6,7 +6,10 @@ var request = require("request");
 var crypto = require("crypto");
 var stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const isFuture = require("date-fns/is_future");
-
+const {
+  FORBIDDEN_RESERVATION,
+  FORBIDDEN_RESERVATION_MESSAGE
+} = require("../../config/error-constants");
 // auth middleware
 var auth = require("../authMiddleware");
 var { hostMiddleware } = require("./host");
@@ -42,7 +45,10 @@ router.param("reservationId", function(req, res, next, reservationId) {
     .exec()
     .then(function(reservation) {
       if (!reservation) {
-        return res.sendStatus(404);
+        return res.status(404).json({
+          success: false,
+          error: "There is no active reservation with that id."
+        });
       }
       req.vippyReservation = reservation;
       next();
@@ -67,12 +73,13 @@ router.post(
     ) {
       return res.status(403).json({
         success: false,
-        error:
-          "You must be the venue host, promoter, or the customer on this reservation"
+        errorType: FORBIDDEN_RESERVATION,
+        error: FORBIDDEN_RESERVATION_MESSAGE,
+        message: FORBIDDEN_RESERVATION_MESSAGE
       });
     }
 
-    if (vippyReservation.cancelled) {
+    if (req.vippyReservation.cancelled) {
       return next({
         name: "BadRequestError",
         message:
@@ -80,7 +87,7 @@ router.post(
       });
     }
 
-    if (!isFuture(new Date(vippyReservation.listing.endTime))) {
+    if (!isFuture(new Date(req.vippyReservation.listing.event.endTime))) {
       return next({
         name: "BadRequestError",
         message:
@@ -133,12 +140,17 @@ router.post(
             function(err, transfer) {
               if (err) {
                 console.log("the stripe transfer error was", err);
-                // could not charge
+                // could not make transfer
+                // TODO: do something, to document this failed transfer in order to retry later, since a failed trasnfer
+                // will not prevent the redeeming.
                 req.vippyReservation.paidToHost = false;
                 return req.vippyReservation
                   .save()
                   .then(function(reservation) {
-                    return res.json(body);
+                    return res.json({
+                      ...body,
+                      reservation
+                    });
                   })
                   .catch(next);
               }
@@ -148,7 +160,10 @@ router.post(
               return req.vippyReservation
                 .save()
                 .then(function(reservation) {
-                  return res.json(body);
+                  return res.json({
+                    ...body,
+                    reservation
+                  });
                 })
                 .catch(next);
             }
@@ -249,9 +264,7 @@ router.post("/", auth.required, auth.setUserOrHost, function(req, res, next) {
           }
         });
       }
-      const reservationConfirmationCode = crypto
-        .randomBytes(24)
-        .toString("hex");
+      const reservationConfirmationCode = crypto.randomBytes(8).toString("hex");
       return stripe.charges
         .create({
           amount: +listing.bookingPrice * 100,
@@ -346,8 +359,9 @@ router.get("/:reservationId?", auth.required, auth.setUserOrHost, function(
     ) {
       return res.status(403).json({
         success: false,
-        error:
-          "You must be the venue host, promoter, or the customer on this reservation"
+        errorType: FORBIDDEN_RESERVATION,
+        message: FORBIDDEN_RESERVATION_MESSAGE,
+        error: FORBIDDEN_RESERVATION_MESSAGE
       });
     }
     return res.json({
