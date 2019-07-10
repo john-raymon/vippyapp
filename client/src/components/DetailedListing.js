@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from "react";
 import { Elements, StripeProvider } from "react-stripe-elements";
 import { EventCard } from "./Cards";
-import tableImage from "../images/table.png";
+import ListingImagesHeader from "./ListingImagesHeader";
 import ReservationForm from "./ReservationForm";
 
 // <form className="flex flex-column items-center pv4 w-100">
@@ -107,58 +107,11 @@ class DetailedListing extends Component {
     }
     if (listing) {
       const { event } = listing;
-      const [
-        [firstImageKey, firstImage = { url: "" }] = [],
-        [secondImageKey, secondImage = { url: "" }] = [],
-        [thirdImageKey, thirdImage = { url: "" }] = []
-      ] = Object.entries(listing.images);
       return (
         <StripeProvider apiKey="pk_test_2Txz4BEB02STeZraf70NgKYh">
           <Elements>
             <div className="pv4 mw8 center white">
-              <div className="flex flex-row items-end w-100">
-                <div className="w-third w-25-l mr2">
-                  <img
-                    src={tableImage}
-                    width="100%"
-                    alt="Hero Background"
-                    className="pn1"
-                  />
-                </div>
-                <div className="w-third w-25-l mr2">
-                  <div
-                    style={{
-                      backgroundRepeat: "no-repeat",
-                      backgroundPosition: "center",
-                      backgroundSize: "cover",
-                      backgroundImage: `url(${firstImage.url})`
-                    }}
-                    className="dim aspect-ratio aspect-ratio--1x1 bg-vippy-1"
-                  />
-                </div>
-                <div className="w-third w-25-l mr2">
-                  <div
-                    style={{
-                      backgroundRepeat: "no-repeat",
-                      backgroundPosition: "center",
-                      backgroundSize: "cover",
-                      backgroundImage: `url(${secondImage.url})`
-                    }}
-                    className="dim aspect-ratio aspect-ratio--1x1 bg-vippy-1"
-                  />
-                </div>
-                <div className="w-third w-25-l mr2">
-                  <div
-                    style={{
-                      backgroundRepeat: "no-repeat",
-                      backgroundPosition: "center",
-                      backgroundSize: "cover",
-                      backgroundImage: `url(${thirdImage.url})`
-                    }}
-                    className="dim aspect-ratio aspect-ratio--1x1 bg-vippy-1"
-                  />
-                </div>
-              </div>
+              <ListingImagesHeader listingImages={listing.images} />
               <div className="flex flex-column flex-row-ns w-100 pt2 justify-between">
                 <div className="w-100 w-75-l pr2">
                   <h1 className="michroma tracked lh-title ttu">
