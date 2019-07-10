@@ -13,12 +13,12 @@ export class Agent {
 
   async _initToken() {
     this.token = await localforage.getItem("jwt");
+    // debugger;
+    return this.token;
   }
 
   _tokenPlugin(req) {
-    if (this.token) {
-      req.set("authorization", `Token ${this.token}`);
-    }
+    req.set("authorization", `Token ${this.token || ""}`);
     return req;
   }
 
@@ -39,8 +39,9 @@ export class Agent {
   }
 
   async _get(url) {
-    await this._initToken();
+    const returnedToken = await this._initToken();
     console.log("the token is!! -->", this.token);
+    // debugger;
     return superagent
       .get(`${this.API_ROOT}${url}`)
       .use(this._tokenPlugin)
@@ -56,7 +57,7 @@ export class Agent {
   }
 
   async _post(url, body) {
-    await this._initToken();
+    const returnedToken = await this._initToken();
     return superagent
       .post(`${this.API_ROOT}${url}`, body)
       .use(this._tokenPlugin)
