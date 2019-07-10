@@ -60,7 +60,7 @@ export default class ListingLineItem extends Component {
       return (
         <div className="flex flex-column w-100">
           <div className="flex flex-column w-100 bg-white">
-            <p className="michroma f5 lh-title yellow tracked bg-vippy-1 ph4 pv3 tc">
+            <p className="michroma f5 lh-title yellow tracked bg-vippy-1 ph4 pv3 tc break-word">
               {boxTitle}
             </p>
             <div className="flex flex-row w-100">
