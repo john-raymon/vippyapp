@@ -94,6 +94,10 @@
   background: rgb(49, 49, 49);
 }
 
+.bg-none {
+  background: none;
+}
+
 .white-important {
   color: white !important;
 }
@@ -192,4 +196,9 @@ html,body {
     opacity: 0.8;
     transition-timing-function: ease-out;
   }
+}
+
+/* break-word classes */
+.break-word {
+  word-break: break-word;
 }
