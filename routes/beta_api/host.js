@@ -122,7 +122,8 @@ router.patch(
   }
 );
 
-// Create a new Host - add admin middleware to prevent Host from being created without permission
+// Create a new Host -
+// TODO : add admin middleware to prevent Host from being created without permission
 router.post(
   "/",
   function(req, res, next) {
@@ -131,7 +132,8 @@ router.post(
       "venueName",
       "phonenumber",
       "fullname",
-      "zipcode"
+      "zipcode",
+      "password"
     ];
     const { hasMissingProps, propErrors } = isBodyMissingProps(
       requiredProps,
@@ -180,7 +182,7 @@ router.post(
       .then(function() {
         return res.json({
           success: true,
-          venueHost: host.toAuthJSON()
+          venueHost: vippyHost.toAuthJSON()
         });
       })
       .catch(next);
