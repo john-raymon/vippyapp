@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from "react";
 import { connect } from "react-redux";
-import { ListingCard } from "./Cards";
+import { ReservationCard, ListingCard } from "./Cards";
 
 // Redux Actions
 import { fetchReservationsForUser } from "./../state/actions/authActions";
@@ -37,7 +37,7 @@ class Dashboard extends Component {
             <div className="cf w-100">
               {activeReservations.map(({ listing }, key) => {
                 return (
-                  <ListingCard
+                  <ReservationCard
                     key={key}
                     listing={listing}
                     bookingDeadline={listing.bookingDeadline}
@@ -80,7 +80,7 @@ class Dashboard extends Component {
             <div className="cf w-100">
               {pastReservations.map(({ listing }, key) => {
                 return (
-                  <ListingCard
+                  <ReservationCard
                     key={key}
                     listing={listing}
                     bookingDeadline={listing.bookingDeadline}
@@ -95,7 +95,7 @@ class Dashboard extends Component {
                       listing.event.address.state
                     } ${listing.event.address.zip}`}
                     images={listing.images}
-                    widthClassName="w-50 w-25-l"
+                    widthClassName="w-100"
                   />
                 );
               })}
