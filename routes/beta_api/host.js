@@ -260,8 +260,10 @@ router.post("/stripe/auth", auth.required, hostMiddleware, function(
         .then(key => {
           let parameters = {
             client_id: config.stripe.client_id,
+            response_type: "code",
             state: key,
-            redirect_uri: config.public_domain + "/api/host/stripe/token",
+            redirect_uri:
+              "http://" + config.public_domain + "/api/host/stripe/token",
             "stripe_user[business_type]": host.type || "individual",
             "stripe_user[business_name]": host.business_name || undefined,
             "stripe_user[first_name]": host.fullname.split(" ")[0] || undefined,
@@ -327,6 +329,9 @@ router.get("/stripe/token", auth.optional, function(req, res, next) {
         },
         (err, response, body) => {
           if (err || body.error) {
+            // return res.json(response)
+            // TODO: decide whether to respond with bad status code and proper body to identify the issue/error/
+            // reason why the oAuth didn't process properly or redirect to specific path.
             res.redirect("/onBoardingError"); // front-end page explaining the fallout, telling the user to attempt the process again
           }
           // update the host model with the stripe_user_id
