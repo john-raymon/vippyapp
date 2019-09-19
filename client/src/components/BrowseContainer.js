@@ -100,6 +100,7 @@ class BrowseContainer extends Component {
               listing.event.address.state
             } ${listing.event.address.zip}`}
             images={listing.images}
+            widthClassName="w-100 w-50-m w-25-l"
           />
         );
       });
@@ -108,7 +109,7 @@ class BrowseContainer extends Component {
     return (
       <div className="browseContainer w-100 br2 self-end">
         {!listings || !events ? (
-          <p className="michroma f7 tracked lh-extra white-90 pv2 ph3 tl">
+          <p className="michroma f7 tracked lh-extra white-90 pv2 ph3 tl button-glow">
             Enter your zip code above to browse nearby events and packages/vips.
           </p>
         ) : (
