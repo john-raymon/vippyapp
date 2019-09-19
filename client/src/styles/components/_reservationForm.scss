@@ -4,7 +4,7 @@
   }
 
   &__input {
-    @extend .f8, .tc, .ttu, .michroma, .white !optional;
+    @extend .f8, .tc, .ttu, .michroma, .white;
     &::-webkit-input-placeholder {
       color: white;
     }
