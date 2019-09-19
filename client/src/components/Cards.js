@@ -140,6 +140,7 @@ export function ListingCard({
 }
 
 export function ReservationCard({
+  reservationId,
   listing = {},
   packageTitle = "n/a",
   eventDate = "n/a",
@@ -157,7 +158,7 @@ export function ReservationCard({
   const eventStartDate = formatEventDate(eventStartTime);
   return (
     <div className={`fl pr3 pv3 ${widthClassName}`}>
-      <Link to={`/listing/${listing.id}`}>
+      <Link to={`/reservations/${reservationId}`}>
         <div className="listingCard flex flex-row dim-1 pv3 b--white-10 bw1 ba br2 pv4">
           <div className="w-35 pl4 self-center">
             <div
