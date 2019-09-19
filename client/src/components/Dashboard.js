@@ -35,10 +35,11 @@ class Dashboard extends Component {
               {activeReservationsCount > 1 ? `s` : ""}.
             </p>
             <div className="cf w-100">
-              {activeReservations.map(({ listing }, key) => {
+              {activeReservations.map(({ listing, id }, key) => {
                 return (
                   <ReservationCard
                     key={key}
+                    reservationId={id}
                     listing={listing}
                     bookingDeadline={listing.bookingDeadline}
                     packageTitle={listing.name}
@@ -78,11 +79,12 @@ class Dashboard extends Component {
               {pastReservationsCount > 1 ? `s` : ""}.
             </p>
             <div className="cf w-100">
-              {pastReservations.map(({ listing }, key) => {
+              {pastReservations.map(({ listing, id }, key) => {
                 return (
                   <ReservationCard
                     key={key}
                     listing={listing}
+                    reservationId={id}
                     bookingDeadline={listing.bookingDeadline}
                     packageTitle={listing.name}
                     eventStartTime={listing.event.startTime}
