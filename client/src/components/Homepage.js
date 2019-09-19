@@ -107,8 +107,8 @@ class Homepage extends Component {
             <img src={heroBackgroundImage} width="100%" alt="Hero Background" />
           </div>
         </div>
-        <div className="flex flex-column flex-row-l mt4 mt5-m">
-          <div className="w-30-l order-2 order-0-l pr3-l">
+        <div className="flex flex-column mt4 mt5-m">
+          <div className="w-100 order-2 order-0-l pr3-l">
             <div className="sticky top-from-nav mt4 mt0-l w-100 flex flex-column flex-row-m">
               <p className="michroma f4 tracked b lh-copy white-90 pa3 w-70 z-2">
                 Know What To Expect Before Going Out by Reserving on Vippy.
@@ -130,7 +130,7 @@ class Homepage extends Component {
               </div>
             </div>
           </div>
-          <div className="homepage__browseContainerWrapper w-70-l flex flex-column">
+          <div className="homepage__browseContainerWrapper w-100 flex flex-column">
             <BrowseContainer
               isLoading={isBrowserLoading}
               events={events}
