@@ -45,5 +45,8 @@
     "build:css": "tachyons src/tachyons.css > css/tachyons.css",
     "build:minify": "tachyons src/tachyons.css --minify > css/tachyons.min.css",
     "build:watch": "watch \"npm run build\" ./src/"
+  },
+  "resolutions": {
+    "browserslist": "^3.0.0"
   }
 }
