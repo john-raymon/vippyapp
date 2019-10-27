@@ -20,10 +20,12 @@ GOOGLE_GEOCODING_API_KEY=
 - [Models](#models)
 - [React Frontend](#react-frontend)
 ## Models
-  - `Users`
+  - `User`
   - `Host` (These are venues)
-  - `Events`
-  - `Listings`
+  - `Event`
+  - `Listing`
+  - `Reservation` (These are purchased Listings—transactions)
+  - `Promoter` (belong to a Host, have auth. capabilities, has different toggleable permissions controlled by Host—venue)
 
 ## React Frontend
 
