@@ -241,8 +241,10 @@ router.post("/", auth.required, auth.setUserOrHost, function(req, res, next) {
         return next({
           name: "BadRequestError",
           message:
-            "You can no longer update this event as it has been cancelled."
+            "The listing is no longer available, the venue may have removed it, we apologize for the inconvenience."
         });
+        // TODO: interpolate the business number of the listing's venue to allow customer to call if there was sometype of charge
+        // that they can refund
       }
 
       if (!isFuture(new Date(listing.bookingDeadline))) {
