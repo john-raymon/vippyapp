@@ -354,6 +354,7 @@ router.get("/stripe/token", auth.optional, function(req, res, next) {
     .catch(next);
 });
 
+// redirect host to stripe express dashboard
 router.get("/stripe/dashboard", auth.required, auth.setUserOrHost, function(
   req,
   res,
@@ -361,6 +362,7 @@ router.get("/stripe/dashboard", auth.required, auth.setUserOrHost, function(
 ) {
   if (req.vippyHost) {
     if (!req.vippyHost.hasStripeId()) {
+      // TODO : return proper response that client can understand correctly in order to start on-boarding for Host.
       return res.status(400).json({
         error: "You must have authenticate your account with Stripe",
         redirectTo: "HOST_DASHBOARD"
