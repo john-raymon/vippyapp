@@ -64,37 +64,26 @@ class DetailedListing extends Component {
   }
   handleReservationFormSubmit(stripeObject) {
     const { isAuth, history, location } = this.props;
-    // attempt to validate, and get token then worry about checking authentication.
-    stripeObject.createToken().then(res => {
-      if (res.error) {
-        return this.setState({
-          formError: res.error
-        });
-      }
-      if (res.token) {
-        if (!isAuth) {
-          return history.push({
-            pathname: "/login",
+    // check if user is authenticated, if not redirect to login remembering to continueCheckout and the listingId of listing attempting to reserve
+    if (!isAuth) {
+      return history.push({
+        pathname: "/login",
+        state: {
+          from: {
+            pathname: "/checkout",
             state: {
-              from: {
-                pathname: "/checkout",
-                state: {
-                  continueCheckout: true,
-                  listingId: this.props.match.params.listingId,
-                  stripeTokenObject: JSON.stringify(res.token)
-                }
-              }
+              continueCheckout: true,
+              listingId: this.props.match.params.listingId
             }
-          });
-        }
-        return history.push({
-          pathname: "/checkout",
-          state: {
-            continueCheckout: true,
-            listingId: this.props.match.params.listingId,
-            stripeTokenObject: JSON.stringify(res.token)
           }
-        });
+        }
+      });
+    }
+    return history.push({
+      pathname: "/checkout",
+      state: {
+        continueCheckout: true,
+        listingId: this.props.match.params.listingId
       }
     });
   }
