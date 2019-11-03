@@ -67,7 +67,7 @@ router.patch(
     }
 
     if (req.body.password) {
-      // send security email to host
+      // TODO: send security email to host
       req.vippyHost.setPassword(req.body.password);
     }
 
