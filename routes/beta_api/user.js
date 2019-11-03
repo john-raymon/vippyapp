@@ -240,7 +240,7 @@ router.patch(
                     name: "BadRequestError",
                     message:
                       twilioErrorCodes[body.error_code] ||
-                      `We're expericing issues while trying to verify your phone number, please try again later.`
+                      `We're experiencing issues while trying to verify your phone number, please try again later.` // TODO : Source text like this from locale file
                   });
                 }
               }
