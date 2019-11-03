@@ -53,7 +53,7 @@ class Dashboard extends Component {
                       listing.event.address.state
                     } ${listing.event.address.zip}`}
                     images={listing.images}
-                    widthClassName="w-50 w-25-l"
+                    widthClassName="w-50 w-100-l"
                   />
                 );
               })}
