@@ -26,9 +26,6 @@ export default class Checkout extends Component {
         .then(resp => {
           this.setState({
             listing: resp.listing,
-            stripeToken: JSON.parse(
-              this.props.location.state.stripeTokenObject
-            ),
             error: null
           });
         })
@@ -59,6 +56,9 @@ export default class Checkout extends Component {
         });
       }
       if (res.token) {
+        // TODO: add cardToken to request body, server accepts this request and successfully creates reservation without it only if NODE_ENV isn't set to production
+        // but this should by default submit the cardToken regardless of it being dev. The reason for the endpoint allowing DEV mode to cause bypass is for
+        // hitting endpoint with curl and postmates without having to create a token with stripe.
         this.props.userAgent
           ._post(`api/reservation?listing=${listingId}`)
           .then(res => {

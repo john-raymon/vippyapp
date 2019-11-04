@@ -10,15 +10,6 @@
  border-width: 0.02rem;
 }
 
-// font sizes
-.f8 {
-  font-size: 0.50rem;
-}
-
-.f9 {
-  font-size: 0.30rem;
-}
-
 .relative-important {
   position: relative !important;
 }
@@ -27,10 +18,9 @@
   font-size: 0.60rem !important;
 }
 
-.f9 {
+.f9-important {
   font-size: 0.30rem !important;
 }
-
 .f7-important {
   font-size: 0.85rem !important;
 }
@@ -149,7 +139,8 @@
 }
 
 .MUIRegisterOverride {
-  @extend .pv1, .mt2;
+  @extend .pv1;
+  @extend .mt2;
   color: white !important;
   input {
     height: 100% !important;
@@ -201,4 +192,17 @@ html,body {
 /* break-word classes */
 .break-word {
   word-break: break-word;
+}
+
+
+// glow animation
+.button-glow {
+  animation: glowing 3000ms ease-in-out infinite;
+}
+
+@keyframes glowing {
+  0% { box-shadow: 0px 5px -20px #7bce7b42; }
+  40% { box-shadow: 0px 5px 42px #7bce7b42; }
+  60% { box-shadow: 0px 5px 42px #7bce7b42; }
+  100% { box-shadow: 0px 5px -20px #7bce7b42; }
 }

@@ -117,20 +117,19 @@ router.get("/send-onboard-code", function(req, res, next) {
           },
           function(err, response, body) {
             if (process.env.NODE_ENV === "development") {
+              // if in dev mode then force a successful phone verification
               return res.json({
                 success: true
               });
             }
             if (!body.success) {
-              return res
-                .status(400)
-                .json({
-                  ...body,
-                  success: false,
-                  message:
-                    twilioErrorCodes[body.error_code] ||
-                    `We're expericing issues while trying to verify your phone number, please try again later.`
-                });
+              return res.status(400).json({
+                ...body,
+                success: false,
+                message:
+                  twilioErrorCodes[body.error_code] ||
+                  `We're expericing issues while trying to verify your phone number, please try again later.`
+              });
             }
             return res.json(body);
           }

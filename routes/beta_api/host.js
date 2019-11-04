@@ -67,7 +67,7 @@ router.patch(
     }
 
     if (req.body.password) {
-      // send security email to host
+      // TODO: send security email to host
       req.vippyHost.setPassword(req.body.password);
     }
 
@@ -122,7 +122,8 @@ router.patch(
   }
 );
 
-// Create a new Host - add admin middleware to prevent Host from being created without permission
+// Create a new Host -
+// TODO : add admin middleware to prevent Host from being created without permission
 router.post(
   "/",
   function(req, res, next) {
@@ -131,7 +132,8 @@ router.post(
       "venueName",
       "phonenumber",
       "fullname",
-      "zipcode"
+      "zipcode",
+      "password"
     ];
     const { hasMissingProps, propErrors } = isBodyMissingProps(
       requiredProps,
@@ -180,7 +182,7 @@ router.post(
       .then(function() {
         return res.json({
           success: true,
-          venueHost: host.toAuthJSON()
+          venueHost: vippyHost.toAuthJSON()
         });
       })
       .catch(next);
@@ -258,8 +260,10 @@ router.post("/stripe/auth", auth.required, hostMiddleware, function(
         .then(key => {
           let parameters = {
             client_id: config.stripe.client_id,
+            response_type: "code",
             state: key,
-            redirect_uri: config.public_domain + "/api/host/stripe/token",
+            redirect_uri:
+              "http://" + config.public_domain + "/api/host/stripe/token",
             "stripe_user[business_type]": host.type || "individual",
             "stripe_user[business_name]": host.business_name || undefined,
             "stripe_user[first_name]": host.fullname.split(" ")[0] || undefined,
@@ -325,6 +329,9 @@ router.get("/stripe/token", auth.optional, function(req, res, next) {
         },
         (err, response, body) => {
           if (err || body.error) {
+            // return res.json(response)
+            // TODO: decide whether to respond with bad status code and proper body to identify the issue/error/
+            // reason why the oAuth didn't process properly or redirect to specific path.
             res.redirect("/onBoardingError"); // front-end page explaining the fallout, telling the user to attempt the process again
           }
           // update the host model with the stripe_user_id
@@ -347,6 +354,7 @@ router.get("/stripe/token", auth.optional, function(req, res, next) {
     .catch(next);
 });
 
+// redirect host to stripe express dashboard
 router.get("/stripe/dashboard", auth.required, auth.setUserOrHost, function(
   req,
   res,
@@ -354,6 +362,7 @@ router.get("/stripe/dashboard", auth.required, auth.setUserOrHost, function(
 ) {
   if (req.vippyHost) {
     if (!req.vippyHost.hasStripeId()) {
+      // TODO : return proper response that client can understand correctly in order to start on-boarding for Host.
       return res.status(400).json({
         error: "You must have authenticate your account with Stripe",
         redirectTo: "HOST_DASHBOARD"

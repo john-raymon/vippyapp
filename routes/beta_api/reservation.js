@@ -142,7 +142,8 @@ router.post(
                 console.log("the stripe transfer error was", err);
                 // could not make transfer
                 // TODO: do something, to document this failed transfer in order to retry later, since a failed trasnfer
-                // will not prevent the redeeming.
+                // will not prevent the redeeming. Do this to ensure a the Host is paid automatically after the sucessfull redeeming but failed transfer, which is what occured here, at this point.
+                // Right now only way is a manual transfer via Vippy Stripe Dashboard
                 req.vippyReservation.paidToHost = false;
                 return req.vippyReservation
                   .save()
@@ -171,7 +172,7 @@ router.post(
         }
       );
     }
-    // Send Code to customer
+    // if req.query.verify is not set then, Send Code to customer
     request(
       {
         url: "https://api.authy.com/protected/json/phones/verification/start",
@@ -241,8 +242,10 @@ router.post("/", auth.required, auth.setUserOrHost, function(req, res, next) {
         return next({
           name: "BadRequestError",
           message:
-            "You can no longer update this event as it has been cancelled."
+            "The listing is no longer available, the venue may have removed it, we apologize for the inconvenience."
         });
+        // TODO: interpolate the business number of the listing's venue to allow customer to call if there was sometype of charge
+        // that they can refund
       }
 
       if (!isFuture(new Date(listing.bookingDeadline))) {

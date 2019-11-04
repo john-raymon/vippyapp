@@ -182,7 +182,7 @@ class Login extends Component {
             <div className="mb2">
               <FormField
                 placeholder="Enter your password"
-                type="text"
+                type="password"
                 label="Password"
                 name="password"
                 value={this.state.password}

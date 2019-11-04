@@ -121,6 +121,7 @@ pre {
 
 a {
   background-color: transparent;
+  text-decoration: none;
 }
 
 /**
@@ -231,6 +232,7 @@ input { /* 1 */
 button,
 select { /* 1 */
   text-transform: none;
+  outline: none;
 }
 
 /**

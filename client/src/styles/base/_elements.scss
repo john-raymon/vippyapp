@@ -23,7 +23,8 @@
 }
 
 .vippyButton {
-  @extend .relative, .pointer;
+  @extend .relative;
+  @extend .pointer;
   border: none;
   border-radius: 1rem;
   padding: 0.14rem 0.11rem;
@@ -35,15 +36,21 @@
   background-repeat: no-repeat;
   background-size: 300%;
   &__innerColorBlock {
-    @extend .absolute--fill, .bg-black, .h-100, .w-100;
+    @extend .absolute--fill;
+    @extend .bg-black;
+    @extend .h-100;
+    @extend .w-100;
     border-radius: 1rem;
   }
 
   &--smaller {
     padding: 0.09rem 0.08rem;
-    height: 2.25rem;
+    height: 3.5rem;
     min-width: 130px;
     width: 100%;
+    @media screen and (min-width: 60rem) {
+      height: 2.50rem;
+    }
   }
 }
 
