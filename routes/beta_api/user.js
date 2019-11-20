@@ -176,22 +176,30 @@ router.patch(
   auth.onlyUser,
   imageParser.single("userImage"),
   async function(req, res, next) {
-    const whitelistedKeys = ["fullname", "zipcode"];
+    const whitelistedKeys = ["fullname", "zipcode", "password"];
 
     for (let prop in req.body) {
-      if (whitelistedKeys.includes(prop)) {
+      if (whitelistedKeys.includes(prop) && prop !== "password") {
         req.vippyUser[prop] = req.body[prop];
       }
     }
 
     if (req.body.email && req.vippyUser.email !== req.body.email) {
-      // send security confirmation email below
+      // check if new email isn't same as current
+      // TODO: send security confirmation email below
       // and reset isEmailConfirmed
       // ...
       req.vippyUser.email = req.body.email;
       req.vippyUser.isEmailConfirmed = false;
+    } else if (req.body.email && req.vippyUser.email === req.body.email) {
+      throw {
+        name: "ValidationError",
+        message: "Your current email and new email are the same."
+      };
     }
+
     if (req.body.phonenumber) {
+      // before attempting to change phonenumber, a verificationCode must be sent with it. Verfi
       try {
         if (!req.body.verificationCode) {
           throw {
@@ -208,7 +216,10 @@ router.patch(
         }
         const nationalNumber = parsedPhoneNumber.nationalNumber;
         const countryCallingCode = parsedPhoneNumber.countryCallingCode;
-
+        // we don't need to check if the number is unregistered because if they were able to initiate
+        // a twilio verification through the /twilio/send-onboard-code endpoint, then they were able to verify that the phone number
+        // is unregistered, so we don't have to worry about that at this point, we just need to attempt to verfiy with the code,
+        // if it succeeds then proceed to create the account for the user
         const twilioRequest = await new Promise((resolve, reject) => {
           request(
             {
@@ -219,7 +230,7 @@ router.patch(
                 "X-Authy-API-Key": process.env.TWILIO_ACCOUNT_SECURITY_API_KEY
               },
               qs: {
-                verification_code: req.body.verification_code,
+                verification_code: req.body.verificationCode,
                 phone_number: nationalNumber,
                 country_code: countryCallingCode
               },
@@ -244,7 +255,7 @@ router.patch(
                   });
                 }
               }
-              // if verification was successful then resolve promise with twilio response body, and create the account
+              // if verification was successful then resolve promise with twilio response body, and update account with phone number
               return resolve([body, nationalNumber, countryCallingCode]);
             }
           );
@@ -268,7 +279,7 @@ router.patch(
     }
 
     if (req.body.password) {
-      // send security email to user
+      // TODO: send security email to user
       req.vippyUser.setPassword(req.body.password);
     }
 
