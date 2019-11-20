@@ -200,9 +200,10 @@ router.post(
 // create a reservation
 router.post("/", auth.required, auth.setUserOrHost, function(req, res, next) {
   if (!req.vippyUser) {
+    // only regular users can purchase/reserve a listing
     return res.status(403).json({
       success: false,
-      error: "You must be logged in as a user or a venue"
+      error: "You must be logged in as a user."
     });
   }
   if (!req.query.listing) {
