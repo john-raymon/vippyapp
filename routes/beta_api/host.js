@@ -17,6 +17,7 @@ var imageParser = require("./../../config/multer-cloudinary");
 // models
 var Host = require("../../models/Host");
 var Promoter = require("../../models/Promoter");
+var FutureVenue = require("../../models/FutureVenue");
 
 // config
 var config = require("./../../config");
@@ -126,14 +127,15 @@ router.patch(
 // TODO : add admin middleware to prevent Host from being created without permission
 router.post(
   "/",
-  function(req, res, next) {
+  async function(req, res, next) {
     const requiredProps = [
       "email",
       "venueName",
       "phonenumber",
       "fullname",
       "zipcode",
-      "password"
+      "password",
+      "accessCode"
     ];
     const { hasMissingProps, propErrors } = isBodyMissingProps(
       requiredProps,
@@ -146,19 +148,40 @@ router.post(
       });
     }
 
-    const host = new Host({
+    // NOTE: check if accessCode and email can be found as FutureVenue record before continuing
+    // since email is required to be unique on a Host we don't need to worry about removing the
+    // email record, as after the venue is successfully created for the email, a venue/"host"
+    // record can not be created again due to the unique email record
+    FutureVenue.count({
       email: req.body.email,
-      fullname: req.body.fullname,
-      zipcode: req.body.zipcode,
-      phonenumber: req.body.phonenumber,
-      venueId: createId(5),
-      venueName: req.body.venueName
-    });
+      accessCode: req.body.accessCode
+    })
+      .exec()
+      .then(function(count) {
+        console.log("it is!! it is", count);
+        if (count === 0) {
+          return next({
+            name: "ValidationError",
+            message: "Please verify your access code is correct and try again."
+          });
+        }
+        return count;
+      })
+      .then(function() {
+        const host = new Host({
+          email: req.body.email,
+          fullname: req.body.fullname,
+          zipcode: req.body.zipcode,
+          phonenumber: req.body.phonenumber,
+          venueId: createId(5),
+          venueName: req.body.venueName
+        });
 
-    host.setPassword(req.body.password);
+        host.setPassword(req.body.password);
 
-    req.vippyHost = host;
-    next();
+        req.vippyHost = host;
+        next();
+      });
   },
   imageParser.array("venueImages", 10),
   function(req, res, next) {
