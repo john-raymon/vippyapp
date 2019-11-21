@@ -8,11 +8,11 @@ router.use("/event", require("./event"));
 router.use("/listing", require("./listing"));
 router.use("/reservation", require("./reservation"));
 router.use("/phone", require("./twilio").router);
-
+router.use("/admin", require("./admin"));
 // error handler; catches ValidationErrors, UnauthorizedErrors, otherwise calls next errorhandler in stack
 router.use(function(err, req, res, next) {
   if (err.name === "ValidationError") {
-    if (typeof err.message === "string") {
+    if (Object.entries(err.errors || {}).length === 0) {
       return res.status(422).json({
         success: false,
         name: "ValidationError",
