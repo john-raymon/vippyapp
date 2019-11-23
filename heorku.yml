@@ -1,2 +1,0 @@
-run:
-  web: npm install && npm run client:build && npm run start
