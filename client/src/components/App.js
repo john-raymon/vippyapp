@@ -8,6 +8,7 @@ import queryString from "query-string";
 // Route Components
 import Homepage from "./Homepage";
 import UserRegister from "./UserRegister";
+import VenueRegister from "./VenueRegister";
 import Snackbar from "@material-ui/core/Snackbar";
 import Login from "./Login";
 import Dashboard from "./Dashboard";
@@ -137,6 +138,19 @@ class App extends Component {
                       {...props}
                       isAuth={isAuth}
                       setSnackbar={this.setSnackbar}
+                      userAgent={this.userAgent}
+                    />
+                  );
+                }}
+              />
+              <Route
+                path="/venue-sign-up"
+                exact
+                render={props => {
+                  return (
+                    <VenueRegister
+                      {...props}
+                      isAuth={isAuth}
                       userAgent={this.userAgent}
                     />
                   );
