@@ -5,7 +5,7 @@
   "scripts": {
     "start": "node ./bin/www",
     "client": "cd client && yarn start",
-    "client:build": "cd client && yarn build",
+    "client:build": "cd client && yarn install && yarn build",
     "client:build-css": "cd client && yarn build-css",
     "client:watch-css": "cd client && yarn watch-css",
     "dev-server": "nodemon ./bin/www",
