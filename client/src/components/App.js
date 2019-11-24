@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Route, Redirect, Switch, Link, withRouter } from "react-router-dom";
 import { createMuiTheme, MuiThemeProvider } from "@material-ui/core/styles";
-import { UserEndpointAgent as UserAgent } from "./../utils/agent";
+import userAgent from "./../libs/userAgent";
 import queryString from "query-string";
 
 // Route Components
@@ -71,7 +71,7 @@ class App extends Component {
     this.setSnackbar = this.setSnackbar.bind(this);
     this.hideSnackbar = this.hideSnackbar.bind(this);
     this.logoutDispatchWrapper = this.logoutDispatchWrapper.bind(this);
-    this.userAgent = new UserAgent();
+    this.userAgent = userAgent;
     this.state = {
       snackbar: {
         open: false,
