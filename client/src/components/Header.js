@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, Link } from "react-router-dom";
 import { withStyles } from "@material-ui/core/styles";
 
 // Components
@@ -129,10 +129,13 @@ class Header extends Component {
                   </p>
                 </li>
               </ul>
-              <p className="michroma f8 tracked-1 ttu lh-extra white-40 pt1 self-end">
-                do you run a night club and want to list your events on vippy ?
-                get in touch here.
-              </p>
+              <Link
+                onClick={e => this.toggleDrawer()}
+                to="/venue-sign-up"
+                className="michroma tw-text-2xs tracked-1 ttu lh-extra white-40 pt1 self-end"
+              >
+                Click here to register your venue.
+              </Link>
             </div>
           </div>
         </Drawer>
