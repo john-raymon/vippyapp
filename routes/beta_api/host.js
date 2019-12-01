@@ -329,11 +329,11 @@ router.post("/stripe/auth", auth.required, hostMiddleware, function(
 router.get(
   "/stripe/token",
   auth.required, // usually not optional (auth.required), will be required when jwt can be picked up on redirect
+  hostMiddleware,
   function(req, res, next) {
     const hostAuth = req.auth;
-    Host.findOne({ randomKey: req.query.state })
+    Host.findOne({ randomKey: req.query.state, _id: hostAuth.id })
       .then(function(host) {
-        // usually will look for host using data from auth host such as hostAuth.id
         if (!host) {
           return next({
             name: "UnauthorizedError",
@@ -342,8 +342,9 @@ router.get(
         }
 
         if (host.hasStripeId()) {
-          return res.status(403).json({
-            error: "You have already connected this account to a Stripe account"
+          return next({
+            name: "BadRequestError",
+            message: "You have already connected to a Stripe account"
           });
         }
 
