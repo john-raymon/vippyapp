@@ -71,7 +71,7 @@ const HostSchema = new mongoose.Schema(
 );
 
 HostSchema.plugin(uniqueValidator, {
-  message: "The phone number belongs to an existing account."
+  type: "mongoose-unique-validator"
 });
 
 HostSchema.methods.addProduct = function(id) {
