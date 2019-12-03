@@ -52,20 +52,6 @@ export default class VenueRegister extends Component {
     }
   }
 
-  // we do the same thing we do in the initial mount, except if the isAuth prop changes
-  // it will trigger the componentDidUpdate lifecycle method thus causing a redirect or not
-  componentDidUpdate() {
-    const { isAuth, location, history } = this.props;
-    const { state: locationState } = location;
-    if (isAuth) {
-      if (locationState) {
-        history.replace(locationState.from);
-      } else {
-        history.replace("/dashboard");
-      }
-    }
-  }
-
   // resets error state
   resetErrorsState() {
     this.setState({
