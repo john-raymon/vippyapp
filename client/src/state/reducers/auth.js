@@ -22,7 +22,7 @@ export default (state = initialState, { type, payload = {} }) => {
       return { ...state, isAuth: true, user: payload.user };
     case "USER_LOGOUT":
     case "USER_LOGIN_REJECTED":
-      return { ...state, isAuth: initialState.isAuth, user: initialState.user };
+      return { ...state, ...initialState };
 
     case "VENUE_REGISTER_REJECTED":
       return { ...state, ...initialState };
