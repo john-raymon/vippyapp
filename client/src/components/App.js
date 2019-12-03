@@ -16,6 +16,7 @@ import Dashboard from "./Dashboard";
 import DetailedListing from "./DetailedListing";
 import Checkout from "./Checkout";
 import DetailedReservation from "./DetailedReservation";
+import SettingUpVenueScreen from "./SettingUpVenueScreen";
 
 // View Components
 import Header from "./Header";
@@ -131,7 +132,7 @@ class App extends Component {
       <MuiThemeProvider theme={theme}>
         <section className="bg-vippy">
           <Header isAuth={isAuth} logout={logout} />
-          <main className="mainContainer ph3">
+          <main className="tw-flex mainContainer ph3">
             <Switch>
               <Route path="/" exact component={Homepage} />
               <Route
@@ -181,18 +182,12 @@ class App extends Component {
                 path="/api/host/stripe/token"
                 exact
                 render={props => {
-                  alert("one moment while we set up your account");
-                  this.venueAgent
-                    .completeStripeFlow(
-                      `${props.location.pathname}${props.location.search}`
-                    )
-                    .then(resp => {
-                      alert("nice! youre all set");
-                    })
-                    .catch(error => {
-                      debugger;
-                    });
-                  return <p>hello</p>;
+                  return (
+                    <SettingUpVenueScreen
+                      {...props}
+                      venueAgent={this.venueAgent}
+                    />
+                  );
                 }}
               />
               <ProtectedRoute
