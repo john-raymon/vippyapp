@@ -1,16 +1,40 @@
 import React, { Component } from "react";
 
 export default class SettingUpVenueScreen extends Component {
+  constructor(props) {
+    super(props);
+    this.loadingScreenMinSeconds = 5000;
+  }
   componentDidMount() {
     const { location, history, venueAgent } = this.props;
     const { state: locationState } = location;
+    let exceededMinLifetime = false;
+    let secondsPassed = 0;
+    const lifetimeTimeout = setTimeout(() => {
+      exceededMinLifetime = true;
+    }, this.loadingScreenMinSeconds);
+    const secondsInterval = setInterval(() => {
+      secondsPassed = secondsPassed + 1000;
+    }, 1000);
     venueAgent
       .completeStripeFlow(`${location.pathname}${location.search}`)
       .then(resp => {
-        if (locationState) {
-          history.replace(locationState.from);
+        clearInterval(secondsInterval);
+        clearTimeout(lifetimeTimeout);
+        if (exceededMinLifetime) {
+          if (locationState) {
+            return history.replace(locationState.from);
+          } else {
+            return history.replace("/dashboard");
+          }
         } else {
-          history.replace("/dashboard");
+          setTimeout(() => {
+            if (locationState) {
+              return history.replace(locationState.from);
+            } else {
+              return history.replace("/dashboard");
+            }
+          }, this.loadingScreenMinSeconds - secondsPassed);
         }
       })
       .catch(error => {
