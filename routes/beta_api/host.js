@@ -292,8 +292,14 @@ router.post("/stripe/auth", auth.required, hostMiddleware, function(
             client_id: config.stripe.client_id,
             response_type: "code",
             state: key,
+            scope: "read_write", // defaults to 'read_only' see https://stripe.com/docs/connect/oauth-reference
+            // if not explicitly set to read_write then stripe_landing will
+            // by default go to login for scope read_only and register for scope read_write.
+            // we want register, since we don't expect venue owners/host to
+            // initially have Stripe accounts.
             redirect_uri:
               "http://" + config.public_domain + "/api/host/stripe/token",
+            "suggested_capabilities[]": "transfers",
             "stripe_user[business_type]": host.type || "individual",
             "stripe_user[business_name]": host.business_name || undefined,
             "stripe_user[first_name]": host.fullname.split(" ")[0] || undefined,
