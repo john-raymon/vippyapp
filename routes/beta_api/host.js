@@ -250,7 +250,7 @@ router.post("/login", function(req, res, next) {
       .then(([promoters, promoterCount]) => {
         return res.json({
           success: true,
-          host: {
+          venue: {
             ...host.toAuthJSON(),
             promoters: promoters.map(promoter => promoter.getPromoter()),
             promoterCount
