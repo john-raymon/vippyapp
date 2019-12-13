@@ -1,8 +1,8 @@
 const initialState = {
   isAuth: false, // TODO: rename this to something isUserAuth
   isVenueAuth: false,
-  venue: null,
-  user: null
+  venue: {},
+  user: {}
 };
 
 export default (state = initialState, { type, payload = {} }) => {
