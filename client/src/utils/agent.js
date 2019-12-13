@@ -125,8 +125,8 @@ export class VenueEndpointAgent extends Agent {
   }
 
   login(body) {
-    return this._post(`api/host/login`, body).catch(error => {
-      throw error.response;
+    return this._post(`/login`, body).catch(error => {
+      throw error.response.body;
     });
   }
 
