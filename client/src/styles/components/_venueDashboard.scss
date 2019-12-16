@@ -1,0 +1,5 @@
+.venue-dashboard {
+  &__container {
+    @extend .tw-max-w-5xl, .tw-w-full, .tw-mx-auto, .tw-pt-8;
+  }
+}
