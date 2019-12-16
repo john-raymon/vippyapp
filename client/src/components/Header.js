@@ -144,7 +144,7 @@ class Header extends Component {
               </NavLink>
             </div>
             {isAuth && (
-              <p className="michroma tw-text-2xs tracked-1 ttu lh-extra white-40 pt1">
+              <p className="michroma tw-text-2xs tracked-1 ttu lh-extra white-40 pt1 tw-text-center">
                 {`hello ${userFirstName}`}
               </p>
             )}
@@ -156,7 +156,7 @@ class Header extends Component {
           >
             <MenuIcon />
           </IconButton>
-          <div className="Header__largeNavMenu dn flex-l pa3 mv1 ba b--white-30 br1 white">
+          <div className="Header__largeNavMenu dn flex-l pa3 mv1 ba tw-border-gray-600 br1 white">
             {isAuth ? (
               <ul className="flex items-center">
                 <li>
@@ -166,7 +166,7 @@ class Header extends Component {
                   >
                     dashboard
                   </NavLink>
-                  <span className="br bw1 b--white-70 mh3 h-100" />
+                  <span className="tw-border-r tw-border-gray-600 tw-h-full tw-mx-4" />
                 </li>
                 <li>
                   <NavLink
@@ -175,13 +175,13 @@ class Header extends Component {
                   >
                     settings
                   </NavLink>
-                  <span className="br bw1 b--white-70 mh3 h-100" />
+                  <span className="tw-border-r tw-border-gray-600 tw-h-full tw-mx-4" />
                 </li>
                 <li>
                   <a className="michroma tw-text-2xs tracked-mega ttu lh-extra pointer dim mh1">
                     help
                   </a>
-                  <span className="br bw1 b--white-70 mh3 h-100" />
+                  <span className="tw-border-r tw-border-gray-600 tw-h-full tw-mx-4" />
                 </li>
                 <li>
                   <button
@@ -190,7 +190,7 @@ class Header extends Component {
                   >
                     sign out
                   </button>
-                  <span className="br bw1 b--white-70 mh3 h-100" />
+                  <span className="tw-border-r tw-border-gray-600 tw-h-full tw-mx-4" />
                 </li>
                 <li>
                   <button
@@ -210,7 +210,7 @@ class Header extends Component {
                   >
                     sign in
                   </NavLink>
-                  <span className="br bw1 b--white-70 mh3 h-100" />
+                  <span className="tw-border-r tw-border-gray-600 tw-h-full tw-mx-4" />
                 </li>
                 <li>
                   <NavLink
@@ -219,13 +219,13 @@ class Header extends Component {
                   >
                     create an account
                   </NavLink>
-                  <span className="br bw1 b--white-70 mh3 h-100" />
+                  <span className="tw-border-r tw-border-gray-600 tw-h-full tw-mx-4" />
                 </li>
                 <li>
                   <a className="michroma tw-text-2xs tracked-mega ttu lh-extra pointer dim mh1">
                     help
                   </a>
-                  <span className="br bw1 b--white-70 mh3 h-100" />
+                  <span className="tw-border-r tw-border-gray-600 tw-h-full tw-mx-4" />
                 </li>
                 <li>
                   <button
