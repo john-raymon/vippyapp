@@ -137,7 +137,7 @@ class App extends Component {
       <MuiThemeProvider theme={theme}>
         <section className="bg-vippy">
           <Header user={user || venue} isAuth={isAuth} logout={logout} />
-          <main className="tw-flex mainContainer ph3">
+          <main className="tw-flex mainContainer tw-px-6">
             <Switch>
               <Route path="/" exact component={Homepage} />
               <Route
@@ -206,6 +206,7 @@ class App extends Component {
                   return (
                     <Dashboard
                       {...props}
+                      venue={venue}
                       isVenueAuth={isVenueAuth}
                       userAgent={this.userAgent}
                     />
