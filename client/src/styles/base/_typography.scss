@@ -7,3 +7,7 @@ $michromaregular : 'Michroma';
 .michroma-important {
   font-family: $michromaregular !important;
 }
+
+.medium-title {
+  @extend .tw-font-mich, .tw-text-2xs, .tw-uppercase, .tw-tracking-widest;
+}
