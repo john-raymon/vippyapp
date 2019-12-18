@@ -1,4 +1,7 @@
 # VippyBeta 
+
+// TODO: README NEEDS TO BE UPDATED
+
 Vippy BETA - Monolithic Fullstack MERN App
 
 Look into `.env.example` for required environment variables
