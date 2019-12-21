@@ -170,7 +170,8 @@
 
 // .active NavLink
 .active {
-  color: #a9a91c !important;
+  @extend .tw-text-yellow-500;
+
 }
 
 html,body {
