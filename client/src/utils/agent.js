@@ -76,6 +76,12 @@ export class Agent {
   authLogin(email, password, loginEndpoint) {
     return this._post(loginEndpoint, { email, password });
   } // move to UserEndpointAgent
+
+  getAllReservations() {
+    return this._get("api/reservation", true).catch(error => {
+      throw error.response.body;
+    });
+  }
 }
 
 export class UserEndpointAgent extends Agent {
@@ -102,12 +108,6 @@ export class UserEndpointAgent extends Agent {
   create(body) {
     return this._post(`api/user`, body).catch(error => {
       throw error.response.body;
-    });
-  }
-
-  getAllReservations() {
-    return this._get("api/reservation").catch(error => {
-      throw error.response;
     });
   }
 }
