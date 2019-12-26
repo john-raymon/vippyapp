@@ -2,7 +2,11 @@ import { createSelector } from "reselect";
 import isFuture from "date-fns/is_future";
 // import distanceInWordsToNow from "date-fns/distance_in_words_to_now";
 
+// default selector (used for showing upcoming events and listings in landing page "browse tabs")
+// events that have not been cancelled and are in the future and have an existing host
+// listings that have not been cancelled and have events and booking deadlines both in the future
 export default createSelector(
+  // default selector returns all listings and events in store state
   state => {
     const {
       queried: { eventsCount, events, listingsCount, listings }
