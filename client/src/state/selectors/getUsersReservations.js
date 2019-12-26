@@ -4,14 +4,14 @@ import isFuture from "date-fns/is_future";
 export default createSelector(
   state => {
     const {
-      reservations: { reservations, reservationsCount }
+      reservations: { reservations, reservationCount }
     } = state;
     return {
       reservations,
-      reservationsCount
+      reservationCount
     };
   },
-  ({ reservations, reservationsCount }) => {
+  ({ reservations, reservationCount }) => {
     const [activeReservations, pastReservations] = reservations.reduce(
       ([active = [], past = []], reservation) => {
         if (isFuture(reservation.listing.event.endTime)) {
@@ -25,7 +25,7 @@ export default createSelector(
     return {
       activeReservations,
       pastReservations,
-      totalReservations: reservationsCount,
+      totalReservations: reservationCount,
       activeReservationsCount: activeReservations.length,
       pastReservationsCount: pastReservations.length
     };
