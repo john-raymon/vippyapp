@@ -136,7 +136,7 @@ class Header extends Component {
             </div>
           </div>
         </Drawer>
-        <div className="flex flex-row items-center w-100 justify-between mt4 mb2">
+        <div className="flex flex-row items-center w-100 justify-between mt4 mb2 tw-px-2">
           <div className="flex flex-column">
             <div className="logoContainer">
               <NavLink to="/">
