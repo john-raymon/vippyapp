@@ -26,7 +26,7 @@ const setTokenInStorageMiddleware = ({
     debugMode();
     await localforage.setItem(
       "jwt",
-      (action.payload.venueHost && action.payload.venueHost.token) ||
+      (action.payload.venue && action.payload.venue.token) ||
         (action.payload.user && action.payload.user.token) ||
         action.payload.token ||
         ""
