@@ -372,7 +372,9 @@ router.get("/:reservationId?", auth.required, auth.setUserOrHost, function(
       success: true,
       reservation: {
         ...req.vippyReservation.toProfileJSON(),
-        listing: req.vippyReservation.listing._toJSON()
+        listing: req.vippyReservation.listing.toJSONForHost(
+          req.vippyUser || req.vippyHost || req.vippyPromoter
+        )
       }
     });
   } else {
@@ -411,16 +413,18 @@ router.get("/:reservationId?", auth.required, auth.setUserOrHost, function(
         .exec(),
       Reservation.count(query).exec()
     ])
-      .then(([reservations, reservationsCount]) => {
+      .then(([reservations, reservationCount]) => {
         res.json({
           success: true,
           reservations: reservations.map(r => {
             return {
               ...r.toProfileJSON(),
-              listing: r.listing._toJSON()
+              listing: r.listing.toJSONForHost(
+                req.vippyUser || req.vippyHost || req.vippyPromoter
+              )
             };
           }),
-          reservationsCount
+          reservationCount
         });
       })
       .catch(next);
