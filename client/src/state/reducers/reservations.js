@@ -1,6 +1,6 @@
 const initialState = {
   reservations: [],
-  reservationsCount: 0
+  reservationCount: 0
 };
 
 export default (state = initialState, { type, payload = {} }) => {
@@ -9,7 +9,7 @@ export default (state = initialState, { type, payload = {} }) => {
       return {
         ...state,
         reservations: payload.reservations,
-        reservationsCount: payload.reservationsCount
+        reservationCount: payload.reservationCount
       };
     case "USER_LOGOUT":
       return initialState;
