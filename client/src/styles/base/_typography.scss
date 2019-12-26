@@ -8,6 +8,10 @@ $michromaregular : 'Michroma';
   font-family: $michromaregular !important;
 }
 
-.medium-title {
+.small-text {
   @extend .tw-font-mich, .tw-text-2xs, .tw-uppercase, .tw-tracking-widest;
+}
+
+.large-text {
+  @extend .tw-font-mich tw-text-lg tw-leading-snug;
 }
