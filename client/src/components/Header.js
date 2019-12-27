@@ -40,7 +40,7 @@ class Header extends Component {
     const { classes, isAuth = false, user } = this.props;
     const { firstname: userFirstName = "" } = user || {};
     return (
-      <header className="Header pv1 ph3 ph2-l mw8 center sticky top-0 z-999 bg-vippy">
+      <header className="Header pv1 tw-px-2 md:tw-px-0 ph2-l mw8 center sticky top-0 z-999 bg-vippy">
         <Drawer
           classes={{ paper: classes.paper }}
           open={this.state.drawerState}
@@ -136,7 +136,7 @@ class Header extends Component {
             </div>
           </div>
         </Drawer>
-        <div className="flex flex-row items-center w-100 justify-between mt4 mb2 tw-px-2">
+        <div className="flex flex-row items-center w-100 justify-between mt4 mb2 tw-px-2 md:tw-px-0">
           <div className="flex flex-column">
             <div className="logoContainer">
               <NavLink to="/">
