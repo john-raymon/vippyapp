@@ -29,7 +29,7 @@ router.use(function(err, req, res, next) {
           currentError.kind === "mongoose-unique-validator"
             ? currentError.path === "phonenumber"
               ? "This phone number belongs to an existing account."
-              : `This ${currentError.path} bellongs to an existing account.`
+              : `This ${currentError.path} belongs to an existing account.`
             : currentError.message;
 
         return errors;

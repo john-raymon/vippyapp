@@ -212,7 +212,7 @@ router.post(
       .then(function() {
         return res.json({
           success: true,
-          venueHost: vippyHost.toAuthJSON()
+          venue: vippyHost.toAuthJSON()
         });
       })
       .catch(next);
@@ -268,7 +268,6 @@ router.post("/stripe/auth", auth.required, hostMiddleware, function(
   next
 ) {
   const hostAuth = req.auth;
-
   Host.findById(hostAuth.id)
     .then(function(host) {
       if (!host) {
