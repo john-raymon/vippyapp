@@ -134,6 +134,7 @@ HostSchema.methods.hasStripeId = function() {
 
 HostSchema.methods.toAuthJSON = function() {
   return {
+    id: this._id,
     username: this.email,
     zipcode: this.zipcode,
     fullname: this.fullname,
@@ -152,6 +153,7 @@ HostSchema.methods.toAuthJSON = function() {
 // change to getAuthHostWithoutJWT
 HostSchema.methods._toJSON = function() {
   return {
+    id: this._id,
     username: this.email,
     zipcode: this.zipcode,
     fullname: this.fullname,
