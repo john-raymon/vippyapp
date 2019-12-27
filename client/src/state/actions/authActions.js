@@ -103,6 +103,35 @@ export const initUser = userAgent => dispatch => {
   });
 };
 
+export const fetchReservationsForVenue = venueAgent => dispatch => {
+  // do something
+  return dispatch({
+    type: "FETCH_VENUES_RESERVATIONS",
+    payload: venueAgent.getAllReservations()
+  });
+};
+
+export const fetchEventsForVenue = (venueAgent, venueId) => (
+  dispatch,
+  getState
+) => {
+  // reason we won't also fetch events for a regular user when they log in because they aren't creators of events
+  // fetch reservations linked to a regular user is enough to link to events. we don't fetch listings for a
+  // regular user either because a reservation links to that too.
+  return dispatch({
+    type: "FETCH_VENUES_EVENTS",
+    payload: venueAgent.getAllEvents({ byVenue: venueId })
+  });
+};
+
+export const fetchListingsForVenue = (venueAgent, venueId) => dispatch => {
+  // do something
+  return dispatch({
+    type: "FETCH_VENUES_LISTINGS",
+    payload: venueAgent.getAllListings({ byVenue: venueId })
+  });
+};
+
 export const fetchReservationsForUser = userAgent => dispatch => {
   console.log("making dispatch now!");
   return dispatch({

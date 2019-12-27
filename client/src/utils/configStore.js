@@ -26,10 +26,25 @@ const setTokenInStorageMiddleware = ({
     debugMode();
     await localforage.setItem(
       "jwt",
-      (action.payload.venue && action.payload.venue.token) ||
-        (action.payload.user && action.payload.user.token) ||
-        action.payload.token ||
-        ""
+      (function() {
+        if (
+          (action.payload.venue && action.payload.venue.token) ||
+          (action.payload.user && action.payload.user.token) ||
+          action.payload.token ||
+          false
+        ) {
+          return (
+            (action.payload.venue && action.payload.venue.token) ||
+            (action.payload.user && action.payload.user.token) ||
+            action.payload.token ||
+            ""
+          );
+        } else {
+          throw Error(
+            "setTokenInStorage Middleware could not locate the token in the payload."
+          );
+        }
+      })()
       // TODO: abstract above, find a way to make setTokenInStorageMiddleware function more configurable so that the key to reference the token isn'try
       // hardcoded for every different action
     );
