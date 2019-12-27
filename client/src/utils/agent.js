@@ -13,7 +13,7 @@ export class Agent {
 
   async _initToken() {
     this.token = await localforage.getItem("jwt");
-    // debugger;
+    //debugger;
     return this.token;
   }
 
@@ -38,12 +38,13 @@ export class Agent {
       .then(this._responseBody);
   }
 
-  async _get(url, fullPath = false) {
+  async _get(url, fullPath = false, query = {}) {
     const returnedToken = await this._initToken();
     console.log("the token is!! -->", this.token);
-    // debugger;
+    //debugger;
     return superagent
       .get(fullPath ? url : `${this.API_ROOT}${url}`)
+      .query(query)
       .use(this._tokenPlugin)
       .then(this._responseBody);
   }
@@ -58,6 +59,7 @@ export class Agent {
 
   async _post(url, body) {
     const returnedToken = await this._initToken();
+    //debugger;
     return superagent
       .post(`${this.API_ROOT}${url}`, body)
       .use(this._tokenPlugin)
@@ -79,6 +81,18 @@ export class Agent {
 
   getAllReservations() {
     return this._get("api/reservation", true).catch(error => {
+      throw error.response.body;
+    });
+  }
+
+  getAllEvents(query) {
+    return this._get("api/event", true, query).catch(error => {
+      throw error.response.body;
+    });
+  }
+
+  getAllListings(query) {
+    return this._get("api/listing", true, query).catch(error => {
       throw error.response.body;
     });
   }
