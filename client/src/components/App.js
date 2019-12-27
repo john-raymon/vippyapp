@@ -80,14 +80,29 @@ class App extends Component {
     this.setSnackbar = this.setSnackbar.bind(this);
     this.hideSnackbar = this.hideSnackbar.bind(this);
     this.logoutDispatchWrapper = this.logoutDispatchWrapper.bind(this);
+    this.setVenueDashboardFilters = this.setVenueDashboardFilters.bind(this);
     this.userAgent = userAgent;
     this.venueAgent = venueAgent;
     this.state = {
       snackbar: {
         open: false,
         message: ""
+      },
+      venueDashoardFilters: {
+        onlyFutureReservations: false, // when ui input `show past records` is checked then onlyFuture is false and vice versa
+        onlyPastReservations: false,
+        onlyFutureListings: false,
+        onlyPastListings: false,
+        onlyFutureEvents: false,
+        onlyPastEvents: false
       }
     };
+  }
+
+  setVenueDashboardFilters(venueDashoardFilters) {
+    this.setState({
+      venueDashoardFilters
+    });
   }
 
   setSnackbar(message = "") {
@@ -112,6 +127,7 @@ class App extends Component {
     this.props.history.push("/login");
     this.props.logout();
   }
+
   render() {
     const {
       isAuth: isRegularAuth,
@@ -207,7 +223,10 @@ class App extends Component {
                     <Dashboard
                       {...props}
                       venue={venue}
+                      venueDashoardFilters={this.state.venueDashoardFilters}
+                      setVenueDashboardFilters={this.setVenueDashboardFilters}
                       isVenueAuth={isVenueAuth}
+                      venueAgent={this.venueAgent}
                       userAgent={this.userAgent}
                     />
                   );
