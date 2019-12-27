@@ -18,6 +18,10 @@ var ListingSchema = mongoose.Schema({
     },
     default: new Map()
   },
+  venueId: {
+    type: String,
+    index: true
+  },
   bookingPrice: Number,
   disclaimers: String,
   quantity: Number,
@@ -29,47 +33,49 @@ var ListingSchema = mongoose.Schema({
   cancelled: { type: Boolean, default: false }
 });
 
-ListingSchema.methods.toJSONForHost = function(currentHost) {
-  if ((currentHost && !currentHost._id.equals(this.host._id)) || !currentHost) {
-    // calling other toJSON due to unauth host, or not host at all
-    return this._toJSON();
-  }
-  // by host we're assuming host of listing, anyone else is a username
-  const {
-    _id: id,
-    name,
-    guestCount,
-    host,
-    event,
-    currentReservations,
-    payAndWait,
-    images,
-    bookingPrice,
-    disclaimers,
-    quantity,
-    unlimitedQuantity,
-    bookingDeadline,
-    cancelled,
-    description
-  } = this;
+ListingSchema.methods.toJSONForHost = function(user) {
+  if (user && user.id === this.host.id) {
+    // by host we're assuming host of listing, anyone else is a username
+    const {
+      _id: id,
+      name,
+      guestCount,
+      host,
+      event,
+      currentReservations,
+      payAndWait,
+      images,
+      bookingPrice,
+      disclaimers,
+      quantity,
+      unlimitedQuantity,
+      bookingDeadline,
+      cancelled,
+      description,
+      venueId
+    } = this;
 
-  return {
-    id,
-    name,
-    guestCount,
-    host: host ? host.toProfileJSON() : host,
-    event: event.toNestedJSON(),
-    currentReservations, // only venue/host of listing can see currentReservations
-    payAndWait,
-    images,
-    bookingPrice,
-    disclaimers,
-    quantity,
-    unlimitedQuantity,
-    bookingDeadline,
-    cancelled,
-    description
-  };
+    return {
+      id,
+      name,
+      guestCount,
+      host: host ? host.toProfileJSON() : host,
+      event: event.toNestedJSON(),
+      currentReservations, // only venue/host of listing can see currentReservations
+      payAndWait,
+      images,
+      bookingPrice,
+      disclaimers,
+      quantity,
+      unlimitedQuantity,
+      bookingDeadline,
+      cancelled,
+      description,
+      venueId
+    };
+  }
+  // calling other toJSON due to unauth host, or not host at all
+  return this._toJSON();
 };
 
 ListingSchema.methods._toJSON = function() {
@@ -87,7 +93,8 @@ ListingSchema.methods._toJSON = function() {
     unlimitedQuantity,
     bookingDeadline,
     cancelled,
-    description
+    description,
+    venueId
   } = this;
 
   return {
@@ -104,7 +111,8 @@ ListingSchema.methods._toJSON = function() {
     unlimitedQuantity,
     bookingDeadline,
     cancelled,
-    description
+    description,
+    venueId
   };
 };
 

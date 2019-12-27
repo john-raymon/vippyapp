@@ -300,6 +300,7 @@ router.post(
 
         // proceed to create listing
         const listing = new Listing({
+          venueId: host ? host.venueId : vippyPromoter.venue.venueId,
           name: req.body.name,
           guestCount: req.body.guestCount,
           payAndWait: req.body.hasPayAndWait, // not implemented yet in v1
@@ -380,7 +381,7 @@ router.get("/", auth.optional, auth.setUserOrHost, async function(
   res,
   next
 ) {
-  let query = {}; // query based on date and other stuff later on
+  let query = {}; // TODO: query based on date and other stuff later on
   let limit = 20;
   let offset = 0;
   let nearByZips = [];
@@ -436,6 +437,12 @@ router.get("/", auth.optional, auth.setUserOrHost, async function(
     }
   }
 
+  if (req.query.byVenue) {
+    query = {
+      ...query,
+      ["venueId"]: req.query.byVenue
+    };
+  }
   //   make request to google api to reverse geocode the latlng into a precise address (street_address), only the address for which Google has location information accurate down to street address precision (ROOFTOP).
   // 	check response, if status “OK” , proceed to get postal code from response
   // 	use zipcode library to receive array of zipcodes with default mile radius 30 miles (later on allow mile radius to change)

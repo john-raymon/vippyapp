@@ -67,6 +67,7 @@ router.post(
   hostOrPromoterMiddleware,
   auth.onlyPromoterWithCreateUpdateEventsPermissions,
   function(req, res, next) {
+    //debugger;
     console.log("the req.body at POST event/ endpoint is", req.body);
     const { vippyPromoter, vippyHost: host } = req;
 
@@ -122,6 +123,7 @@ router.post(
 
     const event = new Event({
       name: req.body.name,
+      venueId: host ? host.venueId : vippyPromoter.venue.venueId,
       host: host ? host : vippyPromoter.venue,
       date: req.body.startTime,
       startTime: req.body.startTime,
@@ -267,7 +269,7 @@ router.patch(
     vippyEvent.save().then(event => {
       res.json({
         success: true,
-        event: event.toJSONFor(vippyHost || vippyPromoter.venue)
+        event: event.toJSONFor(vippyHost || vippyPromoter & vippyPromoter.venue)
       });
     });
   }
@@ -276,79 +278,79 @@ router.patch(
 // get specific event by id, no authentication required,
 // if authenticated Venue Host, or Promoter, it will return
 // the event object with the event's listing's currentReservations
-router.get("/:event", auth.optional, auth.setUserOrHost, function(
+// or
+// get all events, no authentication required,
+// if authenticated Venue Host, or Promoter, it will return
+// event objects with the each event's listing's currentReservations
+router.get("/:event?", auth.optional, auth.setUserOrHost, function(
   req,
   res,
   next
 ) {
-  const { vippyEvent, vippyHost, vippyUser, vippyPromoter } = req;
-  if (
-    (vippyHost && vippyHost._id.equals(vippyEvent.host._id)) ||
-    (vippyPromoter && vippyPromoter.venueId === vippyEvent.host.venueId)
-  ) {
+  if (req.vippyEvent) {
     return res.json({
       success: true,
-      event: vippyEvent.toJSONFor(vippyHost || vippyPromoter.venue)
+      event: req.vippyEvent.toJSONFor(
+        req.vippyHost || (req.vippyPromoter && req.vippyPromoter.venue)
+      )
     });
-  }
-  return res.json({
-    success: true,
-    event: vippyEvent.toJSONFor(vippyUser)
-  });
-});
+  } else {
+    let query = {}; // query based on date and other stuff later on
+    let limit = 20;
+    let offset = 0;
 
-// get all events, no authentication required,
-// if authenticated Venue Host, or Promoter, it will return
-// event objects with the each event's listing's currentReservations
-router.get("/", auth.optional, auth.setUserOrHost, function(req, res, next) {
-  let query = {}; // query based on date and other stuff later on
-  let limit = 20;
-  let offset = 0;
+    if (req.query.byVenue) {
+      query = {
+        ...query,
+        ["venueId"]: req.query.byVenue
+      };
+      console.log("this is the query", req.query);
+    }
 
-  if (typeof req.body.limit !== "undefined") {
-    limit = req.body.limit;
-  }
+    if (typeof req.body.limit !== "undefined") {
+      limit = req.body.limit;
+    }
 
-  if (typeof req.body.offset !== "undefined") {
-    offset = req.body.offset;
-  }
+    if (typeof req.body.offset !== "undefined") {
+      offset = req.body.offset;
+    }
 
-  Promise.all([
-    Event.find(query)
-      .limit(+limit)
-      .skip(+offset)
-      .populate("host")
-      .populate({
-        path: "currentListings",
-        populate: [
-          {
-            path: "host"
-          },
-          {
-            path: "event",
-            populate: {
+    Promise.all([
+      Event.find(query)
+        .limit(+limit)
+        .skip(+offset)
+        .populate("host")
+        .populate({
+          path: "currentListings",
+          populate: [
+            {
               path: "host"
+            },
+            {
+              path: "event",
+              populate: {
+                path: "host"
+              }
             }
-          }
-        ]
+          ]
+        })
+        .exec(),
+      Event.count(query).exec()
+    ])
+      .then(([events, eventsCount]) => {
+        res.json({
+          success: true,
+          events: events.map(event => {
+            console.log("this is an event in the map", event);
+            return event.toJSONFor(
+              req.vippyHost || (req.vippyPromoter && req.vippyPromoter.venue)
+            ); // may return auth versions of events and listing objects within event
+          }),
+          eventsCount: eventsCount
+        });
       })
-      .exec(),
-    Event.count(query).exec()
-  ])
-    .then(([events, eventsCount]) => {
-      res.json({
-        success: true,
-        events: events.map(event => {
-          console.log("this is an event in the map", event);
-          if (req.vippyHost || req.vippyPromoter) {
-            return event.toJSONFor(req.vippyHost || req.vippyPromoter.venue);
-          }
-          return event.toJSONFor(); // designed to be adjusted to return auth versions of events and listing objects within event
-        }),
-        eventsCount: eventsCount
-      });
-    })
-    .catch(next);
+      .catch(next);
+  }
 });
 
 module.exports = router;

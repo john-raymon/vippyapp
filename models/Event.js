@@ -20,6 +20,10 @@ var EventSchema = mongoose.Schema({
     state: { type: String, required: [true, "is required"] },
     zip: { type: String, required: [true, "is required"] }
   },
+  venueId: {
+    type: String,
+    index: true
+  },
   images: {
     type: Map,
     of: {
@@ -35,6 +39,8 @@ var EventSchema = mongoose.Schema({
 });
 
 EventSchema.methods.toJSONFor = function(user) {
+  // TODO: refactor logic in this method
+  const isVenuesEvent = user && user._id.equals(this.host.id);
   // user argument is utilized when invoking listing.toJSONForHost method vvv read comment below next to invocation
   const {
     name,
@@ -46,28 +52,63 @@ EventSchema.methods.toJSONFor = function(user) {
     address,
     images,
     cancelled,
+    venueId,
     _id: id
   } = this;
 
+  let totalReservations = 0;
+  let totalListingQuantityLeft = 0;
+
+  const currentListingsTransformed = currentListings.map(function(
+    listing,
+    index
+  ) {
+    // toJSONForHost will check if user is not Host and instead return unAuth version of listing object
+    if (isVenuesEvent) {
+      totalReservations =
+        totalReservations + listing.currentReservations.length;
+      if (!listing.unlimitedQuantity) {
+        totalListingQuantityLeft = totalListingQuantityLeft + listing.quantity;
+      }
+    }
+    return listing.toJSONForHost(user);
+  });
+
+  if (isVenuesEvent) {
+    return {
+      id,
+      name,
+      host: host ? host.toProfileJSON() : host, // falls back to undefined/null host just in case deleted host document which should never occur unless in dev
+      currentListings: currentListingsTransformed,
+      date,
+      totalReservations,
+      totalListingQuantityLeft,
+      startTime,
+      endTime,
+      address,
+      images,
+      cancelled,
+      venueId
+    };
+  }
   return {
     id,
     name,
-    host: host ? host.toProfileJSON() : host,
-    currentListings: currentListings.map(function(listing, index) {
-      // toJSONForHost will check if user is not Host and instead return unAuth version of listing object
-      return listing.toJSONForHost(user);
-    }),
+    host: host ? host.toProfileJSON() : host, // falls back to undefined/null host just in case deleted host document which should never occur unless in dev
+    currentListings: currentListingsTransformed,
     date,
     startTime,
     endTime,
     address,
     images,
-    cancelled
+    cancelled,
+    venueId
   };
 };
 
 EventSchema.methods.toNestedJSON = function() {
   const {
+    venueId,
     name,
     host,
     currentListings,
@@ -89,7 +130,8 @@ EventSchema.methods.toNestedJSON = function() {
     endTime,
     address,
     images,
-    cancelled
+    cancelled,
+    venueId
   };
 };
 
