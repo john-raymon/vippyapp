@@ -348,12 +348,16 @@ router.get("/:reservationId?", auth.required, auth.setUserOrHost, function(
   next
 ) {
   if (!req.vippyUser && !req.vippyHost && !req.vippyPromoter) {
+    // TODO: this if statement may not be needed since it checks for all possible auth users
+    // which is what auth.required does
     return res.status(403).json({
       success: "false",
-      error: "You must be an Authenticated host or user"
+      error: "You must be logged in"
     });
   }
+
   if (req.vippyReservation) {
+    // check if router.param for :reservationId selected and set req.vippyReservation
     if (
       (req.vippyUser &&
         req.vippyUser.id !== req.vippyReservation.customer.id) ||
@@ -361,6 +365,7 @@ router.get("/:reservationId?", auth.required, auth.setUserOrHost, function(
       (req.vippyPromoter &&
         req.vippyPromoter.venueId !== req.vippyReservation.host.venueId)
     ) {
+      // check if req.vippyReservation belongs to authenticated venue/host, promoter, or user
       return res.status(403).json({
         success: false,
         errorType: FORBIDDEN_RESERVATION,
@@ -369,6 +374,7 @@ router.get("/:reservationId?", auth.required, auth.setUserOrHost, function(
       });
     }
     return res.json({
+      // return the fetched reservation
       success: true,
       reservation: {
         ...req.vippyReservation.toProfileJSON(),
@@ -378,6 +384,7 @@ router.get("/:reservationId?", auth.required, auth.setUserOrHost, function(
       }
     });
   } else {
+    // if no req.vippyReservation then request did not have :reservationId so return query results
     let query = {},
       limit = 20,
       offset = 0;
