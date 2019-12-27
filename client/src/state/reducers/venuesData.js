@@ -15,6 +15,18 @@ export default (state = initialState, { type, payload = {} }) => {
         reservations: payload.reservations,
         reservationCount: payload.reservationCount
       };
+    case "FETCH_VENUES_EVENTS_FULFILLED":
+      return {
+        ...state,
+        events: payload.events,
+        eventCount: payload.eventsCount
+      };
+    case "FETCH_VENUES_LISTINGS_FULFILLED":
+      return {
+        ...state,
+        listings: payload.listings,
+        listingCount: payload.listingCount
+      };
     case "USER_LOGOUT":
       return initialState;
     default:
