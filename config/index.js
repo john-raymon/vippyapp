@@ -10,5 +10,5 @@ module.exports = {
     authorizeUri: "https://connect.stripe.com/express/oauth/authorize",
     tokenUri: "https://connect.stripe.com/oauth/token"
   },
-  public_domain: "localhost:4000"
+  public_domain: "http://localhost:4000"
 };
