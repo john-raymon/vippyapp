@@ -90,7 +90,10 @@ var auth = {
       return function hostMiddleware(req, res, next) {
         const hostAuth = req.auth;
         if (hostAuth.sub !== "host") {
-          return next({ name: "UnauthorizedError" });
+          return next({
+            name: "UnauthorizedError",
+            message: "You must be logged in as a Host"
+          });
         }
         Host.findById(hostAuth.id)
           .then(function(host) {
