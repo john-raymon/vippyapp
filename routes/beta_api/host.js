@@ -29,6 +29,40 @@ var { hostPassport } = require("./../../config/passport");
 var createId = require("./../../utils/createId");
 var isBodyMissingProps = require("./../../utils/isBodyMissingProps");
 
+// redirect to authenticated venue's Stripe Express dashboard to view payouts and account details
+router.get("/stripe/dashboard", auth.required, hostMiddleware, function(
+  req,
+  res,
+  next
+) {
+  // Make sure the logged-in venue completed the Express onboarding
+  if (!req.vippyHost.hasStripeId()) {
+    return next({
+      name: "BadRequestError",
+      message: "You must first set up your Stripe account to receive payments."
+    });
+    // todo: automatically initiate stripe express on-board here rather than returning BadRequestError by redirecting to client side route
+    // that proxies to server endpoint used to set up stripe for venue
+  }
+  // Generate a unique login link for the associated Stripe account to access their Express dashboard
+  stripe.accounts
+    .createLoginLink(req.vippyHost.stripeAccountId, {
+      redirect_url: config.public_domain + "/dashboard"
+    })
+    .then(loginLink => {
+      // Directly link to the account tab
+      if (req.query.account) {
+        loginLink.url = loginLink.url + "#/account";
+      }
+      // Retrieve the URL from the response and redirect the user to Stripe
+      return res.json({
+        success: true,
+        loginLinkUrl: loginLink.url
+      });
+    })
+    .catch(next);
+});
+
 // get all Venues, authentication not required
 router.get("/", auth.optional, auth.setUserOrHost, function(req, res, next) {
   return Promise.all([
@@ -391,30 +425,6 @@ router.get(
       .catch(next);
   }
 );
-
-// redirect host to stripe express dashboard
-router.get("/stripe/dashboard", auth.required, auth.setUserOrHost, function(
-  req,
-  res,
-  next
-) {
-  if (req.vippyHost) {
-    if (!req.vippyHost.hasStripeId()) {
-      // TODO : return proper response that client can understand correctly in order to start on-boarding for Host.
-      return res.status(400).json({
-        error: "You must have authenticate your account with Stripe",
-        redirectTo: "HOST_DASHBOARD"
-      });
-    }
-
-    stripe.accounts
-      .createLoginLink(req.vippyHost.stripeAccountId)
-      .then(loginLink => {
-        res.redirect(loginLink.url);
-      })
-      .catch(next);
-  }
-});
 
 module.exports = {
   router,
