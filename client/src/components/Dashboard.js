@@ -388,7 +388,14 @@ class Dashboard extends Component {
                     <a className="tw-block tw-font-mich tw-text-2xs tw-uppercase tw-tracking-widest tw-my-2 tw-text-green-500 tw-underline tw-leading-loose">
                       edit account
                     </a>
-                    <a className="tw-block tw-font-mich tw-text-2xs tw-uppercase tw-tracking-widest tw-my-2 tw-text-green-500 tw-underline tw-leading-loose">
+                    <a
+                      onClick={() =>
+                        this.props.venueAgent.redirectToStripeDashboard({
+                          account: "true"
+                        })
+                      }
+                      className="tw-cursor-pointer tw-block tw-font-mich tw-text-2xs tw-uppercase tw-tracking-widest tw-my-2 tw-text-green-500 tw-underline tw-leading-loose"
+                    >
                       go to stripe account
                     </a>
                   </div>
@@ -447,7 +454,12 @@ class Dashboard extends Component {
                   <p className="tw-mich tw-uppercase tw-text-2xs tw-text-gray-400 tw-leading-snug">
                     total balance
                   </p>
-                  <a className="tw-block tw-font-mich tw-text-2xs tw-uppercase tw-tracking-widest tw-my-2 tw-text-green-500 tw-underline tw-leading-loose">
+                  <a
+                    onClick={() =>
+                      this.props.venueAgent.redirectToStripeDashboard()
+                    }
+                    className="tw-cursor-pointer tw-block tw-font-mich tw-text-2xs tw-uppercase tw-tracking-widest tw-my-2 tw-text-green-500 tw-underline tw-leading-loose"
+                  >
                     view payouts on stripe
                   </a>
                 </div>
