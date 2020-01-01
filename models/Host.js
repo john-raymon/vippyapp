@@ -26,13 +26,14 @@ const HostSchema = new mongoose.Schema(
     },
     isEmailConfirmed: { type: Boolean, unqiue: true, default: true }, // TODO: Maybe change this to false? And implement email verification feature, also check
     // if we're relying on isEmailConfirmed for anything right now befroe removing default true
-    venueName: { type: String },
+    venueName: { type: String }, // consider this company name
     fullname: {
       type: String,
       lowercase: true,
       required: [true, "is required"]
     },
     legalVenueName: {
+      // consider this company name
       type: String,
       lowercase: true,
       required: [true, "is required"]

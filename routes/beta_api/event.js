@@ -127,11 +127,13 @@ router.post(
       host: host ? host : vippyPromoter.venue,
       date: req.body.startTime,
       startTime: req.body.startTime,
+      organizer: req.body.organizer || "",
       endTime: req.body.endTime,
       address: {
         // TODO : have this set up by the venue's default address, in other words do not allow venue to set event address like so,
         // have us approve updating of venue's address, that address will be used for all events created with venue account or connected promoter account
         // if another venue address is wanted then either an approval is needed or a new venue account is needed.
+        venueName: req.body.venueName,
         street: req.body.street,
         city: req.body.city,
         state: req.body.state,

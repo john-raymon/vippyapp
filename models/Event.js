@@ -9,12 +9,14 @@ var Listing = require("./Listing");
 
 var EventSchema = mongoose.Schema({
   name: { type: String, required: [true, "is required"] },
+  organizer: { type: String },
   host: { type: mongoose.Schema.Types.ObjectId, ref: "Host" },
   currentListings: [{ type: mongoose.Schema.Types.ObjectId, ref: "Listing" }],
   date: { type: Date, required: [true, "is required"] },
   startTime: { type: Date, required: [true, "is required"] },
   endTime: { type: Date, required: [true, "is required"] },
   address: {
+    venueName: { type: String, required: [true, "is required"] },
     street: { type: String, required: [true, "is required"] },
     city: { type: String, required: [true, "is required"] },
     state: { type: String, required: [true, "is required"] },
@@ -43,6 +45,7 @@ EventSchema.methods.toJSONFor = function(user) {
   const isVenuesEvent = user && user._id.equals(this.host.id);
   // user argument is utilized when invoking listing.toJSONForHost method vvv read comment below next to invocation
   const {
+    organizer,
     name,
     host,
     currentListings,
@@ -88,7 +91,8 @@ EventSchema.methods.toJSONFor = function(user) {
       address,
       images,
       cancelled,
-      venueId
+      venueId,
+      organizer
     };
   }
   return {
@@ -102,12 +106,14 @@ EventSchema.methods.toJSONFor = function(user) {
     address,
     images,
     cancelled,
-    venueId
+    venueId,
+    organizer
   };
 };
 
 EventSchema.methods.toNestedJSON = function() {
   const {
+    organizer,
     venueId,
     name,
     host,
@@ -131,7 +137,8 @@ EventSchema.methods.toNestedJSON = function() {
     address,
     images,
     cancelled,
-    venueId
+    venueId,
+    organizer
   };
 };
 
