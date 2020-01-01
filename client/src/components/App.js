@@ -32,17 +32,7 @@ import {
 // Styles
 import "../styles/application.css";
 
-const theme = createMuiTheme({
-  palette: {
-    primary: {
-      main: "#ffffff"
-    },
-    secondary: {
-      main: "#333333"
-    },
-    divider: "#5d5d5d"
-  }
-});
+const theme = createMuiTheme({});
 
 const NotFound = props => {
   return <div className="yellow">Not Found </div>;
@@ -217,7 +207,6 @@ class App extends Component {
               <ProtectedRoute
                 isAuth={isAuth}
                 path="/dashboard"
-                exact
                 render={props => {
                   return (
                     <Dashboard

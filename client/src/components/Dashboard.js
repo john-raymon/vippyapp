@@ -1,7 +1,8 @@
 import React, { Component, Fragment } from "react";
 import { connect } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, Route } from "react-router-dom";
 import { ReservationCard, ListingCard } from "./Cards";
+import CreateEvent from "./CreateEvent";
 import { formatEventDate, formatEventTimes } from "./../utils/dateFns";
 
 // Redux Actions
@@ -356,8 +357,14 @@ class Dashboard extends Component {
       const allTabs = ["reservations", "listings", "events"];
       return (
         <div className="venue-dashboard venue-dashboard__container">
+          <Route
+            path={`${this.props.match.path}/create-event`}
+            render={props => {
+              return <CreateEvent {...props} venue={this.props.venue} />;
+            }}
+          />
           <section className="venue-dashboard__header-section tw-flex tw-flex-wrap tw-justify-between tw-items-center">
-            <div className="venue-dashboard__header-section__left tw-flex-grow">
+            <div className="venue-dashboard__header-section__left tw-w-full md:tw-w-1/2">
               <div className="tw-flex tw-flex-row tw-items-center">
                 {Object.entries(this.props.venue.images).length ? (
                   <img
@@ -388,7 +395,7 @@ class Dashboard extends Component {
                     <a className="tw-block tw-font-mich tw-text-2xs tw-uppercase tw-tracking-widest tw-my-2 tw-text-green-500 tw-underline tw-leading-loose">
                       edit account
                     </a>
-                    <a
+                    <button
                       onClick={() =>
                         this.props.venueAgent.redirectToStripeDashboard({
                           account: "true"
@@ -397,15 +404,18 @@ class Dashboard extends Component {
                       className="tw-cursor-pointer tw-block tw-font-mich tw-text-2xs tw-uppercase tw-tracking-widest tw-my-2 tw-text-green-500 tw-underline tw-leading-loose"
                     >
                       go to stripe account
-                    </a>
+                    </button>
                   </div>
                 </div>
               </div>
             </div>
             <div className="venue-dashboard__header-section__right tw-w-full md:tw-w-1/2 tw-flex tw-flex-col tw-items-end md:tw-pl-4">
-              <button className="button tw-my-2 tw-bg-green-700 tw-px-12 tw-py-3 tw-text-2xs tw-w-full tw-tracking-widest-1 tw-rounded-lg">
+              <Link
+                to={`${this.props.match.url}/create-event`}
+                className="button tw-text-center tw-my-2 tw-bg-green-700 tw-px-12 tw-py-3 tw-text-2xs tw-w-full tw-tracking-widest-1 tw-rounded-lg"
+              >
                 create a new event
-              </button>
+              </Link>
               <button className="button tw-my-2 tw-bg-green-700 tw-px-12 tw-py-3 tw-text-2xs tw-w-full tw-tracking-widest-1 tw-rounded-lg">
                 create a new listing
               </button>

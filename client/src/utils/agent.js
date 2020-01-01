@@ -80,19 +80,19 @@ export class Agent {
   } // move to UserEndpointAgent
 
   getAllReservations() {
-    return this._get("api/reservation", true).catch(error => {
+    return this._get("/api/reservation", true).catch(error => {
       throw error.response.body;
     });
   }
 
   getAllEvents(query) {
-    return this._get("api/event", true, query).catch(error => {
+    return this._get("/api/event", true, query).catch(error => {
       throw error.response.body;
     });
   }
 
   getAllListings(query) {
-    return this._get("api/listing", true, query).catch(error => {
+    return this._get("/api/listing", true, query).catch(error => {
       throw error.response.body;
     });
   }
@@ -154,5 +154,15 @@ export class VenueEndpointAgent extends Agent {
     return this._get(path, true).catch(error => {
       throw error.response.body;
     });
+  }
+
+  redirectToStripeDashboard(query) {
+    return this._get("/stripe/dashboard", null, query)
+      .then(res => {
+        return window.location.replace(res.loginLinkUrl);
+      })
+      .catch(error => {
+        throw error.response.body;
+      });
   }
 }

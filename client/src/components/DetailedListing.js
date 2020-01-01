@@ -101,7 +101,7 @@ class DetailedListing extends Component {
           <Elements>
             <div className="pv4 mw8 center white">
               <ListingImagesHeader listingImages={listing.images} />
-              <div className="flex flex-column flex-row-ns w-100 pt2 justify-between">
+              <div className="tw-flex tw-flex-col w-100 pt2 justify-between">
                 <div className="w-100 w-75-l pr2">
                   <h1 className="michroma tracked lh-title ttu">
                     {listing.name}
@@ -120,13 +120,13 @@ class DetailedListing extends Component {
                       listing.guestCount
                     } guest`}
                   </p>
-                  <div className="flex tw-flex-col lg:tw-flex-row lg:tw-items-center md:tw-mt-10 tw-px-4">
-                    <h1 className="michroma tracked lh-title tw-text-base white tw-pb-4 md:tw-pb-0 tw-mr-6">
-                      Like this listing ?
-                    </h1>
+                  <div className="flex tw-flex-col lg:tw-flex-row lg:tw-items-center md:tw-mt-10">
+                    <p className="tw-w-full tw-text-center text-font-base tw-py-6 tw-text-gray-500 tw-mt-2">
+                      View the event info below
+                    </p>
                     <button
                       onClick={this.handleReservationFormSubmit}
-                      className="button tw-bg-green-500 tw-px-6"
+                      className="button tw-bg-green-500"
                     >
                       Reserve Now
                     </button>
@@ -142,6 +142,9 @@ class DetailedListing extends Component {
 
                 <div className="w-100 w-25-l pl2">
                   <div>
+                    <p className="tw-w-full tw-text-center text-font-base tw-py-2 tw-text-gray-500 tw-mt-10">
+                      View the event info below
+                    </p>
                     <EventCard
                       eventTitle={event.name}
                       venueInitial={event.host.venueName[0]}

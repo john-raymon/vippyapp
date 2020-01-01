@@ -5,7 +5,8 @@ import { withRouter } from "react-router-dom";
 import { PersistGate } from "redux-persist/integration/react";
 import { ConnectedRouter } from "connected-react-router";
 import configureStore, { history } from "./utils/configStore";
-
+import "react-date-range/dist/styles.css"; // main style file
+import "react-date-range/dist/theme/default.css"; // theme css file
 import App from "./components/App";
 
 import * as serviceWorker from "./serviceWorker";

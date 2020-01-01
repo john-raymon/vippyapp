@@ -12,6 +12,10 @@ $michromaregular : 'Michroma';
   @extend .tw-font-mich, .tw-text-2xs, .tw-uppercase, .tw-tracking-widest;
 }
 
+.medium-text {
+  @extend .tw-font-mich, .tw-text-base, .tw-uppercase, .tw-tracking-widest;
+}
+
 .large-text {
-  @extend .tw-font-mich tw-text-lg tw-leading-snug;
+  @extend .tw-font-mich, .tw-text-lg, .tw-leading-snug;
 }

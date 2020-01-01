@@ -98,22 +98,22 @@ export default class DetailedReservation extends Component {
     }
     if (reservation) {
       return (
-        <div className="flex flex-column mw8 center pv4">
+        <div className="flex flex-column tw-w-full tw-max-w-6xl center pv4">
           <ListingImagesHeader listingImages={reservation.listing.images} />
-          <div className="w-100">
-            <p className="michroma tracked lh-title white f3 pv3 tc">
+          <div className="w-10 tw-w-full">
+            <p className="michroma tracked tw-w-full lh-title white f3 pv3 tc tw-mt-6">
               {thankYou
                 ? `Thank you for reserving @${
                     reservation.listing.event.host.venueName
                   }!`
-                : `You're reserved @${
+                : `You're reserved at ${
                     reservation.listing.event.host.venueName
                   }`}
             </p>
           </div>
           <div className="flex flex-column flex-row-l">
-            <div className="w-100 w-50-l order-1-l ph1-l">
-              <div className="flex flex-row w-100 justify-between pa3">
+            <div className="w-100 w-50-l order-1-l lg:tw-pl-2">
+              <div className="flex flex-row w-100 justify-between">
                 {reservation.redeemed ? (
                   <p className="ba b--green michroma tracked-1 f8 tc pv2 w-100 lh-title green ttu">
                     redeemed
@@ -154,7 +154,7 @@ export default class DetailedReservation extends Component {
                   </div>
                 </Modal>
               </div>
-              <div className="flex flex-column w-100 bg-vippy-1 justify-between pa3 ml1-l">
+              <div className="flex flex-column w-100 bg-vippy-1 justify-between pa3">
                 <p className="michroma f5 white lh-title tracked tl">
                   How to redeem your reservation at the door
                 </p>

@@ -8,7 +8,7 @@
     "client": "concurrently --kill-others-on-fail 'cd client && yarn watch'  'cd client && yarn start'",
     "client:build-css": "cd client && yarn build-css",
     "client:watch-css": "cd client && yarn watch-css",
-    "dev-server": "nodemon ./bin/www",
+    "dev-server": "nodemon --inspect ./bin/www",
     "dev-start": "concurrently --kill-others-on-fail \"yarn dev-server\" \"yarn client\"",
     "test": "mocha"
   },

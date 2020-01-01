@@ -10,6 +10,94 @@ export const getFirstImageUrl = images => {
     : "https://res.cloudinary.com/vippy/image/upload/v1558677868/vippy-event-images/banter-snaps-393010-unsplash_sqqv7z.jpg";
 };
 
+export function PreviewEventCard({
+  venueInitial = "",
+  eventTitle = "n/a",
+  eventStartTime = "--:--",
+  eventEndTime = "--:--",
+  venueName = "n/a",
+  eventOrganizer = "",
+  venueStreetAddress = "n/a",
+  venueCityZipCode = "n/a",
+  images = {},
+  widthClassName = "w-50 w-third-l",
+  aspectRatioClass = "aspect-ratio--5x8",
+  textColor = "white",
+  newRootClasses = "",
+  newInnerContainerClasses = ""
+}) {
+  const { startTime, endTime } = formatEventTimes(eventStartTime, eventEndTime);
+  const eventStartDate = formatEventDate(eventStartTime);
+  const eventEndDate = formatEventDate(eventEndTime);
+  return (
+    <div
+      className={
+        newRootClasses ? newRootClasses : `fl pr3 pv3 ${widthClassName}`
+      }
+    >
+      <div
+        className={`eventCard__inner-container ${
+          newInnerContainerClasses
+            ? newInnerContainerClasses
+            : `flex flex-column md:tw-px-4`
+        }`}
+      >
+        <div className="tw-w-1/4 tw-pr-2">
+          <div
+            style={{
+              backgroundRepeat: "no-repeat",
+              backgroundPosition: "center",
+              backgroundSize: "contain",
+              backgroundImage: `url(${getFirstImageUrl(images)})`
+            }}
+            className={`eventCard__image-container dim aspect-ratio ${aspectRatioClass} bg-${textColor}-10`}
+          />
+        </div>
+        <div className="eventCard__content-container flex tw-w-3/4 flex-column pl1">
+          <p
+            className={`michroma tw-text-2xs tracked lh-title ${textColor}-50 tw-pb-2 ttu tl`}
+          >
+            {`@ ${venueName}`}
+            {eventOrganizer && (
+              <span className="tw-w-full tw-block tw-text-4xs tw-pt-2">
+                {`organized by ${eventOrganizer}`}
+              </span>
+            )}
+          </p>
+          <p
+            className={`michroma tw-text-sm tw-capitalize tracked lh-title ${textColor}-90 pb2 tl`}
+          >
+            {`${eventTitle}`}
+          </p>
+          <p
+            className={`tw-flex tw-flex-col tw-items-start michroma tw-text-xs tracked lh-title ${textColor}-80 pb2 tl`}
+          >
+            <span className="tw-text-2xs tw-text-gray-600 tw-text-black tw-pb-1 tw-mb-1 tw-border-b tw-border-gray-300">
+              Starts:
+            </span>
+            {`${eventStartDate} at ${startTime}`}
+          </p>
+          <p
+            className={`tw-flex tw-flex-col tw-items-start michroma tw-text-xs tracked lh-title ${textColor}-80 pb2 tl`}
+          >
+            <span className="tw-text-2xs tw-text-gray-600 tw-text-black tw-pb-1 tw-mb-1 tw-border-b tw-border-gray-300">
+              Ends:
+            </span>
+            {`${eventEndDate} at ${endTime}`}
+          </p>
+          <p
+            className={`michroma tw-text-xs tracked lh-title ${textColor}-80 pb2 tl`}
+          >
+            <span className={`pt2 db ttc tracked tw-text-2xs ${textColor}-60`}>
+              * eastern time
+            </span>
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function EventCard({
   venueInitial = "",
   eventTitle = "n/a",
@@ -20,13 +108,26 @@ export function EventCard({
   venueCityZipCode = "n/a",
   images = {},
   widthClassName = "w-50 w-third-l",
-  aspectRatioClass = "aspect-ratio--5x8"
+  aspectRatioClass = "aspect-ratio--5x8",
+  textColor = "white",
+  newRootClasses = "",
+  newInnerContainerClasses = ""
 }) {
   const { startTime, endTime } = formatEventTimes(eventStartTime, eventEndTime);
   const eventStartDate = formatEventDate(eventStartTime);
   return (
-    <div className={`fl pr3 pv3 ${widthClassName}`}>
-      <div className="eventCard flex flex-column md:tw-px-4">
+    <div
+      className={
+        newRootClasses ? newRootClasses : `fl pr3 pv3 ${widthClassName}`
+      }
+    >
+      <div
+        className={`eventCard__inner-container ${
+          newInnerContainerClasses
+            ? newInnerContainerClasses
+            : `flex flex-column md:tw-px-4`
+        }`}
+      >
         <div
           style={{
             backgroundRepeat: "no-repeat",
@@ -34,21 +135,25 @@ export function EventCard({
             backgroundSize: "contain",
             backgroundImage: `url(${getFirstImageUrl(images)})`
           }}
-          className={`eventCard__image-container dim aspect-ratio ${aspectRatioClass} bg-white-10`}
+          className={`eventCard__image-container dim aspect-ratio ${aspectRatioClass} bg-${textColor}-10`}
         />
         <div className="eventCard__content-container flex flex-column pl1">
-          <p className="michroma f9 tracked lh-title white-50 pv2 ttu tl">
+          <p
+            className={`michroma f9 tracked lh-title ${textColor}-50 pv2 ttu tl`}
+          >
             {`@ ${venueName}`}
           </p>
-          <p className="michroma f6 tracked lh-title white-90 pb2 ttu tl">
+          <p
+            className={`michroma f6 tracked lh-title ${textColor}-90 pb2 ttu tl`}
+          >
             {`${eventTitle}`}
           </p>
-          <p className="michroma f8 tracked lh-title white-80 pb2 tl">
+          <p className={`michroma f8 tracked lh-title ${textColor}-80 pb2 tl`}>
             {`${eventStartDate}`}
           </p>
-          <p className="michroma f8 tracked lh-title white-80 pb2 tl">
+          <p className={`michroma f8 tracked lh-title ${textColor}-80 pb2 tl`}>
             {`${startTime} - ${endTime}`}
-            <span className="pt2 db ttc tracked f9 white-60">
+            <span className={`pt2 db ttc tracked f9 ${textColor}-60`}>
               * eastern time
             </span>
           </p>
