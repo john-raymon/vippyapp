@@ -13,6 +13,12 @@ import Select from "@material-ui/core/Select";
 import NativeSelect from "@material-ui/core/NativeSelect";
 import InputBase from "@material-ui/core/InputBase";
 import VippyLogo from "../svgs/logo";
+import * as yup from "yup";
+import {
+  phoneNumber as phoneNumberRegExp,
+  password as passwordRegExp,
+  zipCode as zipCodeRegExp
+} from "./../utils/regExp";
 
 const SInputBase = withStyles(theme => ({
   input: {
@@ -40,11 +46,13 @@ export default class CreateEvent extends Component {
     super(props);
     this.handleStartTimeChange = this.handleStartTimeChange.bind(this);
     this.formatMilitaryTime = this.formatMilitaryTime.bind(this);
+    this.validate = this.validate.bind(this);
+    this.onSubmit = this.onSubmit.bind(this);
+    this.containerRef = React.createRef();
     this.state = {
       initialRootVariant: "hidden",
       newEvent: {
-        name: "",
-        date: Date(),
+        name: "John",
         startTime: new Date(
           moment()
             .add("1", "days")
@@ -57,12 +65,12 @@ export default class CreateEvent extends Component {
             .startOf("day")
             .format()
         ),
-        venueName: "",
-        street: "",
+        venueName: "test",
+        street: "335 n magnolia",
         streetTwo: "",
-        city: "",
+        city: "orlando",
         state: "FL",
-        zip: "",
+        zip: "32801",
         organizer: ""
       },
       selectedStartTime: "0000",
@@ -128,7 +136,9 @@ export default class CreateEvent extends Component {
         WV: "West Virginia",
         WI: "Wisconsin",
         WY: "Wyoming"
-      }
+      },
+      error: "",
+      errors: {}
     };
   }
 
@@ -206,6 +216,87 @@ export default class CreateEvent extends Component {
     });
   }
 
+  // validate the new event object using Yup; Object Schema Validation
+  validate(event) {
+    const eventSchema = yup.object().shape({
+      name: yup.string().required("Create a title for your event"),
+      venueName: yup
+        .string()
+        .required("Please provide the name of the venue or location."),
+      street: yup.string().required("Please provide a street address."),
+      zip: yup
+        .string()
+        .matches(zipCodeRegExp, {
+          message: "Please enter a valid zip code"
+        })
+        .required("Please enter the zip code of the venue or location."),
+      city: yup.string().required("Please provide a city."),
+      state: yup.string().required("Please select a state."),
+      startTime: yup
+        .date()
+        .required("Please provide the start date and time for the event"),
+      endTime: yup
+        .date()
+        .required("Please provide the end date and time for the event")
+    });
+    return eventSchema.validate(event, {
+      abortEarly: false
+    });
+  }
+
+  onSubmit() {
+    this.setState({
+      errors: {}
+    });
+    const { newEvent } = this.state;
+    this.validate(newEvent)
+      .then(value => {
+        console.log("fulfilled with value", value);
+        return this.props.venueAgent.createEvent(value).catch(error => {
+          throw { ...error, requestType: "api" };
+        });
+      })
+      .then(resp => {
+        // on successful resp from POST /api/event via venueAgent.createEvent redirect to create listings page with id
+        return this.props.history.replace(
+          `create-listings/${resp.event.id}/new`
+        );
+      })
+      .catch(error => {
+        this.containerRef.current.scrollTo(0, 0);
+        // error.inner is array of Yup ValidationErrors
+        // if has inner then it is a Yup ValidationError thrown from this.validate method
+        if (error.requestType) {
+          // this.
+          if (Object.entries(error.errors || {}).length) {
+            return this.setState({
+              errors: error.errors
+            });
+          }
+          if (error.path) {
+            return this.setState({
+              errors: {
+                [error.path]: error.message || ""
+              }
+            });
+          }
+          return this.setState({
+            error: "Sorry, we aren't able to create your event right now."
+          });
+        }
+        let errors = {};
+        error.inner.forEach(error => {
+          errors = {
+            ...errors,
+            [error.path]: error.message
+          };
+        });
+        return this.setState({
+          errors
+        });
+      });
+  }
+
   render() {
     const rootVariants = {
       visible: {
@@ -216,7 +307,8 @@ export default class CreateEvent extends Component {
         y: "200%"
       }
     };
-    const { newEvent } = this.state;
+    const { newEvent, errors } = this.state;
+    const errorsAsEntries = Object.entries(this.state.errors);
     const encodedEventAddress = encodeURI(
       `${newEvent.street} ${newEvent.streetTwo} ${newEvent.city} ${this.state
         .allStates[newEvent.state] || ""} ${newEvent.zip}`.trim("")
@@ -233,6 +325,7 @@ export default class CreateEvent extends Component {
           initial="hidden"
           animate={this.state.initialRootVariant}
           variants={rootVariants}
+          ref={this.containerRef}
           className="create-event tw-fixed tw-bottom-0 tw-right-0 tw-w-full tw-h-full tw-z-50 tw-bg-white tw-overflow-y-scroll"
         >
           <div className="create-event__inner-container tw-relative">
@@ -258,7 +351,7 @@ export default class CreateEvent extends Component {
             </div>
             <div className="tw-relative tw-flex tw-flex-col lg:tw-flex-row tw-mx-auto tw-max-w-6xl">
               <div className="tw-flex tw-sticky _top-14 tw-justify-start tw-items-start tw-w-full lg:tw-w-2/5 tw-z-30 tw-bg-white tw-px-3 tw-shadow-xl lg:tw-shadow-none">
-                <div className="tw-flex tw-flex-col tw-items-center tw-w-full sm:tw-w-3/5 lg:tw-w-full tw-mx-auto tw-py-3 lg:tw-pt-20">
+                <div className="tw-sticky tw-top-0 tw-flex tw-flex-col tw-items-center tw-w-full sm:tw-w-3/5 lg:tw-w-full tw-mx-auto tw-py-3 lg:tw-pt-20">
                   <p className="tw-text-xs tw-text-gray-600 tw-text-black tw-pb-1 tw-mb-2 tw-border-b tw-border-gray-300 self-start">
                     Event Preview:
                   </p>
@@ -274,9 +367,20 @@ export default class CreateEvent extends Component {
                   />
                 </div>
               </div>
-              <div class="tw-flex tw-flex-col tw-px-4 lg:tw-px-2 tw-pt-8">
-                <section className="tw-flex tw-flex-wrap tw-w-full tw-mt-2 tw-border-b tw-border-gray-200 tw-pb-4">
-                  <div className="tw-sticky tw-top-0 tw-flex tw-items-start tw-w-full md:tw-w-1/5 md:tw-border-r tw-border-gray-200 tw-py-4 md:tw-pr-6">
+              <div className="tw-flex tw-flex-col tw-px-4 lg:tw-px-2 tw-pt-8">
+                {(errorsAsEntries.length || "") &&
+                  errorsAsEntries.map(([errorPath, errorMessage], i) => {
+                    return (
+                      <p
+                        key={i}
+                        className="small-text tw-text-red-400 tw-text-center tw-w-full tw-py-4"
+                      >
+                        {errorMessage}
+                      </p>
+                    );
+                  })}
+                <section className="tw-flex tw-flex-wrap tw-w-full tw-mt-2 tw-border-b tw-border-gray-200 tw-p-8">
+                  <div className="tw-sticky tw-top-0 tw-flex tw-items-start tw-w-full md:tw-w-1/5 md:tw-border-r tw-border-gray-300 tw-py-4 md:tw-pr-6">
                     <p className="tw-font-mich tw-w-full tw-text-center md:tw-text-left tw-text-sm tw-text-gray-800 tw-tracking-wider tw-leading-relaxed tw-normal-case">
                       Basic Information
                     </p>
@@ -315,8 +419,26 @@ export default class CreateEvent extends Component {
                   </div>
                 </section>
 
-                <section className="tw-flex tw-flex-wrap tw-w-full tw-mb-10 tw-border-b tw-border-gray-200 tw-pb-10 sm:tw-pt-8">
-                  <div className="tw-flex tw-items-start tw-w-full md:tw-w-1/5 md:tw-border-r tw-border-gray-200 tw-py-6 md:tw-pr-6">
+                {errorsAsEntries
+                  .filter(([path, message]) => path.split(".")[0] === "address")
+                  .map((error, i) => {
+                    return (
+                      <p
+                        key={i}
+                        className="small-text tw-text-red-400 tw-text-center tw-w-full tw-py-4 tw-mt-2"
+                      >
+                        {error[1]}
+                      </p>
+                    );
+                  })}
+                <section
+                  className={`tw-flex tw-flex-wrap tw-w-full tw-mb-10 tw-border-b tw-border-gray-200 tw-p-8 ${(errorsAsEntries.filter(
+                    ([path, message]) => path.split(".")[0] === "address"
+                  ).length ||
+                    "") &&
+                    "tw-border tw-border-red-400 tw-rounded"}`}
+                >
+                  <div className="tw-flex tw-items-start tw-w-full md:tw-w-1/5 md:tw-border-r tw-border-gray-300 tw-py-6 md:tw-pr-6">
                     <p className="tw-font-mich tw-w-full tw-text-center md:tw-text-left tw-text-sm tw-text-gray-800 tw-tracking-wider tw-leading-relaxed tw-normal-case">
                       Event Location
                     </p>
@@ -433,9 +555,29 @@ export default class CreateEvent extends Component {
                     </div>
                   </div>
                 </section>
-
-                <section className="tw-flex tw-flex-wrap tw-w-full tw-mb-10 tw-pb-12 tw-border-b tw-border-gray-200">
-                  <div className="tw-flex tw-items-start tw-w-full md:tw-w-1/5 md:tw-border-r tw-border-gray-200 tw-py-4 md:tw-pr-6">
+                {errorsAsEntries
+                  .filter(
+                    ([path, message]) =>
+                      path === "eventStartTime" || path === "eventEndTime"
+                  )
+                  .map((error, i) => {
+                    return (
+                      <p
+                        key={i}
+                        className="small-text tw-text-red-400 tw-text-center tw-w-full tw-py-4"
+                      >
+                        {error[1]}
+                      </p>
+                    );
+                  })}
+                <section
+                  className={`tw-flex tw-flex-wrap tw-w-full tw-mb-10 tw-p-8 tw-border-b tw-border-gray-200 ${(this
+                    .state.errors["eventStartTime"] ||
+                    this.state.errors["eventEndTime"] ||
+                    "") &&
+                    "tw-border tw-border-red-400 tw-rounded"}`}
+                >
+                  <div className="tw-flex tw-items-start tw-w-full md:tw-w-1/5 md:tw-border-r tw-border-gray-300 tw-py-4 md:tw-pr-6">
                     <p className="tw-font-mich tw-w-full tw-text-center md:tw-text-left tw-text-sm tw-text-gray-800 tw-tracking-wider tw-leading-relaxed tw-normal-case">
                       Date & Time
                     </p>
@@ -472,7 +614,7 @@ export default class CreateEvent extends Component {
                       <Calendar
                         showSelectionPreview={false}
                         className="tw-relative tw-font-mich"
-                        date={this.state.newEvent.startTime}
+                        date={new Date(this.state.newEvent.startTime)}
                         onChange={this.handleStartTimeChange}
                       />
                     </div>
@@ -505,7 +647,7 @@ export default class CreateEvent extends Component {
                       <Calendar
                         showSelectionPreview={false}
                         className="tw-relative tw-font-mich"
-                        date={this.state.newEvent.endTime}
+                        date={new Date(this.state.newEvent.endTime)}
                         onChange={date =>
                           this.setState({
                             newEvent: { ...this.state.newEvent, endTime: date }
@@ -518,7 +660,10 @@ export default class CreateEvent extends Component {
               </div>
             </div>
             <div className="tw-block tw-sticky tw-bottom-0 tw-z-30">
-              <button className="tw-font-mich tw-bg-green-700 tw-px-12 tw-py-6 tw-text-xs tw-w-full tw-tracking-widest-1 tw-text-white">
+              <button
+                onClick={this.onSubmit}
+                className="tw-font-mich tw-bg-green-700 tw-px-12 tw-py-6 tw-text-xs tw-w-full tw-tracking-widest-1 tw-text-white"
+              >
                 create event
               </button>
             </div>

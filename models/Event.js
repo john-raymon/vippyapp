@@ -16,11 +16,23 @@ var EventSchema = mongoose.Schema({
   startTime: { type: Date, required: [true, "is required"] },
   endTime: { type: Date, required: [true, "is required"] },
   address: {
-    venueName: { type: String, required: [true, "is required"] },
-    street: { type: String, required: [true, "is required"] },
-    city: { type: String, required: [true, "is required"] },
-    state: { type: String, required: [true, "is required"] },
-    zip: { type: String, required: [true, "is required"] }
+    venueName: { type: String, required: [true, "The venue name is required"] },
+    street: {
+      type: String,
+      required: [true, "A street address for the event is required"]
+    },
+    city: {
+      type: String,
+      required: [true, "A city for the event is required"]
+    },
+    state: {
+      type: String,
+      required: [true, "A state for the event is required"]
+    },
+    zip: {
+      type: String,
+      required: [true, "A zipcode for the event is required"]
+    }
   },
   venueId: {
     type: String,

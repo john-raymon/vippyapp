@@ -57,11 +57,11 @@ export class Agent {
       .then(this._responseBody);
   }
 
-  async _post(url, body) {
+  async _post(url, body, fullPath = false) {
     const returnedToken = await this._initToken();
     //debugger;
     return superagent
-      .post(`${this.API_ROOT}${url}`, body)
+      .post(fullPath ? url : `${this.API_ROOT}${url}`, body)
       .use(this._tokenPlugin)
       .then(this._responseBody);
   }
@@ -119,6 +119,7 @@ export class UserEndpointAgent extends Agent {
     });
   }
 
+  // register new user
   create(body) {
     return this._post(`api/user`, body).catch(error => {
       throw error.response.body;
@@ -132,8 +133,23 @@ export class VenueEndpointAgent extends Agent {
     super(token, API_ROOT);
   }
 
+  // register new venue
   create(body) {
     return this._post("/", body).catch(error => {
+      throw error.response.body;
+    });
+  }
+
+  // create new event
+  createEvent(body) {
+    return this._post("/api/event", body, true).catch(error => {
+      throw error.response.body;
+    });
+  }
+
+  // read an event by id
+  getEventById(eventId) {
+    return this._get(`/api/event/${eventId}`, true).catch(error => {
       throw error.response.body;
     });
   }

@@ -74,7 +74,7 @@ router.post(
     if (!(host ? host.hasStripeId() : vippyPromoter.venue.hasStripeId())) {
       return res.status(404).json({
         success: false,
-        error: "You must connect to Stripe before creating an Event"
+        message: "You must connect to Stripe before creating an Event"
       });
     }
 
@@ -82,6 +82,7 @@ router.post(
     if (!isValid(new Date(req.body.startTime))) {
       return next({
         name: "ValidationError",
+        path: "eventStartTime",
         message: "The start time is not a valid date and time"
       });
     }
@@ -89,6 +90,7 @@ router.post(
     if (!isValid(new Date(req.body.endTime))) {
       return next({
         name: "ValidationError",
+        path: "eventEndTime",
         message: "The end time is not a valid date and time"
       });
     }
@@ -97,6 +99,7 @@ router.post(
     if (!isFuture(new Date(req.body.startTime))) {
       return next({
         name: "ValidationError",
+        path: "eventStartTime",
         message: "The start time must be in the future"
       });
     }
@@ -105,7 +108,9 @@ router.post(
     if (!isAfter(new Date(req.body.endTime), new Date(req.body.startTime))) {
       return next({
         name: "ValidationError",
-        message: "The end time must be after the start of the event"
+        path: "eventEndTime",
+        message:
+          "Oops, please correct the event's 'end' date and time to be set after the start date and time."
       });
     }
     // make sure the difference in the endtime and startTime minutes are no less than 30 minutes
@@ -117,6 +122,7 @@ router.post(
     ) {
       return next({
         name: "ValidationError",
+        path: "eventEndTime",
         message: "Your event duration must be at least half an hour long"
       });
     }

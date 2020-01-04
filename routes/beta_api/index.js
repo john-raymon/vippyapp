@@ -17,7 +17,8 @@ router.use(function(err, req, res, next) {
       return res.status(422).json({
         success: false,
         name: "ValidationError",
-        message: err.message
+        message: err.message,
+        ...err
       });
     }
     return res.status(422).json({
