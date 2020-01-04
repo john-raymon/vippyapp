@@ -3,6 +3,8 @@ import { connect } from "react-redux";
 import { Link, Route } from "react-router-dom";
 import { ReservationCard, ListingCard } from "./Cards";
 import CreateEvent from "./CreateEvent";
+import CreateListing from "./CreateListing";
+
 import { formatEventDate, formatEventTimes } from "./../utils/dateFns";
 
 // Redux Actions
@@ -360,7 +362,25 @@ class Dashboard extends Component {
           <Route
             path={`${this.props.match.path}/create-event`}
             render={props => {
-              return <CreateEvent {...props} venue={this.props.venue} />;
+              return (
+                <CreateEvent
+                  {...props}
+                  venue={this.props.venue}
+                  venueAgent={this.props.venueAgent}
+                />
+              );
+            }}
+          />
+          <Route
+            path={`${this.props.match.path}/create-listings/:eventId?/:new?`}
+            render={props => {
+              return (
+                <CreateListing
+                  {...props}
+                  venue={this.props.venue}
+                  venueAgent={this.props.venueAgent}
+                />
+              );
             }}
           />
           <section className="venue-dashboard__header-section tw-flex tw-flex-wrap tw-justify-between tw-items-center">
@@ -416,9 +436,12 @@ class Dashboard extends Component {
               >
                 create a new event
               </Link>
-              <button className="button tw-my-2 tw-bg-green-700 tw-px-12 tw-py-3 tw-text-2xs tw-w-full tw-tracking-widest-1 tw-rounded-lg">
-                create a new listing
-              </button>
+              <Link
+                to={`${this.props.match.url}/create-listings`}
+                className="button tw-text-center tw-my-2 tw-bg-green-700 tw-px-12 tw-py-3 tw-text-2xs tw-w-full tw-tracking-widest-1 tw-rounded-lg"
+              >
+                create a vip/package
+              </Link>
               <button className="button tw-my-2 tw-bg-green-700 tw-px-12 tw-py-3 tw-text-2xs tw-w-full tw-tracking-widest-1 tw-rounded-lg">
                 pay out now
               </button>

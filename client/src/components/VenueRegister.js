@@ -164,8 +164,8 @@ export default class VenueRegister extends Component {
       .catch(error => {
         window.scrollTo(0, 0);
         // COMMON GOTCHA: The yup returns a ValidationError that has aggregated Yup ValidationError(s) within it
-        // our backend can/may return mongoose ValidationError(s) that do not contain an inner property but do
-        // contain an errors property
+        // our backend can/may return mongoose ValidationError(s) that do not contain an 'inner' property but do
+        // contain an 'errors' property
         if (!error) {
           return this.setState({
             error:
