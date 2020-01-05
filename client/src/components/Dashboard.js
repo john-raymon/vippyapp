@@ -208,7 +208,8 @@ function getVenueDashboardCard(type) {
       eventEndTime,
       cancelled,
       totalReservations,
-      totalListingQuantityLeft
+      totalListingQuantityLeft,
+      endTimeStillInFuture = true
     }) {
       const { startTime, endTime } = formatEventTimes(
         eventStartTime,
@@ -224,11 +225,11 @@ function getVenueDashboardCard(type) {
           </div>
           <div className="tw-flex tw-flex-wrap md:tw-flex-no-wrap tw-justify-between tw-py-4 tw--m-2">
             <div className="tw-flex tw-w-full md:tw-w-1/3 tw-flex-col tw-w-1/3 tw-m-2 tw-items-center tw-justify-center tw-flex-grow">
-              <p className="large-text tw-text-white tw-uppercase tw-w-full tw-h-8 tw-overflow-scroll">
+              <p className="large-text tw-text-white tw-uppercase tw-w-full tw-h-auto tw-overflow-visible">
                 {eventTitle}
               </p>
               <p className="small-text tw-uppercase tw-text-gray-600 tw-border-t tw-border-gray-800 tw-w-full tw-flex-grow tw-py-2">
-                Event Name
+                Event Title
               </p>
             </div>
 
@@ -261,6 +262,14 @@ function getVenueDashboardCard(type) {
               </p>
             </div>
             <div>
+              {(endTimeStillInFuture || "") && (
+                <Link
+                  to={`/dashboard/create-listings/${eventId}`}
+                  className="small-text tw-text-white tw-w-1/2 tw-max-w-sm h-full tw-bg-green-700 tw-py-1 tw-px-2 tw-ml-2 tw-rounded"
+                >
+                  add vip/packages
+                </Link>
+              )}
               <Link
                 to={`/events/${eventId}`}
                 className="small-text tw-text-white tw-w-1/2 tw-max-w-sm h-full tw-bg-green-700 tw-py-1 tw-px-2 tw-ml-2 tw-rounded"
@@ -435,12 +444,6 @@ class Dashboard extends Component {
                 className="button tw-text-center tw-my-2 tw-bg-green-700 tw-px-12 tw-py-3 tw-text-2xs tw-w-full tw-tracking-widest-1 tw-rounded-lg"
               >
                 create a new event
-              </Link>
-              <Link
-                to={`${this.props.match.url}/create-listings`}
-                className="button tw-text-center tw-my-2 tw-bg-green-700 tw-px-12 tw-py-3 tw-text-2xs tw-w-full tw-tracking-widest-1 tw-rounded-lg"
-              >
-                create a vip/package
               </Link>
               <button className="button tw-my-2 tw-bg-green-700 tw-px-12 tw-py-3 tw-text-2xs tw-w-full tw-tracking-widest-1 tw-rounded-lg">
                 pay out now
