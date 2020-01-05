@@ -110,7 +110,7 @@ router.post(
         name: "ValidationError",
         path: "eventEndTime",
         message:
-          "Oops, please correct the event's 'end' date and time to be set after the start date and time."
+          "Please correct the event's 'end' date and time to be set after the start date and time."
       });
     }
     // make sure the difference in the endtime and startTime minutes are no less than 30 minutes
