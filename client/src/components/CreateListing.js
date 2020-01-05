@@ -94,9 +94,9 @@ export default class CreateEvent extends Component {
           animate={this.state.initialRootVariant}
           variants={rootVariants}
           ref={this.containerRef}
-          className="create-event tw-fixed tw-bottom-0 tw-right-0 tw-w-full tw-h-full tw-z-50 tw-bg-white tw-overflow-y-scroll"
+          className="create-listings tw-fixed tw-bottom-0 tw-right-0 tw-w-full tw-h-full tw-z-50 tw-bg-white tw-overflow-y-scroll"
         >
-          <div className="create-event__inner-container tw-relative">
+          <div className="create-listings__inner-container tw-relative">
             <div className="tw-sticky tw-top-0 tw-w-full tw-bg-white tw-z-40 tw-shadow-2xl">
               <div className="tw-sticky tw-flex tw-items-center tw-justify-between tw-w-full tw-top-0 tw-right-0 tw-p-2 tw-bg-black md:tw-px-10 lg:tw-px-20">
                 <div className="tw-w-20 tw-fill-current tw-text-black">
@@ -118,14 +118,15 @@ export default class CreateEvent extends Component {
               </div>
             </div>
             <div className="tw-relative tw-flex tw-flex-col lg:tw-flex-row tw-mx-auto tw-max-w-6xl">
-              <div className="tw-flex tw-sticky _top-14 tw-justify-start tw-items-start tw-w-full lg:tw-w-2/5 tw-z-30 tw-bg-white tw-px-3 tw-shadow-xl lg:tw-shadow-none">
+              <div className="tw-flex tw-sticky _top-14 tw-justify-start tw-items-start tw-w-full md:tw-w-3/5 tw-z-30 tw-bg-white tw-px-3 tw-shadow-xl lg:tw-shadow-none">
                 <div className="tw-sticky tw-top-0 tw-flex tw-flex-col tw-items-center tw-w-full sm:tw-w-3/5 lg:tw-w-full tw-mx-auto tw-py-3 lg:tw-pt-20">
                   {event && (
                     <Fragment>
-                      <p className="tw-text-xs tw-text-black  tw-mb-2 tw-border-b tw-border-gray-300 self-start tw-bg-green-500 tw-w-full tw-text-gray-200 tw-p-3">
-                        {(this.props.match.params["new"] || "") &&
-                          "Add tables & packages for your new event."}
-                      </p>
+                      {(this.props.match.params["new"] || "") && (
+                        <p className="tw-text-xs tw-text-black  tw-mb-2 tw-border-b tw-border-gray-300 self-start tw-bg-green-500 tw-w-full tw-text-gray-200 tw-p-3">
+                          Add tables & packages for your new event
+                        </p>
+                      )}
                       <PreviewEventCard
                         venueName={event.venueName || "venue name"}
                         eventOrganizer={event.organizer}
@@ -140,8 +141,20 @@ export default class CreateEvent extends Component {
                   )}
                 </div>
               </div>
-              <div className="tw-flex tw-flex-col tw-px-4 lg:tw-px-2 tw-pt-8 lg:tw-pt-12">
-                something here
+              <div className="tw-flex tw-flex-col tw-px-4 lg:tw-px-2 tw-pt-8 lg:tw-pt-12 tw-w-full tw-flex-grow">
+                <section className="tw-mb-4 tw-border-b tw-border-gray-400 tw-pb-4">
+                  <p className="tw-text-xs tw-tracking-wider tw-p-6 tw-bg-gray-300 tw-text-gray-700 tw-w-full">
+                    Create a new VIP/Package
+                  </p>
+                </section>
+                <section className="tw-w-full">
+                  <p className="tw-text-xs tw-tracking-wider tw-p-6 tw-bg-gray-300 tw-text-gray-700 tw-w-full">
+                    Current VIP/Packges
+                  </p>
+                  <p className="tw-text-xs tw-tracking-widest tw-leading-loose tw-p-4 tw-text-center tw-text-gray-700 tw-w-full">
+                    This event has no vip/packages.
+                  </p>
+                </section>
               </div>
             </div>
           </div>
