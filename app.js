@@ -17,7 +17,11 @@ app.use(express.static(path.join(__dirname, "client/build/")));
 if (isProduction) {
   mongoose.connect(process.env.MONGODB_URI);
 } else {
-  mongoose.connect("mongodb://localhost/vippy_dev", { useNewUrlParser: true });
+  mongoose
+    .connect("mongodb://localhost/vippy_dev", { useNewUrlParser: true })
+    .catch(() => {
+      console.log("Mongodb crashed");
+    });
   mongoose.set("debug", true);
   function logResponseBody(req, res, next) {
     console.log("The request body --->", req.body);
