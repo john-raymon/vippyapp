@@ -379,7 +379,7 @@ export default class CreateEvent extends Component {
                       </p>
                     );
                   })}
-                <section className="tw-flex tw-flex-wrap tw-w-full tw-mt-2 tw-border-b tw-border-gray-200 tw-p-8">
+                <section className="tw-flex tw-flex-wrap tw-w-full md:tw-mt-2 tw-border-b tw-border-gray-200 tw-p-8">
                   <div className="tw-sticky tw-top-0 tw-flex tw-items-start tw-w-full md:tw-w-1/5 md:tw-border-r tw-border-gray-300 tw-py-4 md:tw-pr-6">
                     <p className="tw-font-mich tw-w-full tw-text-center md:tw-text-left tw-text-sm tw-text-gray-800 tw-tracking-wider tw-leading-relaxed tw-normal-case">
                       Basic Information
@@ -432,7 +432,7 @@ export default class CreateEvent extends Component {
                     );
                   })}
                 <section
-                  className={`tw-flex tw-flex-wrap tw-w-full tw-mb-10 tw-border-b tw-border-gray-200 tw-p-8 ${(errorsAsEntries.filter(
+                  className={`tw-flex tw-flex-wrap tw-w-full tw-border-b tw-border-gray-200 tw-p-8 ${(errorsAsEntries.filter(
                     ([path, message]) => path.split(".")[0] === "address"
                   ).length ||
                     "") &&
@@ -582,16 +582,13 @@ export default class CreateEvent extends Component {
                       Date & Time
                     </p>
                   </div>
-                  <div className="tw-relative tw-flex tw-items-center tw-flex-col tw-w-4/5 tw-flex-grow md:tw-pl-4">
-                    <div className="tw-w-full tw-flex tw-flex-col tw-justify-start tw-items-center lg:tw-w-1/2">
-                      <div className="tw-flex tw-flex-row tw-justify-between tw-w-full tw-items-center tw-px-4">
-                        <p className="tw-font-mich tw-w-1/2 tw-text-center md:tw-text-left tw-text-sm tw-text-gray-600 tw-tracking-wider tw-leading-relaxed tw-normal-case">
+                  <div className="tw-relative tw-flex tw-items-center tw-flex-col tw-w-4/5 tw-flex-grow md:tw-pl-4 tw-pl-4">
+                    <div className="tw-w-full tw-flex tw-flex-row tw-justify-start tw-items-center tw-border-b tw-border-gray-200 tw-pb-2 tw-mb-2 tw-px-4">
+                      <div className="tw-flex tw-flex-col tw-justify-between tw-w-1/2 tw-items-center tw-pr-10">
+                        <p className="tw-font-mich tw-w-full tw-pb-2 tw-text-left tw-text-sm tw-text-gray-600 tw-tracking-wider tw-leading-relaxed tw-normal-case">
                           Event Starts*
                         </p>
-                        <FormControl
-                          variant="outlined"
-                          className="tw-w-1/2 tw-ml-2"
-                        >
+                        <FormControl variant="outlined" className="tw-w-full">
                           <Select
                             onChange={e =>
                               this.setState({
@@ -613,20 +610,17 @@ export default class CreateEvent extends Component {
                       </div>
                       <Calendar
                         showSelectionPreview={false}
-                        className="tw-relative tw-font-mich"
+                        className="tw-relative tw-font-mich tw-w-1/2 tw-flex tw-items-center"
                         date={new Date(this.state.newEvent.startTime)}
                         onChange={this.handleStartTimeChange}
                       />
                     </div>
-                    <div className="tw-w-full tw-flex tw-flex-col tw-justify-start tw-items-center lg:tw-w-1/2 tw-mt-4">
-                      <div className="tw-flex tw-flex-row tw-justify-between tw-w-full tw-items-center tw-px-4">
-                        <p className="tw-font-mich tw-w-1/2 tw-text-center md:tw-text-left tw-text-sm tw-text-gray-600 tw-tracking-wider tw-leading-relaxed tw-normal-case">
+                    <div className="tw-w-full tw-flex tw-flex-col tw-justify-start tw-items-center tw-mt-4">
+                      <div className="tw-flex tw-flex-col tw-justify-between tw-w-2/3 tw-items-center">
+                        <p className="tw-font-mich tw-w-full tw-pb-2 tw-text-left tw-text-sm tw-text-gray-600 tw-tracking-wider tw-leading-relaxed tw-normal-case">
                           Event Ends*
                         </p>
-                        <FormControl
-                          variant="outlined"
-                          className="tw-w-1/2 tw-ml-2"
-                        >
+                        <FormControl variant="outlined" className="tw-w-full">
                           <Select
                             onChange={e =>
                               this.setState({ selectedEndTime: e.target.value })
@@ -646,7 +640,7 @@ export default class CreateEvent extends Component {
                       </div>
                       <Calendar
                         showSelectionPreview={false}
-                        className="tw-relative tw-font-mich"
+                        className="tw-relative tw-font-mich tw-w-full tw-flex tw-items-center"
                         date={new Date(this.state.newEvent.endTime)}
                         onChange={date =>
                           this.setState({
