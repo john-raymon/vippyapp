@@ -3,28 +3,19 @@ import { motion } from "framer-motion";
 import moment from "moment";
 import TextField from "@material-ui/core/TextField";
 import { PreviewEventCard } from "./Cards";
-import { Calendar } from "react-date-range";
-import { StaticGoogleMap, Marker, Path } from "react-static-google-map";
-import { makeStyles, withStyles } from "@material-ui/core/styles";
-import InputLabel from "@material-ui/core/InputLabel";
+import { withStyles } from "@material-ui/core/styles";
 import MenuItem from "@material-ui/core/MenuItem";
 import FormControl from "@material-ui/core/FormControl";
 import Select from "@material-ui/core/Select";
-import NativeSelect from "@material-ui/core/NativeSelect";
 import InputBase from "@material-ui/core/InputBase";
 import VippyLogo from "../svgs/logo";
 import * as yup from "yup";
-import {
-  phoneNumber as phoneNumberRegExp,
-  password as passwordRegExp,
-  zipCode as zipCodeRegExp
-} from "./../utils/regExp";
 
 const SInputBase = withStyles(theme => ({
   input: {
-    position: "relative",
     borderRadius: 4,
     color: theme.palette.grey[800],
+    position: "relative",
     backgroundColor: theme.palette.background.paper,
     border: `1px solid ${theme.palette.grey[400]}`,
     fontSize: 16,
@@ -45,17 +36,18 @@ export default class CreateEvent extends Component {
   constructor(props) {
     super(props);
     this.containerRef = React.createRef();
-    this.formatMilitaryTime = this.formatMilitaryTime.bind(this);
     this.state = {
       initialRootVariant: "hidden",
       event: null,
       newListing: {
         name: "",
+        description: "",
         bookingDeadline: new Date(),
         guestCount: 1,
+        disclaimers: "",
         quantity: 1,
         unlimitedQuantity: false,
-        bookingPrice: 5.0
+        bookingPrice: ""
       },
       timeSlots: [],
       bookingDeadlineTime: "0000"
@@ -63,35 +55,26 @@ export default class CreateEvent extends Component {
   }
 
   componentDidMount() {
-    let militaryTime = [];
-    for (let hourCount = 0, minCount = -30, totalTime = 0; totalTime < 2330; ) {
-      hourCount = minCount === 30 ? hourCount + 1 : hourCount;
-      minCount = minCount === 30 ? 0 : minCount + 30;
-      totalTime = `${("0" + hourCount).slice(-2)}${("0" + minCount).slice(-2)}`;
-      militaryTime = [...militaryTime, totalTime];
-    }
-    this.setState({ initialRootVariant: "visible", timeSlots: militaryTime });
+    this.setState({ initialRootVariant: "visible" });
     if (this.props.match.params["eventId"]) {
       // fetch event
       this.props.venueAgent
         .getEventById(this.props.match.params["eventId"])
         .then(resp => {
+          const parsedEndTime =
+            moment(resp.event.endTime).minute() === 30 ||
+            moment(resp.event.endTime).minute() === 0
+              ? moment(resp.event.endTime).subtract(30, "minutes")
+              : moment(resp.event.endTime)
+                  .set({ minute: 30 })
+                  .subtract(30, "minutes");
           return this.setState({
             event: resp.event,
             newListing: {
               ...this.state.newListing,
-              bookingDeadline: resp.event.endTime
+              bookingDeadline: parsedEndTime
             },
-            bookingDeadlineTime:
-              moment(resp.event.endTime).minute() === 30 ||
-              moment(resp.event.endTime).minute() === 0
-                ? moment(resp.event.endTime)
-                    .subtract(30, "minutes")
-                    .format("kkmm")
-                : moment(resp.event.endTime)
-                    .set({ minute: 30 })
-                    .subtract(30, "minutes")
-                    .format("kkmm")
+            bookingDeadlineTime: parsedEndTime.format("kkmm")
           });
         })
         .catch(error => {
@@ -123,6 +106,77 @@ export default class CreateEvent extends Component {
     });
   }
 
+  onSubmit(e) {
+    e.preventDefault();
+    this.validate(this.state.newListing)
+      .then(validatedListing => {
+        console.log("validated with", validatedListing);
+        const body = {
+          ...validatedListing,
+          eventId: this.state.event.id
+        };
+        this.props.venueAgent
+          .createListing(body)
+          .then(() => {
+            this.props
+              .fetchListingsForVenueDispatch(
+                this.props.venueAgent,
+                this.props.venue.venueId
+              )
+              .catch(error => {
+                throw { ...error, requestType: "api" };
+              });
+            this.props.history.push("/dashboard");
+          })
+          .catch(error => {
+            throw { ...error, requestType: "api" };
+          });
+      })
+      .catch(error => {
+        console.log("error", error);
+      });
+  }
+
+  /**
+   * validate the new event object using Yup; Object Schema Validation
+   */
+
+  validate(listing) {
+    const listingSchema = yup.object().shape({
+      name: yup.string().required("Create a title for your listing"),
+      description: yup.string(),
+      bookingDeadline: yup
+        .date()
+        .required("Please a booking deadline for this listing."),
+      guestCount: yup
+        .number()
+        .min(1)
+        .required(
+          "You must provide the guest count for the listing to indicate how many individuals can enter the party by reserving this listing."
+        ),
+      disclaimers: yup.string().notRequired(),
+      unlimitedQuantity: yup.boolean(),
+      quantity: yup.number().when("unlimitedQuantity", {
+        is: false, // alternatively: (val) => val == true
+        then: yup
+          .number()
+          .min(1)
+          .required(
+            "If your listing's quantity is limited then you must provide a quantity of at least 1."
+          ),
+        otherwise: yup.number().notRequired()
+      }),
+      bookingPrice: yup
+        .number()
+        .transform(cv => (isNaN(cv) ? 0 : cv))
+        .positive()
+        .min(0)
+    });
+    return listingSchema.validate(listing, {
+      abortEarly: false
+    });
+  }
+
   render() {
     const rootVariants = {
       visible: {
@@ -138,7 +192,7 @@ export default class CreateEvent extends Component {
       <Fragment>
         <button
           aria-label="Close"
-          onClick={() => this.props.history.push("/dashboard")}
+          onClick={() => this.props.history.goBack()}
           className="tw-fixed tw-bg-black tw-h-screen tw-w-full tw-z-50 tw-top-0 tw-left-0 tw-opacity-75"
         />
         <motion.div
@@ -149,7 +203,7 @@ export default class CreateEvent extends Component {
           className="create-listings tw-fixed tw-bottom-0 tw-right-0 tw-w-full tw-h-full tw-z-50 tw-bg-white tw-overflow-y-scroll"
         >
           <div className="create-listings__inner-container tw-relative">
-            <header className="create-listings__header tw-sticky tw-top-0 tw-w-full tw-bg-white tw-z-40 tw-shadow-2xl">
+            <div className="tw-sticky tw-top-0 tw-w-full tw-bg-white tw-z-40 tw-shadow-2xl">
               <div className="tw-sticky tw-flex tw-items-center tw-justify-between tw-w-full tw-top-0 tw-right-0 tw-p-2 tw-bg-black md:tw-px-10 lg:tw-px-20">
                 <div className="tw-w-20 tw-fill-current tw-text-black">
                   <VippyLogo />
@@ -168,9 +222,9 @@ export default class CreateEvent extends Component {
                   </svg>
                 </button>
               </div>
-            </header>
+            </div>
             <div className="tw-relative tw-flex tw-flex-col lg:tw-flex-row tw-mx-auto tw-max-w-6xl">
-              <div className="tw-flex tw-sticky _top-14 tw-justify-start tw-items-start tw-w-full lg:tw-w-3/5 tw-z-30 tw-bg-white tw-px-3 tw-shadow-xl lg:tw-shadow-none">
+              <div className="tw-flex tw-sticky _top-14 tw-justify-start tw-items-start tw-w-full md:tw-w-3/5 tw-z-30 tw-bg-white tw-px-3 tw-shadow-xl lg:tw-shadow-none">
                 <div className="tw-sticky tw-top-0 tw-flex tw-flex-col tw-items-center tw-w-full sm:tw-w-3/5 lg:tw-w-full tw-mx-auto tw-py-3 lg:tw-pt-20">
                   {event && (
                     <Fragment>
@@ -194,12 +248,12 @@ export default class CreateEvent extends Component {
                 </div>
               </div>
               <div className="tw-flex tw-flex-col tw-px-4 lg:tw-px-2 tw-pt-8 lg:tw-pt-12 tw-w-full tw-flex-grow">
-                <div className="tw-mb-4 tw-pb-4">
+                <section className="tw-mb-4 tw-border-b tw-border-gray-400 tw-pb-4">
                   <p className="tw-text-xs tw-tracking-wider tw-p-6 tw-bg-gray-300 tw-text-gray-700 tw-w-full">
                     Create a new VIP/Package
                   </p>
-                  <form>
-                    <section className="tw-flex tw-flex-wrap tw-w-full md:tw-mt-2 tw-border-b tw-border-gray-200 tw-py-8">
+                  <form onSubmit={this.onSubmit}>
+                    <section className="tw-flex tw-flex-wrap tw-w-full md:tw-mt-2 tw-border-b tw-border-gray-200 tw-py-2 md:tw-py-8">
                       <div className="tw-sticky tw-top-0 tw-flex tw-items-start tw-w-full md:tw-w-1/5 md:tw-border-r tw-border-gray-300 tw-py-4 md:tw-pr-6">
                         <p className="tw-font-mich tw-w-full tw-text-center md:tw-text-left tw-text-sm tw-text-gray-800 tw-tracking-wider tw-leading-relaxed tw-normal-case">
                           Basic Information
@@ -238,7 +292,7 @@ export default class CreateEvent extends Component {
                         </div>
                       </div>
                     </section>
-                    <section className="tw-flex tw-flex-wrap tw-w-full md:tw-mt-2 tw-border-b tw-border-gray-200 tw-py-8">
+                    <section className="tw-flex tw-flex-wrap tw-w-full md:tw-mt-2 tw-border-b tw-border-gray-200 tw-py-2 md:tw-py-8">
                       <div className="tw-sticky tw-top-0 tw-flex tw-items-start tw-w-full md:tw-w-1/5 md:tw-border-r tw-border-gray-300 tw-py-4 md:tw-pr-6">
                         <p className="tw-font-mich tw-w-full tw-text-center md:tw-text-left tw-text-sm tw-text-gray-800 tw-tracking-wider tw-leading-relaxed tw-normal-case">
                           Booking Details
@@ -249,7 +303,7 @@ export default class CreateEvent extends Component {
                           <div className="tw-flex tw-flex-col tw-justify-between tw-w-2/3 tw-items-center">
                             <p className="tw-font-mich tw-w-full tw-pb-2 tw-text-left tw-text-sm tw-text-gray-600 tw-tracking-wider tw-leading-relaxed tw-normal-case">
                               Booking deadline time*
-                              <span class="tw-block tw-text-xs tw-text-gray-500">
+                              <span className="tw-block tw-text-xs tw-text-gray-500">
                                 (Must be at least 30 minutes before your event's
                                 end time.)
                               </span>
@@ -277,25 +331,17 @@ export default class CreateEvent extends Component {
                               </Select>
                             </FormControl>
                           </div>
-                          <Calendar
-                            showSelectionPreview={false}
-                            className="tw-relative tw-font-mich tw-w-full tw-flex tw-items-center"
-                            date={
-                              new Date(this.state.newListing.bookingDeadline)
-                            }
-                            onChange={this.handleBookindDeadlineChange}
-                          />
                         </div>
                       </div>
                     </section>
-                    <section className="tw-flex tw-flex-wrap tw-w-full md:tw-mt-2 tw-border-b tw-border-gray-200 tw-py-8">
+                    <section className="tw-flex tw-flex-wrap tw-w-full md:tw-mt-2 tw-border-b tw-border-gray-200 tw-py-2 md:tw-py-8">
                       <div className="tw-sticky tw-top-0 tw-flex tw-items-start tw-w-full md:tw-w-1/5 md:tw-border-r tw-border-gray-300 tw-py-4 md:tw-pr-6">
                         <p className="tw-font-mich tw-w-full tw-text-center md:tw-text-left tw-text-sm tw-text-gray-800 tw-tracking-wider tw-leading-relaxed tw-normal-case">
                           Guest Count & Quantity
                         </p>
                       </div>
-                      <div className="tw-flex tw-items-stretch tw-w-4/5 md:tw-w-4/5 md:tw-pl-4">
-                        <div class="tw-flex tw-flex-col tw-flex-grow tw-mx-2">
+                      <div className="tw-flex tw-items-stretch tw-w-full md:tw-w-4/5 md:tw-pl-4">
+                        <div className="tw-flex tw-flex-col tw-flex-grow tw-mx-2">
                           <TextField
                             className="tw-flex-grow"
                             type="number"
@@ -312,7 +358,7 @@ export default class CreateEvent extends Component {
                             value={this.state.newListing.guestCount}
                           />
                         </div>
-                        <div class="tw-flex tw-flex-col tw-flex-grow tw-mx-2">
+                        <div className="tw-flex tw-flex-col tw-flex-grow tw-mx-2">
                           <TextField
                             className="tw-w-full tw-mb-2"
                             type="number"
@@ -343,17 +389,17 @@ export default class CreateEvent extends Component {
                                 });
                               }}
                             />
-                            <span class="tw-font-mich tw-text-xs tw-pl-2">
+                            <span className="tw-font-mich tw-text-xs tw-pl-2">
                               Has unlimimited quantity
                             </span>
                           </label>
                         </div>
                       </div>
                     </section>
-                    <section className="tw-flex tw-flex-wrap tw-w-full md:tw-mt-2 tw-border-b tw-border-gray-200 tw-py-8">
+                    <section className="tw-flex tw-flex-wrap tw-w-full md:tw-mt-2 tw-border-b tw-border-gray-200 tw-py-2 md:tw-py-8">
                       <div className="tw-sticky tw-top-0 tw-flex tw-items-start tw-w-full md:tw-w-1/5 md:tw-border-r tw-border-gray-300 tw-py-4 md:tw-pr-6">
                         <p className="tw-font-mich tw-w-full tw-text-center md:tw-text-left tw-text-sm tw-text-gray-800 tw-tracking-wider tw-leading-relaxed tw-normal-case">
-                          Disclaimer
+                          Disclaimers
                         </p>
                       </div>
                       <div className="tw-flex tw-flex-col tw-flex-grow md:tw-pl-4">
@@ -361,29 +407,29 @@ export default class CreateEvent extends Component {
                           className="tw-mx-2 tw-flex-grow"
                           type="text"
                           variant="outlined"
-                          label="Disclaimer"
-                          placeholder="Legal Disclaimer"
+                          label="Disclaimers"
+                          placeholder="Legal Disclaimers"
                           onChange={e =>
                             this.setState({
                               newListing: {
                                 ...this.state.newListing,
-                                disclaimer: e.target.value
+                                disclaimers: e.target.value
                               }
                             })
                           }
-                          value={this.state.newListing.disclaimer}
+                          value={this.state.newListing.disclaimers}
                         />
                       </div>
                     </section>
-                    <section className="tw-flex tw-flex-wrap tw-w-full md:tw-mt-2 tw-border-b tw-border-gray-200 tw-py-8">
+                    <section className="tw-flex tw-flex-wrap tw-w-full md:tw-mt-2 tw-border-b tw-border-gray-200 tw-py-2 md:tw-py-8">
                       <div className="tw-sticky tw-top-0 tw-flex tw-items-start tw-w-full md:tw-w-1/5 md:tw-border-r tw-border-gray-300 tw-py-4 md:tw-pr-6">
                         <p className="tw-font-mich tw-w-full tw-text-center md:tw-text-left tw-text-sm tw-text-gray-800 tw-tracking-wider tw-leading-relaxed tw-normal-case">
                           Booking Price
                         </p>
                       </div>
                       <div className="tw-flex tw-flex-col tw-flex-grow tw-w-1/5 md:tw-pl-4">
-                        <div class="tw-flex tw-pb-2">
-                          <span class="tw-font-mich tw-text-green-500 tw-text-xs tw-self-center tw-pr-2">
+                        <div className="tw-flex tw-pb-2">
+                          <span className="tw-font-mich tw-text-green-500 tw-text-xs tw-self-center tw-pr-2">
                             USD $
                           </span>
                           <TextField
@@ -404,14 +450,17 @@ export default class CreateEvent extends Component {
                             value={this.state.newListing.bookingPrice}
                           />
                         </div>
-                        <span class="tw-block tw-font-mich tw-text-xs tw-w-full tw-text-gray-600 tw-leading-relaxed tw-tracking-normal">
+                        <span className="tw-block tw-font-mich tw-text-center tw-text-xs tw-w-full tw-text-gray-600 tw-leading-relaxed tw-tracking-normal">
                           Vippy collects a 20 percent platform fee from every
                           redeemed transaction greater than USD $5.
                         </span>
                       </div>
                     </section>
+                    <button className="tw-mt-4 tw-block tw-mx-auto tw-font-mich tw-uppercase tw-bg-green-700 tw-w-full md:tw-w-1/2 tw-p-4 tw-rounded-lg tw-text-xxs tw-tracking-widest-1 tw-font-extrabold tw-text-white tw-mx-2">
+                      Create Listing
+                    </button>
                   </form>
-                </div>
+                </section>
                 <section className="tw-w-full">
                   <p className="tw-text-xs tw-tracking-wider tw-p-6 tw-bg-gray-300 tw-text-gray-700 tw-w-full">
                     Current VIP/Packges
@@ -421,11 +470,6 @@ export default class CreateEvent extends Component {
                   </p>
                 </section>
               </div>
-            </div>
-            <div className="tw-block tw-sticky tw-bottom-0 tw-z-30">
-              <button className="tw-font-mich tw-bg-green-700 tw-px-12 tw-py-6 tw-text-xs tw-w-full tw-tracking-widest-1 tw-text-white">
-                {`Create Listing for Event '${(event && event.name) || ""}'`}
-              </button>
             </div>
           </div>
         </motion.div>

@@ -147,6 +147,13 @@ export class VenueEndpointAgent extends Agent {
     });
   }
 
+  // create new listing for event
+  createListing(body) {
+    return this._post("/api/listing", body, true).catch(error => {
+      throw error.response.body;
+    });
+  }
+
   // read an event by id
   getEventById(eventId) {
     return this._get(`/api/event/${eventId}`, true).catch(error => {
