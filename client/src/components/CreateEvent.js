@@ -367,7 +367,7 @@ export default class CreateEvent extends Component {
                   />
                 </div>
               </div>
-              <div className="tw-flex tw-flex-col tw-px-4 lg:tw-px-2 tw-pt-8">
+              <div className="tw-flex tw-flex-col tw-px-4 lg:tw-px-2 tw-pt-2 md:tw-pt-8">
                 {(errorsAsEntries.length || "") &&
                   errorsAsEntries.map(([errorPath, errorMessage], i) => {
                     return (
@@ -379,7 +379,7 @@ export default class CreateEvent extends Component {
                       </p>
                     );
                   })}
-                <section className="tw-flex tw-flex-wrap tw-w-full md:tw-mt-2 tw-border-b tw-border-gray-200 tw-p-8">
+                <section className="tw-flex tw-flex-wrap tw-w-full md:tw-mt-2 tw-border-b tw-border-gray-200 tw-py-2 md:tw-py-8">
                   <div className="tw-sticky tw-top-0 tw-flex tw-items-start tw-w-full md:tw-w-1/5 md:tw-border-r tw-border-gray-300 tw-py-4 md:tw-pr-6">
                     <p className="tw-font-mich tw-w-full tw-text-center md:tw-text-left tw-text-sm tw-text-gray-800 tw-tracking-wider tw-leading-relaxed tw-normal-case">
                       Basic Information
@@ -432,7 +432,7 @@ export default class CreateEvent extends Component {
                     );
                   })}
                 <section
-                  className={`tw-flex tw-flex-wrap tw-w-full tw-border-b tw-border-gray-200 tw-p-8 ${(errorsAsEntries.filter(
+                  className={`tw-flex tw-flex-wrap tw-w-full tw-border-b tw-border-gray-200 tw-py-2 md:tw-py-8 ${(errorsAsEntries.filter(
                     ([path, message]) => path.split(".")[0] === "address"
                   ).length ||
                     "") &&

@@ -172,7 +172,7 @@ var auth = {
       !req.vippyPromoter.permissions.createUpdateListings
     ) {
       return next({
-        name: "UnauthorizedError",
+        name: "UnauthorizedError", // todo: update to forbidden error as this more authoriation rather than authentication
         message:
           "You do not have proper permissions to create or update Listings, contact your Venue Host"
       });
