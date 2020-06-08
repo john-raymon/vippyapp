@@ -461,7 +461,20 @@ class Dashboard extends Component {
               >
                 create a new event
               </Link>
-              <button className="button tw-my-2 tw-bg-green-700 tw-px-12 tw-py-3 tw-text-2xs tw-w-full tw-tracking-widest-1 tw-rounded-lg">
+              <button
+                disabled={
+                  this.props.stats
+                    ? this.props.stats.balance.available === 0
+                    : true
+                }
+                className={`button tw-my-2 tw-bg-green-700 tw-px-12 tw-py-3 tw-text-2xs tw-w-full tw-tracking-widest-1 tw-rounded-lg ${
+                  (this.props.stats
+                  ? this.props.stats.balance.available === 0
+                  : true)
+                    ? "tw-opacity-25"
+                    : ""
+                }`}
+              >
                 pay out now
               </button>
             </div>
