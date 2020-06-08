@@ -4,11 +4,17 @@ const initialState = {
   listings: [],
   listingCount: 0,
   reservations: [],
-  reservationCount: 0
+  reservationCount: 0,
+  stats: {}
 };
 
 export default (state = initialState, { type, payload = {} }) => {
   switch (type) {
+    case "FETCH_VENUES_STATS_FULFILLED":
+      return {
+        ...state,
+        stats: payload.stats
+      };
     case "FETCH_VENUES_RESERVATIONS_FULFILLED":
       return {
         ...state,

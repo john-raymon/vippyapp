@@ -47,7 +47,19 @@ export default class CreateEvent extends Component {
     this.containerRef = React.createRef();
     this.state = {
       initialRootVariant: "hidden",
-      event: null
+      event: null,
+      newListing: {
+        name: "",
+        description: "",
+        bookingDeadline: new Date(),
+        guestCount: 1,
+        disclaimers: "",
+        quantity: 1,
+        unlimitedQuantity: false,
+        bookingPrice: ""
+      },
+      timeSlots: [],
+      bookingDeadlineTime: "0000"
     };
   }
 
@@ -58,8 +70,20 @@ export default class CreateEvent extends Component {
       this.props.venueAgent
         .getEventById(this.props.match.params["eventId"])
         .then(resp => {
+          const parsedEndTime =
+            moment(resp.event.endTime).minute() === 30 ||
+            moment(resp.event.endTime).minute() === 0
+              ? moment(resp.event.endTime).subtract(30, "minutes")
+              : moment(resp.event.endTime)
+                  .set({ minute: 30 })
+                  .subtract(30, "minutes");
           return this.setState({
-            event: resp.event
+            event: resp.event,
+            newListing: {
+              ...this.state.newListing,
+              bookingDeadline: parsedEndTime
+            },
+            bookingDeadlineTime: parsedEndTime.format("kkmm")
           });
         })
         .catch(error => {
@@ -69,6 +93,97 @@ export default class CreateEvent extends Component {
           });
         });
     }
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (prevState.selectedStartTime !== this.state.selectedStartTime) {
+      this.handleStartTimeChange();
+    }
+    if (prevState.selectedEndTime !== this.state.selectedEndTime) {
+      this.handleEndTimeChange();
+    }
+  }
+
+  formatMilitaryTime(time) {
+    return moment(time, "kkmm a").format("hh:mm a");
+  }
+
+  handleEndTimeChange(date = this.state.newListing.bookingDeadline) {
+    const bookingDeadline = moment(date).format();
+    this.setState({
+      newListing: { ...this.state.newListing, bookingDeadline: bookingDeadline }
+    });
+  }
+
+  onSubmit(e) {
+    e.preventDefault();
+    this.validate(this.state.newListing)
+      .then(validatedListing => {
+        console.log("validated with", validatedListing);
+        const body = {
+          ...validatedListing,
+          eventId: this.state.event.id
+        };
+        this.props.venueAgent
+          .createListing(body)
+          .then(() => {
+            this.props
+              .fetchListingsForVenueDispatch(
+                this.props.venueAgent,
+                this.props.venue.venueId
+              )
+              .catch(error => {
+                throw { ...error, requestType: "api" };
+              });
+            this.props.history.push("/dashboard");
+          })
+          .catch(error => {
+            throw { ...error, requestType: "api" };
+          });
+      })
+      .catch(error => {
+        console.log("error", error);
+      });
+  }
+
+  /**
+   * validate the new event object using Yup; Object Schema Validation
+   */
+
+  validate(listing) {
+    const listingSchema = yup.object().shape({
+      name: yup.string().required("Create a title for your listing"),
+      description: yup.string(),
+      bookingDeadline: yup
+        .date()
+        .required("Please a booking deadline for this listing."),
+      guestCount: yup
+        .number()
+        .min(1)
+        .required(
+          "You must provide the guest count for the listing to indicate how many individuals can enter the party by reserving this listing."
+        ),
+      disclaimers: yup.string().notRequired(),
+      unlimitedQuantity: yup.boolean(),
+      quantity: yup.number().when("unlimitedQuantity", {
+        is: false, // alternatively: (val) => val == true
+        then: yup
+          .number()
+          .min(1)
+          .required(
+            "If your listing's quantity is limited then you must provide a quantity of at least 1."
+          ),
+        otherwise: yup.number().notRequired()
+      }),
+      bookingPrice: yup
+        .number()
+        .transform(cv => (isNaN(cv) ? 0 : cv))
+        .positive()
+        .min(0)
+    });
+    return listingSchema.validate(listing, {
+      abortEarly: false
+    });
   }
 
   render() {
@@ -146,6 +261,214 @@ export default class CreateEvent extends Component {
                   <p className="tw-text-xs tw-tracking-wider tw-p-6 tw-bg-gray-300 tw-text-gray-700 tw-w-full">
                     Create a new VIP/Package
                   </p>
+                  <form onSubmit={this.onSubmit}>
+                    <section className="tw-flex tw-flex-wrap tw-w-full md:tw-mt-2 tw-border-b tw-border-gray-200 tw-py-2 md:tw-py-8">
+                      <div className="tw-sticky tw-top-0 tw-flex tw-items-start tw-w-full md:tw-w-1/5 md:tw-border-r tw-border-gray-300 tw-py-4 md:tw-pr-6">
+                        <p className="tw-font-mich tw-w-full tw-text-center md:tw-text-left tw-text-sm tw-text-gray-800 tw-tracking-wider tw-leading-relaxed tw-normal-case">
+                          Basic Information
+                        </p>
+                      </div>
+                      <div className="tw-flex tw-flex-col tw-flex-grow md:tw-pl-4">
+                        <div className="tw-flex-row tw-flex-wrap">
+                          <TextField
+                            className="tw-w-full tw-my-1 md:tw-w-1/2 md:tw-pr-4"
+                            label="Listing Title"
+                            variant="outlined"
+                            onChange={e =>
+                              this.setState({
+                                newListing: {
+                                  ...this.state.newListing,
+                                  name: e.target.value
+                                }
+                              })
+                            }
+                            value={this.state.newListing.name}
+                          />
+                          <TextField
+                            className="tw-w-full tw-my-1 md:tw-w-1/2"
+                            label="Short Listing Description"
+                            variant="outlined"
+                            onChange={e =>
+                              this.setState({
+                                newListing: {
+                                  ...this.state.newListing,
+                                  description: e.target.value
+                                }
+                              })
+                            }
+                            value={this.state.newListing.description}
+                          />
+                        </div>
+                      </div>
+                    </section>
+                    <section className="tw-flex tw-flex-wrap tw-w-full md:tw-mt-2 tw-border-b tw-border-gray-200 tw-py-2 md:tw-py-8">
+                      <div className="tw-sticky tw-top-0 tw-flex tw-items-start tw-w-full md:tw-w-1/5 md:tw-border-r tw-border-gray-300 tw-py-4 md:tw-pr-6">
+                        <p className="tw-font-mich tw-w-full tw-text-center md:tw-text-left tw-text-sm tw-text-gray-800 tw-tracking-wider tw-leading-relaxed tw-normal-case">
+                          Booking Details
+                        </p>
+                      </div>
+                      <div className="dtw-flex tw-flex-col tw-flex-grow md:tw-pl-4">
+                        <div className="tw-w-full tw-flex tw-flex-col tw-justify-start tw-items-center tw-mt-4">
+                          <div className="tw-flex tw-flex-col tw-justify-between tw-w-2/3 tw-items-center">
+                            <p className="tw-font-mich tw-w-full tw-pb-2 tw-text-left tw-text-sm tw-text-gray-600 tw-tracking-wider tw-leading-relaxed tw-normal-case">
+                              Booking deadline time*
+                              <span className="tw-block tw-text-xs tw-text-gray-500">
+                                (Must be at least 30 minutes before your event's
+                                end time.)
+                              </span>
+                            </p>
+                            <FormControl
+                              variant="outlined"
+                              className="tw-w-full"
+                            >
+                              <Select
+                                onChange={e =>
+                                  this.setState({
+                                    bookingDeadlineTime: e.target.value
+                                  })
+                                }
+                                value={this.state.bookingDeadlineTime}
+                                input={<SInputBase />}
+                              >
+                                {this.state.timeSlots.map(time => {
+                                  return (
+                                    <MenuItem key={time} value={time}>
+                                      {this.formatMilitaryTime(time)}
+                                    </MenuItem>
+                                  );
+                                })}
+                              </Select>
+                            </FormControl>
+                          </div>
+                        </div>
+                      </div>
+                    </section>
+                    <section className="tw-flex tw-flex-wrap tw-w-full md:tw-mt-2 tw-border-b tw-border-gray-200 tw-py-2 md:tw-py-8">
+                      <div className="tw-sticky tw-top-0 tw-flex tw-items-start tw-w-full md:tw-w-1/5 md:tw-border-r tw-border-gray-300 tw-py-4 md:tw-pr-6">
+                        <p className="tw-font-mich tw-w-full tw-text-center md:tw-text-left tw-text-sm tw-text-gray-800 tw-tracking-wider tw-leading-relaxed tw-normal-case">
+                          Guest Count & Quantity
+                        </p>
+                      </div>
+                      <div className="tw-flex tw-items-stretch tw-w-full md:tw-w-4/5 md:tw-pl-4">
+                        <div className="tw-flex tw-flex-col tw-flex-grow tw-mx-2">
+                          <TextField
+                            className="tw-flex-grow"
+                            type="number"
+                            variant="outlined"
+                            label="Guest Count"
+                            onChange={e =>
+                              this.setState({
+                                newListing: {
+                                  ...this.state.newListing,
+                                  guestCount: e.target.value
+                                }
+                              })
+                            }
+                            value={this.state.newListing.guestCount}
+                          />
+                        </div>
+                        <div className="tw-flex tw-flex-col tw-flex-grow tw-mx-2">
+                          <TextField
+                            className="tw-w-full tw-mb-2"
+                            type="number"
+                            variant="outlined"
+                            label="Quantity"
+                            disabled={this.state.newListing.unlimitedQuantity}
+                            onChange={e =>
+                              this.setState({
+                                newListing: {
+                                  ...this.state.newListing,
+                                  quantity: e.target.value
+                                }
+                              })
+                            }
+                            value={this.state.newListing.quantity}
+                          />
+                          <label>
+                            <input
+                              type="checkbox"
+                              name="unlimitedQuantity"
+                              checked={this.state.newListing.unlimitedQuantity}
+                              onChange={event => {
+                                this.setState({
+                                  newListing: {
+                                    ...this.state.newListing,
+                                    unlimitedQuantity: event.target.checked
+                                  }
+                                });
+                              }}
+                            />
+                            <span className="tw-font-mich tw-text-xs tw-pl-2">
+                              Has unlimimited quantity
+                            </span>
+                          </label>
+                        </div>
+                      </div>
+                    </section>
+                    <section className="tw-flex tw-flex-wrap tw-w-full md:tw-mt-2 tw-border-b tw-border-gray-200 tw-py-2 md:tw-py-8">
+                      <div className="tw-sticky tw-top-0 tw-flex tw-items-start tw-w-full md:tw-w-1/5 md:tw-border-r tw-border-gray-300 tw-py-4 md:tw-pr-6">
+                        <p className="tw-font-mich tw-w-full tw-text-center md:tw-text-left tw-text-sm tw-text-gray-800 tw-tracking-wider tw-leading-relaxed tw-normal-case">
+                          Disclaimers
+                        </p>
+                      </div>
+                      <div className="tw-flex tw-flex-col tw-flex-grow md:tw-pl-4">
+                        <TextField
+                          className="tw-mx-2 tw-flex-grow"
+                          type="text"
+                          variant="outlined"
+                          label="Disclaimers"
+                          placeholder="Legal Disclaimers"
+                          onChange={e =>
+                            this.setState({
+                              newListing: {
+                                ...this.state.newListing,
+                                disclaimers: e.target.value
+                              }
+                            })
+                          }
+                          value={this.state.newListing.disclaimers}
+                        />
+                      </div>
+                    </section>
+                    <section className="tw-flex tw-flex-wrap tw-w-full md:tw-mt-2 tw-border-b tw-border-gray-200 tw-py-2 md:tw-py-8">
+                      <div className="tw-sticky tw-top-0 tw-flex tw-items-start tw-w-full md:tw-w-1/5 md:tw-border-r tw-border-gray-300 tw-py-4 md:tw-pr-6">
+                        <p className="tw-font-mich tw-w-full tw-text-center md:tw-text-left tw-text-sm tw-text-gray-800 tw-tracking-wider tw-leading-relaxed tw-normal-case">
+                          Booking Price
+                        </p>
+                      </div>
+                      <div className="tw-flex tw-flex-col tw-flex-grow tw-w-1/5 md:tw-pl-4">
+                        <div className="tw-flex tw-pb-2">
+                          <span className="tw-font-mich tw-text-green-500 tw-text-xs tw-self-center tw-pr-2">
+                            USD $
+                          </span>
+                          <TextField
+                            name="bookingPrice"
+                            className="tw-flex-grow"
+                            type="number"
+                            variant="outlined"
+                            label="Booking Price"
+                            placeholder="Amount to sell"
+                            onChange={e =>
+                              this.setState({
+                                newListing: {
+                                  ...this.state.newListing,
+                                  bookingPrice: e.target.value
+                                }
+                              })
+                            }
+                            value={this.state.newListing.bookingPrice}
+                          />
+                        </div>
+                        <span className="tw-block tw-font-mich tw-text-center tw-text-xs tw-w-full tw-text-gray-600 tw-leading-relaxed tw-tracking-normal">
+                          Vippy collects a 20 percent platform fee from every
+                          redeemed transaction greater than USD $5.
+                        </span>
+                      </div>
+                    </section>
+                    <button className="tw-mt-4 tw-block tw-mx-auto tw-font-mich tw-uppercase tw-bg-green-700 tw-w-full md:tw-w-1/2 tw-p-4 tw-rounded-lg tw-text-xxs tw-tracking-widest-1 tw-font-extrabold tw-text-white tw-mx-2">
+                      Create Listing
+                    </button>
+                  </form>
                 </section>
                 <section className="tw-w-full">
                   <p className="tw-text-xs tw-tracking-wider tw-p-6 tw-bg-gray-300 tw-text-gray-700 tw-w-full">

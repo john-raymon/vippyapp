@@ -1,8 +1,3 @@
-import localforage from "localforage";
-import { Agent } from "./../../utils/agent";
-
-const agent = new Agent();
-
 export const register = (type = "user") => {
   // returns the proper dispatch function according to the user type
 

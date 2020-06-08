@@ -257,7 +257,12 @@ export default class CreateEvent extends Component {
         });
       })
       .then(resp => {
-        // on successful resp from POST /api/event via venueAgent.createEvent redirect to create listings page with id
+        this.props.fetchEventsForVenueDispatch(
+          this.props.venueAgent,
+          this.props.venue.venueId
+        );
+        // on successful resp from POST /api/event via venueAgent.createEvent
+        // redirect to create listings page with id
         return this.props.history.replace(
           `create-listings/${resp.event.id}/new`
         );
@@ -266,7 +271,7 @@ export default class CreateEvent extends Component {
         this.containerRef.current.scrollTo(0, 0);
         // error.inner is array of Yup ValidationErrors
         // if has inner then it is a Yup ValidationError thrown from this.validate method
-        if (error.requestType) {
+        if (error.requestType === "api") {
           // this.
           if (Object.entries(error.errors || {}).length) {
             return this.setState({
@@ -309,7 +314,7 @@ export default class CreateEvent extends Component {
     };
     const { newEvent, errors } = this.state;
     const errorsAsEntries = Object.entries(this.state.errors);
-    const encodedEventAddress = encodeURI(
+    const encodedEventAddress = encodeURIComponent(
       `${newEvent.street} ${newEvent.streetTwo} ${newEvent.city} ${this.state
         .allStates[newEvent.state] || ""} ${newEvent.zip}`.trim("")
     );
@@ -367,7 +372,7 @@ export default class CreateEvent extends Component {
                   />
                 </div>
               </div>
-              <div className="tw-flex tw-flex-col tw-px-4 lg:tw-px-2 tw-pt-8">
+              <div className="tw-flex tw-flex-col tw-px-4 lg:tw-px-2 tw-pt-2 md:tw-pt-8">
                 {(errorsAsEntries.length || "") &&
                   errorsAsEntries.map(([errorPath, errorMessage], i) => {
                     return (
@@ -379,7 +384,7 @@ export default class CreateEvent extends Component {
                       </p>
                     );
                   })}
-                <section className="tw-flex tw-flex-wrap tw-w-full md:tw-mt-2 tw-border-b tw-border-gray-200 tw-p-8">
+                <section className="tw-flex tw-flex-wrap tw-w-full md:tw-mt-2 tw-border-b tw-border-gray-200 tw-py-2 md:tw-py-8">
                   <div className="tw-sticky tw-top-0 tw-flex tw-items-start tw-w-full md:tw-w-1/5 md:tw-border-r tw-border-gray-300 tw-py-4 md:tw-pr-6">
                     <p className="tw-font-mich tw-w-full tw-text-center md:tw-text-left tw-text-sm tw-text-gray-800 tw-tracking-wider tw-leading-relaxed tw-normal-case">
                       Basic Information
@@ -432,7 +437,7 @@ export default class CreateEvent extends Component {
                     );
                   })}
                 <section
-                  className={`tw-flex tw-flex-wrap tw-w-full tw-border-b tw-border-gray-200 tw-p-8 ${(errorsAsEntries.filter(
+                  className={`tw-flex tw-flex-wrap tw-w-full tw-border-b tw-border-gray-200 tw-py-2 md:tw-py-8 ${(errorsAsEntries.filter(
                     ([path, message]) => path.split(".")[0] === "address"
                   ).length ||
                     "") &&
