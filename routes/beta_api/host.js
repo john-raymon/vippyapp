@@ -279,13 +279,15 @@ router.post("/login", function(req, res, next) {
 
     return Promise.all([
       Promoter.find({ venue: host._id }).exec(),
-      Promoter.count({ venue: host._id }).exec()
+      Promoter.count({ venue: host._id }).exec(),
+      host.listRecentReservations()
     ])
-      .then(([promoters, promoterCount]) => {
+      .then(([promoters, promoterCount, recentReservations]) => {
         return res.json({
           success: true,
           venue: {
             ...host.toAuthJSON(),
+            recentReservations: recentReservations.length,
             promoters: promoters.map(promoter => promoter.getPromoter()),
             promoterCount
           }

@@ -310,9 +310,10 @@ class Dashboard extends Component {
   }
 
   render() {
+    //  UI to render() within when we have auth. venue
     if (this.props.isVenueAuth) {
-      const allReservations = this.props.venuesData.reservations.map(
-        reservation => {
+      const allReservations = this.props.venuesData.reservations
+        .map(reservation => {
           let VenueReservationCard = getVenueDashboardCard("reservation");
           return (
             <VenueReservationCard
@@ -327,44 +328,48 @@ class Dashboard extends Component {
               reservationId={reservation.id}
             />
           );
-        }
-      );
+        })
+        .reverse();
 
-      const allEvents = this.props.venuesData.events.map(event => {
-        let EventCard = getVenueDashboardCard("event");
-        return (
-          <EventCard
-            key={event.id}
-            eventId={event.id}
-            eventTitle={event.name}
-            eventStartTime={event.startTime}
-            eventEndTime={event.endTime}
-            cancelled={event.cancelled}
-            totalReservations={event.totalReservations}
-          />
-        );
-      });
+      const allEvents = this.props.venuesData.events
+        .map(event => {
+          let EventCard = getVenueDashboardCard("event");
+          return (
+            <EventCard
+              key={event.id}
+              eventId={event.id}
+              eventTitle={event.name}
+              eventStartTime={event.startTime}
+              eventEndTime={event.endTime}
+              cancelled={event.cancelled}
+              totalReservations={event.totalReservations}
+            />
+          );
+        })
+        .reverse();
 
-      const allListings = this.props.venuesData.listings.map(listing => {
-        let ListingCard = getVenueDashboardCard("listing");
-        return (
-          <ListingCard
-            listingId={listing.id}
-            eventTitle={listing.event.name}
-            listingTitle={listing.name}
-            eventStartTime={listing.event.startTime}
-            eventEndTime={listing.event.endTime}
-            cancelled={listing.event.cancelled}
-            guestCount={listing.guestCount}
-            bookingPrice={listing.bookingPrice}
-            allReservations={listing.currentReservations}
-            quantity={
-              listing.unlimitedQuantity ? "unlimited" : listing.quantity
-            }
-            bookingDeadline={listing.bookingDeadline}
-          />
-        );
-      });
+      const allListings = this.props.venuesData.listings
+        .map(listing => {
+          let ListingCard = getVenueDashboardCard("listing");
+          return (
+            <ListingCard
+              listingId={listing.id}
+              eventTitle={listing.event.name}
+              listingTitle={listing.name}
+              eventStartTime={listing.event.startTime}
+              eventEndTime={listing.event.endTime}
+              cancelled={listing.event.cancelled}
+              guestCount={listing.guestCount}
+              bookingPrice={listing.bookingPrice}
+              allReservations={listing.currentReservations}
+              quantity={
+                listing.unlimitedQuantity ? "unlimited" : listing.quantity
+              }
+              bookingDeadline={listing.bookingDeadline}
+            />
+          );
+        })
+        .reverse();
 
       const allTabs = ["reservations", "listings", "events"];
       return (
@@ -484,7 +489,7 @@ class Dashboard extends Component {
               <div className="tw-w-3/12 tw-flex tw-items-end tw-justify-end">
                 <div className="tw-pb-2">
                   <p className="tw-mich tw-text-lg tw-text-right tw-text-white">
-                    30
+                    {this.props.venue ? this.props.venue.recentReservations : 0}
                   </p>
                 </div>
               </div>
@@ -499,10 +504,9 @@ class Dashboard extends Component {
                     total balance
                   </p>
                   <button
-                    onClick={e => {
-                      e.preventDefault();
-                      this.props.venueAgent.redirectToStripeDashboard();
-                    }}
+                    onClick={e =>
+                      this.props.venueAgent.redirectToStripeDashboard()
+                    }
                     className="tw-cursor-pointer tw-block tw-font-mich tw-text-2xs tw-uppercase tw-tracking-widest tw-my-2 tw-text-green-500 tw-underline tw-leading-loose"
                   >
                     view payouts on stripe
