@@ -1,0 +1,23 @@
+/* all base stylesheets */
+@import 'tailwindcss-out';
+
+@import
+'base/reset',
+'base/utils',
+'base/typography',
+'base/elements';
+
+/* Tachyons lib atomic styles */
+@import
+'tachyons/css/tachyons';
+
+/* import all component stylesheets */
+@import
+'components/reservationForm',
+'components/homepage',
+'components/browseContainer',
+'components/header',
+'components/venueDashboard';
+
+@import
+'base/utils';

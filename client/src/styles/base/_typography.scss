@@ -1,0 +1,21 @@
+$michromaregular : 'Michroma';
+
+.michroma {
+  font-family: $michromaregular;
+}
+
+.michroma-important {
+  font-family: $michromaregular !important;
+}
+
+.small-text {
+  @extend .tw-font-mich, .tw-text-2xs, .tw-uppercase, .tw-tracking-widest;
+}
+
+.medium-text {
+  @extend .tw-font-mich, .tw-text-base, .tw-uppercase, .tw-tracking-widest;
+}
+
+.large-text {
+  @extend .tw-font-mich, .tw-text-lg, .tw-leading-snug;
+}

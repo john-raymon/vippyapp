@@ -1,0 +1,18 @@
+.ReservationForm {
+  &__container {
+
+  }
+
+  &__input {
+    @extend .f8, .tc, .ttu, .michroma, .white;
+    &::-webkit-input-placeholder {
+      color: white;
+    }
+    border: 1px solid white;
+    outline: none;
+    background: none;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+    letter-spacing: 3px;
+  }
+}

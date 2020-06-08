@@ -1,0 +1,70 @@
+@import "settings/sizing";
+
+p {
+  @extend .tw-font-mich;
+}
+.mainContainer {
+  min-height: calc(100vh - #{$footerHeight});
+}
+
+.drawerContainer {
+  &__list {
+    li {
+      cursor: pointer;
+    }
+  }
+}
+
+.logoContainer {
+  width: spacing($logoWidthUnits);
+  @media screen and (min-width: 60em) {
+    width: spacing($logoWidthDesktopUnits);
+  }
+  &--noQuery {
+    width: spacing($logoWidthUnits);
+  }
+}
+
+.vippyButton {
+  @extend .relative;
+  @extend .pointer;
+  @extend .tw-text-2xs;
+  border: none;
+  border-radius: 1rem;
+  padding: 0.14rem 0.11rem;
+  height: 2.45rem;
+  min-width: 192px;
+  width: 100%;
+  background: url("../images/vippy-button-background.png");
+  background-position: 10% 76%;
+  background-repeat: no-repeat;
+  background-size: 300%;
+  &__innerColorBlock {
+    @extend .absolute--fill;
+    @extend .bg-black;
+    @extend .h-100;
+    @extend .w-100;
+    border-radius: 1rem;
+  }
+
+  &--smaller {
+    padding: 0.09rem 0.08rem;
+    height: 3.5rem;
+    min-width: 130px;
+    width: 100%;
+    @media screen and (min-width: 60rem) {
+      height: 2.50rem;
+    }
+  }
+}
+
+.marketingBox {
+  background: url("../images/vippy-marketing-stock.jpg");
+  background-position: top center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.button {
+  @extend .dim, .tw-p-2, .tw-font-mich, .tw-leading-loose, .tw-text-white, .tw-text-xs, .tw-tracking-widest, .tw-uppercase, .tw-rounded;
+}
