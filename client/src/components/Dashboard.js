@@ -467,6 +467,11 @@ class Dashboard extends Component {
                     ? this.props.stats.balance.available === 0
                     : true
                 }
+                onClick={() => {
+                  this.props.venueAgent.initStripePayout().then(() => {
+                    this.props.venueAgent.redirectToStripeDashboard(); // directs to payout page
+                  });
+                }}
                 className={`button tw-my-2 tw-bg-green-700 tw-px-12 tw-py-3 tw-text-2xs tw-w-full tw-tracking-widest-1 tw-rounded-lg ${
                   (this.props.stats.balance
                   ? this.props.stats.balance.available === 0
