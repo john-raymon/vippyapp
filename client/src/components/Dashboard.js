@@ -334,6 +334,7 @@ class Dashboard extends Component {
         let EventCard = getVenueDashboardCard("event");
         return (
           <EventCard
+            key={event.id}
             eventId={event.id}
             eventTitle={event.name}
             eventStartTime={event.startTime}
@@ -497,15 +498,15 @@ class Dashboard extends Component {
                   <p className="tw-mich tw-uppercase tw-text-2xs tw-text-gray-400 tw-leading-snug">
                     total balance
                   </p>
-                  <a
-                    href
-                    onClick={() =>
-                      this.props.venueAgent.redirectToStripeDashboard()
-                    }
+                  <button
+                    onClick={e => {
+                      e.preventDefault();
+                      this.props.venueAgent.redirectToStripeDashboard();
+                    }}
                     className="tw-cursor-pointer tw-block tw-font-mich tw-text-2xs tw-uppercase tw-tracking-widest tw-my-2 tw-text-green-500 tw-underline tw-leading-loose"
                   >
                     view payouts on stripe
-                  </a>
+                  </button>
                 </div>
                 <div className="tw-flex tw-self-stretch tw-items-start">
                   <div className="tw-pt-2">
@@ -542,6 +543,7 @@ class Dashboard extends Component {
                 .filter(t => t !== this.state.activeTab)
                 .map((t, id) => (
                   <li
+                    key={id}
                     onClick={() => {
                       this.setState({
                         activeTab: t
