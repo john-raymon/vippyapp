@@ -99,7 +99,7 @@ router.patch(
     }
 
     if (req.body.email && req.vippyHost.email !== req.body.email) {
-      // send security confirmation email below
+      // TODO: send security confirmation email below
       // and reset isEmailConfirmed
       // ...
       req.vippyHost.email = req.body.email;
@@ -108,6 +108,7 @@ router.patch(
 
     if (req.body.password) {
       // TODO: send security email to host
+      // TODO: handle updating password differently
       req.vippyHost.setPassword(req.body.password);
     }
 
@@ -253,6 +254,37 @@ router.post(
   }
 );
 
+router.get("/stats", auth.required, hostMiddleware, function(req, res, next) {
+  return Promise.all([
+    req.vippyHost.listRecentReservations(),
+    req.vippyHost.hasStripeId()
+      ? stripe.balance.retrieve({
+          stripe_account: req.vippyHost.stripeAccountId
+        })
+      : null
+  ])
+    .then(([recentReservations, { available, pending }]) => {
+      const recentReservationRevenue = recentReservations.reduce(
+        (totalNetRevenue, reservation) => {
+          return totalNetRevenue + reservation.amountForHost();
+        },
+        0
+      );
+      return res.json({
+        success: true,
+        stats: {
+          recentReservationsCount: recentReservations.length,
+          recentReservationRevenue,
+          balance: {
+            available: available[0].amount,
+            pending: pending[0].amount
+          }
+        }
+      });
+    })
+    .catch(next);
+});
+
 // login and authenticate Host
 router.post("/login", function(req, res, next) {
   const requiredProps = ["email", "password"];
@@ -279,15 +311,13 @@ router.post("/login", function(req, res, next) {
 
     return Promise.all([
       Promoter.find({ venue: host._id }).exec(),
-      Promoter.count({ venue: host._id }).exec(),
-      host.listRecentReservations()
+      Promoter.count({ venue: host._id }).exec()
     ])
-      .then(([promoters, promoterCount, recentReservations]) => {
+      .then(([promoters, promoterCount]) => {
         return res.json({
           success: true,
           venue: {
             ...host.toAuthJSON(),
-            recentReservations: recentReservations.length,
             promoters: promoters.map(promoter => promoter.getPromoter()),
             promoterCount
           }
