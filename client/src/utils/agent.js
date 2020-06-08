@@ -40,7 +40,7 @@ export class Agent {
 
   async _get(url, fullPath = false, query = {}) {
     const returnedToken = await this._initToken();
-    console.log("the token is!! -->", this.token);
+    console.log("with _get, the token is!! -->", this.token);
     //debugger;
     return superagent
       .get(fullPath ? url : `${this.API_ROOT}${url}`)
