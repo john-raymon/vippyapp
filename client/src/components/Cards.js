@@ -264,7 +264,7 @@ export function ReservationCard({
               className="reservationCard__image-container aspect-ratio aspect-ratio--7x5 bg-white-10"
             />
           </div>
-          <div class="tw-w-full md:tw-w-4/6 ph3 pl4-l pr0-l flex flex-column justify-center">
+          <div className="tw-w-full md:tw-w-4/6 ph3 pl4-l pr0-l flex flex-column justify-center">
             <div className="reservationCard__content-container flex flex-column">
               <p className="michroma f9 tracked lh-title white-50 pv2 ttu tl">
                 {`@ ${venueName}`}
