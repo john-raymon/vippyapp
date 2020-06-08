@@ -121,10 +121,6 @@ export default class CreateEvent extends Component {
 
   onSubmit(e) {
     e.preventDefault();
-    // const requestBody = {
-    //   ...this.state.newListing,
-    //   eventId: this.state.event.id,
-    // }
     this.validate(this.state.newListing)
       .then(validatedListing => {
         console.log("validated with", validatedListing);
@@ -135,6 +131,14 @@ export default class CreateEvent extends Component {
         this.props.venueAgent
           .createListing(body)
           .then(() => {
+            this.props
+              .fetchListingsForVenueDispatch(
+                this.props.venueAgent,
+                this.props.venue.venueId
+              )
+              .catch(error => {
+                throw { ...error, requestType: "api" };
+              });
             this.props.history.push("/dashboard");
           })
           .catch(error => {
@@ -315,7 +319,7 @@ export default class CreateEvent extends Component {
                           <div className="tw-flex tw-flex-col tw-justify-between tw-w-2/3 tw-items-center">
                             <p className="tw-font-mich tw-w-full tw-pb-2 tw-text-left tw-text-sm tw-text-gray-600 tw-tracking-wider tw-leading-relaxed tw-normal-case">
                               Booking deadline time*
-                              <span class="tw-block tw-text-xs tw-text-gray-500">
+                              <span className="tw-block tw-text-xs tw-text-gray-500">
                                 (Must be at least 30 minutes before your event's
                                 end time.)
                               </span>
@@ -361,7 +365,7 @@ export default class CreateEvent extends Component {
                         </p>
                       </div>
                       <div className="tw-flex tw-items-stretch tw-w-full md:tw-w-4/5 md:tw-pl-4">
-                        <div class="tw-flex tw-flex-col tw-flex-grow tw-mx-2">
+                        <div className="tw-flex tw-flex-col tw-flex-grow tw-mx-2">
                           <TextField
                             className="tw-flex-grow"
                             type="number"
@@ -378,7 +382,7 @@ export default class CreateEvent extends Component {
                             value={this.state.newListing.guestCount}
                           />
                         </div>
-                        <div class="tw-flex tw-flex-col tw-flex-grow tw-mx-2">
+                        <div className="tw-flex tw-flex-col tw-flex-grow tw-mx-2">
                           <TextField
                             className="tw-w-full tw-mb-2"
                             type="number"
@@ -409,7 +413,7 @@ export default class CreateEvent extends Component {
                                 });
                               }}
                             />
-                            <span class="tw-font-mich tw-text-xs tw-pl-2">
+                            <span className="tw-font-mich tw-text-xs tw-pl-2">
                               Has unlimimited quantity
                             </span>
                           </label>
@@ -448,8 +452,8 @@ export default class CreateEvent extends Component {
                         </p>
                       </div>
                       <div className="tw-flex tw-flex-col tw-flex-grow tw-w-1/5 md:tw-pl-4">
-                        <div class="tw-flex tw-pb-2">
-                          <span class="tw-font-mich tw-text-green-500 tw-text-xs tw-self-center tw-pr-2">
+                        <div className="tw-flex tw-pb-2">
+                          <span className="tw-font-mich tw-text-green-500 tw-text-xs tw-self-center tw-pr-2">
                             USD $
                           </span>
                           <TextField
@@ -470,7 +474,7 @@ export default class CreateEvent extends Component {
                             value={this.state.newListing.bookingPrice}
                           />
                         </div>
-                        <span class="tw-block tw-font-mich tw-text-center tw-text-xs tw-w-full tw-text-gray-600 tw-leading-relaxed tw-tracking-normal">
+                        <span className="tw-block tw-font-mich tw-text-center tw-text-xs tw-w-full tw-text-gray-600 tw-leading-relaxed tw-tracking-normal">
                           Vippy collects a 20 percent platform fee from every
                           redeemed transaction greater than USD $5.
                         </span>

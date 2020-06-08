@@ -374,6 +374,9 @@ class Dashboard extends Component {
               return (
                 <CreateEvent
                   {...props}
+                  fetchEventsForVenueDispatch={
+                    this.props.fetchEventsForVenueDispatch
+                  }
                   venue={this.props.venue}
                   venueAgent={this.props.venueAgent}
                 />
@@ -386,6 +389,9 @@ class Dashboard extends Component {
               return (
                 <CreateListing
                   {...props}
+                  fetchListingsForVenueDispatch={
+                    this.props.fetchListingsForVenueDispatch
+                  }
                   venue={this.props.venue}
                   venueAgent={this.props.venueAgent}
                 />
@@ -397,6 +403,7 @@ class Dashboard extends Component {
               <div className="tw-flex tw-flex-row tw-items-center">
                 {Object.entries(this.props.venue.images).length ? (
                   <img
+                    alt="venue-profile"
                     className="venue-dashboard__image tw-w-20 tw-h-20 tw-rounded-full tw-bg-purple-200"
                     src="/"
                   />
@@ -491,6 +498,7 @@ class Dashboard extends Component {
                     total balance
                   </p>
                   <a
+                    href
                     onClick={() =>
                       this.props.venueAgent.redirectToStripeDashboard()
                     }
