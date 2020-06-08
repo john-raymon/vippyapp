@@ -88,6 +88,7 @@ var auth = {
   hostOrPromoterMiddleware: function(doNotAllowPromoter = false) {
     if (doNotAllowPromoter) {
       return function hostMiddleware(req, res, next) {
+        if (!req.auth) return next(); // doesn't return if no authentication. skips to next middleware on stack
         const hostAuth = req.auth;
         if (hostAuth.sub !== "host") {
           return next({
@@ -111,6 +112,7 @@ var auth = {
     }
     return function hostPromoterMiddleware(req, res, next) {
       const hostAuth = req.auth;
+      if (!req.auth) return next(); // doesn't return if no authentication. skips to next middleware on stack
       if (hostAuth.sub !== "host" && hostAuth.sub !== "promoter") {
         return next({
           name: "UnauthorizedError",
