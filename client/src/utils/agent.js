@@ -161,6 +161,13 @@ export class VenueEndpointAgent extends Agent {
     });
   }
 
+  // get venue stats for dashboard
+  getStats() {
+    return this._get(`/stats`).catch(error => {
+      throw error.response.body;
+    });
+  }
+
   login(body) {
     return this._post(`/login`, body).catch(error => {
       throw error.response.body;
