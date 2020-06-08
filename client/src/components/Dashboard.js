@@ -15,6 +15,8 @@ import {
   fetchListingsForVenue
 } from "./../state/actions/authActions";
 
+// venue dashboard actions
+import { fetchVenueStats } from "./../state/actions/venueDashboardActions";
 // Selectors
 import getUsersReservation from "./../state/selectors/getUsersReservations";
 import getVenueReservations from "./../state/selectors/getVenueReservations";
@@ -303,6 +305,7 @@ class Dashboard extends Component {
         this.props.venueAgent,
         this.props.venue.venueId
       );
+      this.props.fetchVenueStatsDispatch(this.props.venueAgent);
       return;
     }
     // by default fetch reservations assuming a regular user is authenticated
@@ -469,7 +472,12 @@ class Dashboard extends Component {
               <div className="tw-w-9/12 tw-flex tw-justify-between">
                 <div className="tw-pb-2">
                   <p className="tw-mich tw-text-lg tw-text-white tw-mb-2">
-                    $4000.00
+                    $
+                    {this.props.stats.balance
+                      ? (
+                          (this.props.stats.balance.available || 0) / 100
+                        ).toFixed(2)
+                      : 0}
                   </p>
                   <p className="tw-mich tw-uppercase tw-text-2xs tw-text-gray-400 tw-leading-snug">
                     available
@@ -480,7 +488,10 @@ class Dashboard extends Component {
                 <div className="tw-flex tw-items-end">
                   <div className="tw-pb-2">
                     <p className="tw-mich tw-text-lg tw-text-right tw-text-white">
-                      $4000.00
+                      $
+                      {(this.props.stats.recentReservationRevenue || 0).toFixed(
+                        2
+                      )}
                     </p>
                   </div>
                   <span className="tw-border-r tw-border-gray-700 tw-h-1/2 tw-pl-5" />
@@ -489,7 +500,7 @@ class Dashboard extends Component {
               <div className="tw-w-3/12 tw-flex tw-items-end tw-justify-end">
                 <div className="tw-pb-2">
                   <p className="tw-mich tw-text-lg tw-text-right tw-text-white">
-                    {this.props.venue ? this.props.venue.recentReservations : 0}
+                    {this.props.stats.recentReservationsCount}
                   </p>
                 </div>
               </div>
@@ -498,7 +509,14 @@ class Dashboard extends Component {
               <div className="tw-w-9/12 tw-flex tw-items-start tw-justify-between">
                 <div className="tw-pt-2">
                   <p className="tw-mich tw-text-lg tw-text-white tw-mb-2">
-                    $4020.00
+                    $
+                    {this.props.stats.balance
+                      ? (
+                          ((this.props.stats.balance.available || 0) +
+                            (this.props.stats.balance.pending || 0)) /
+                          100
+                        ).toFixed(2)
+                      : 0}
                   </p>
                   <p className="tw-mich tw-uppercase tw-text-2xs tw-text-gray-400 tw-leading-snug">
                     total balance
@@ -515,7 +533,7 @@ class Dashboard extends Component {
                 <div className="tw-flex tw-self-stretch tw-items-start">
                   <div className="tw-pt-2">
                     <p className="tw-mich tw-uppercase tw-text-2xs tw-text-right tw-text-gray-400 tw-leading-snug">
-                      revenue made
+                      NET revenue made
                       <br />
                       this week
                     </p>
@@ -701,7 +719,8 @@ const mapStateToProps = (state, props) => {
         events: getVenueEvents(state, props),
         reservations: getVenueReservations(state, props),
         listings: getVenueListings(state, props)
-      }
+      },
+      stats: state.venuesData.stats
     };
   }
   return {
@@ -715,6 +734,7 @@ export default connect(
     fetchReservationsForUserDispatch: fetchReservationsForUser,
     fetchReservationsForVenueDispatch: fetchReservationsForVenue,
     fetchEventsForVenueDispatch: fetchEventsForVenue,
-    fetchListingsForVenueDispatch: fetchListingsForVenue
+    fetchListingsForVenueDispatch: fetchListingsForVenue,
+    fetchVenueStatsDispatch: fetchVenueStats
   }
 )(Dashboard);

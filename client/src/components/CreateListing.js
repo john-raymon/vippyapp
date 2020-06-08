@@ -47,9 +47,6 @@ export default class CreateEvent extends Component {
     this.containerRef = React.createRef();
     this.state = {
       initialRootVariant: "hidden",
-<<<<<<< HEAD
-      event: null
-=======
       event: null,
       newListing: {
         name: "",
@@ -63,7 +60,6 @@ export default class CreateEvent extends Component {
       },
       timeSlots: [],
       bookingDeadlineTime: "0000"
->>>>>>> 9c0f96e... add create-listing method to venue agent and connecting it in createListing
     };
   }
 
@@ -265,9 +261,6 @@ export default class CreateEvent extends Component {
                   <p className="tw-text-xs tw-tracking-wider tw-p-6 tw-bg-gray-300 tw-text-gray-700 tw-w-full">
                     Create a new VIP/Package
                   </p>
-<<<<<<< HEAD
-                </section>
-=======
                   <form onSubmit={this.onSubmit}>
                     <section className="tw-flex tw-flex-wrap tw-w-full md:tw-mt-2 tw-border-b tw-border-gray-200 tw-py-2 md:tw-py-8">
                       <div className="tw-sticky tw-top-0 tw-flex tw-items-start tw-w-full md:tw-w-1/5 md:tw-border-r tw-border-gray-300 tw-py-4 md:tw-pr-6">
@@ -476,8 +469,7 @@ export default class CreateEvent extends Component {
                       Create Listing
                     </button>
                   </form>
-                </div>
->>>>>>> 9c0f96e... add create-listing method to venue agent and connecting it in createListing
+                </section>
                 <section className="tw-w-full">
                   <p className="tw-text-xs tw-tracking-wider tw-p-6 tw-bg-gray-300 tw-text-gray-700 tw-w-full">
                     Current VIP/Packges
