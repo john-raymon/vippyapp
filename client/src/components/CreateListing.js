@@ -347,14 +347,6 @@ export default class CreateEvent extends Component {
                               </Select>
                             </FormControl>
                           </div>
-                          <Calendar
-                            showSelectionPreview={false}
-                            className="tw-relative tw-font-mich tw-w-full tw-flex tw-items-center"
-                            date={
-                              new Date(this.state.newListing.bookingDeadline)
-                            }
-                            onChange={this.handleBookindDeadlineChange}
-                          />
                         </div>
                       </div>
                     </section>
