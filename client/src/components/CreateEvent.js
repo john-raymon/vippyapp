@@ -607,6 +607,7 @@ export default class CreateEvent extends Component {
                         </FormControl>
                       </div>
                       <Calendar
+                        showPreview={false}
                         showSelectionPreview={false}
                         className="tw-relative tw-font-mich tw-w-full tw-flex tw-items-center"
                         date={new Date(this.state.newEvent.startTime)}
@@ -637,6 +638,7 @@ export default class CreateEvent extends Component {
                         </FormControl>
                       </div>
                       <Calendar
+                        showPreview={false}
                         showSelectionPreview={false}
                         className="tw-relative tw-font-mich tw-w-full tw-flex tw-items-center"
                         date={new Date(this.state.newEvent.endTime)}
