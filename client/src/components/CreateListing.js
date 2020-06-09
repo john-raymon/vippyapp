@@ -32,7 +32,7 @@ const SInputBase = withStyles(theme => ({
   }
 }))(InputBase);
 
-export default class CreateEvent extends Component {
+export default class CreateListing extends Component {
   constructor(props) {
     super(props);
     this.containerRef = React.createRef();
@@ -106,7 +106,7 @@ export default class CreateEvent extends Component {
   }
 
   formatMilitaryTime(time) {
-    return moment(time, "kkmm a").format("hh:mm a");
+    return moment(time, "kkmm A").format("hh:mm A");
   }
 
   handleBookingDeadlineTimeChange(

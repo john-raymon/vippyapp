@@ -164,7 +164,7 @@ export default class CreateEvent extends Component {
   }
 
   formatMilitaryTime(time) {
-    return moment(time, "kkmm a").format("hh:mm a");
+    return moment(time, "kkmm A").format("hh:mm A");
   }
 
   handleStartTimeChange(date = this.state.newEvent.startTime) {
@@ -204,14 +204,6 @@ export default class CreateEvent extends Component {
       .add(endTimeHours, "hours")
       .add(endTimeMinutes, "minutes")
       .format();
-    console.log(
-      "the event end time is",
-      moment(date)
-        .startOf("day")
-        .add(endTimeHours, "hours")
-        .add(endTimeMinutes, "minutes")
-        .format("LLL")
-    );
     this.setState({
       newEvent: { ...this.state.newEvent, endTime: eventEndTime }
     });
