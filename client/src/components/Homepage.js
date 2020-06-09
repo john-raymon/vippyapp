@@ -79,6 +79,7 @@ class Homepage extends Component {
                   inputProps={{
                     className: "b--white tr w-70 f8-important tracked"
                   }}
+                  // eslint-disable-next-line react/jsx-no-duplicate-props
                   InputProps={{
                     className:
                       "MuiInputBase-input white-important w-100 tr b--white ttu michroma-important mt2-important tracked MuiInput-underline"

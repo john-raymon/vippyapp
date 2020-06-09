@@ -478,9 +478,14 @@ export default class CreateListing extends Component {
                         </span>
                       </div>
                     </section>
-                    <button className="tw-mt-4 tw-block tw-mx-auto tw-font-mich tw-uppercase tw-bg-green-700 tw-w-full md:tw-w-1/2 tw-p-4 tw-rounded-lg tw-text-xs tw-tracking-widest-1 tw-font-extrabold tw-text-white tw-mx-2">
-                      Create Listing
-                    </button>
+                    <div class="tw-flex tw-flex-row tw-space-x-2 tw-justify-between tw-pt-4">
+                      <button className="button tw-flex tw-font-mich tw-uppercase tw-bg-red-500 tw-w-auto tw-p-4 tw-rounded-lg tw-text-xs tw-tracking-widest-1 tw-font-extrabold tw-text-white">
+                        Cancel
+                      </button>
+                      <button className="button tw-flex tw-font-mich tw-uppercase tw-bg-green-700 tw-w-auto tw-p-4 tw-rounded-lg tw-text-xs tw-tracking-widest-1 tw-font-extrabold tw-text-white">
+                        Create Listing
+                      </button>
+                    </div>
                   </form>
                 </section>
                 <section className="tw-w-full">
