@@ -220,7 +220,7 @@ export function ListingCard({
               </span>
             </p>
             <p className="michroma f7 tracked lh-title white-90 pb2 ttu tl">
-              {`$${price} / up to ${guestCount} guest`}
+              {`$${price.toFixed(2)} / up to ${guestCount} guest`}
             </p>
           </div>
           <button className="button tw-p-3 tw-w-full tw-bg-green-500 tw-mt-4 tw-uppercase">

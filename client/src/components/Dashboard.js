@@ -156,7 +156,7 @@ function getVenueDashboardCard(type) {
               </div>
               <div className="tw-flex tw-flex-col tw-w-1/2 tw-items-center tw-justify-center tw-flex-grow">
                 <p className="large-text tw-text-white tw-uppercase tw-w-full tw-h-8 tw-overflow-scroll tw-text-center">
-                  {bookingPrice}
+                  ${bookingPrice.toFixed(2)}
                 </p>
                 <p className="small-text tw-uppercase tw-text-gray-600 tw-text-center tw-border-t tw-border-gray-800 tw-w-full tw-flex-grow tw-py-2">
                   booking price
