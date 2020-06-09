@@ -254,6 +254,42 @@ router.post(
   }
 );
 
+router.post("/stripe/payout", auth.required, hostMiddleware, function(
+  req,
+  res,
+  next
+) {
+  const { vippyHost: host } = req;
+  if (!host.hasStripeId()) {
+    return res.status(404).json({
+      success: false,
+      message:
+        "You must connect your Vippy account to a Stripe account before recieving payouts."
+    });
+  }
+
+  stripe.balance
+    .retrieve({
+      stripe_account: host.stripeAccountId
+    })
+    .then(({ available, pending }) => {
+      const { amount, currency } = available[0];
+      return stripe.payouts
+        .create(
+          {
+            amount,
+            currency,
+            statement_descriptor: "Vippy APP"
+          },
+          {
+            stripe_account: host.stripeAccountId
+          }
+        )
+        .then(payout => res.json({ ...payout, success: true }));
+    })
+    .catch(next);
+});
+
 router.get("/stats", auth.required, hostMiddleware, function(req, res, next) {
   return Promise.all([
     req.vippyHost.listRecentReservations(),

@@ -163,8 +163,14 @@ export class VenueEndpointAgent extends Agent {
 
   // get venue stats for dashboard
   getStats() {
-    return this._get(`/stats`).catch(error => {
+    return this._get("/stats").catch(error => {
       throw error.response.body;
+    });
+  }
+
+  initStripePayout() {
+    return this._post("/stripe/payout").catch(error => {
+      return error.response.body;
     });
   }
 
