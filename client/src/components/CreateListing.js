@@ -36,6 +36,12 @@ export default class CreateEvent extends Component {
   constructor(props) {
     super(props);
     this.containerRef = React.createRef();
+    this.formatMilitaryTime = this.formatMilitaryTime.bind(this);
+    this.handleBookingDeadlineTimeChange = this.handleBookingDeadlineTimeChange.bind(
+      this
+    );
+    this.onSubmit = this.onSubmit.bind(this);
+    this.validate = this.validate.bind(this);
     this.state = {
       initialRootVariant: "hidden",
       event: null,
@@ -55,7 +61,14 @@ export default class CreateEvent extends Component {
   }
 
   componentDidMount() {
-    this.setState({ initialRootVariant: "visible" });
+    let militaryTime = [];
+    for (let hourCount = 0, minCount = -30, totalTime = 0; totalTime < 2330; ) {
+      hourCount = minCount === 30 ? hourCount + 1 : hourCount;
+      minCount = minCount === 30 ? 0 : minCount + 30;
+      totalTime = `${("0" + hourCount).slice(-2)}${("0" + minCount).slice(-2)}`;
+      militaryTime = [...militaryTime, totalTime];
+    }
+    this.setState({ initialRootVariant: "visible", timeSlots: militaryTime });
     if (this.props.match.params["eventId"]) {
       // fetch event
       this.props.venueAgent
@@ -87,11 +100,8 @@ export default class CreateEvent extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (prevState.selectedStartTime !== this.state.selectedStartTime) {
-      this.handleStartTimeChange();
-    }
-    if (prevState.selectedEndTime !== this.state.selectedEndTime) {
-      this.handleEndTimeChange();
+    if (prevState.bookingDeadlineTime !== this.state.bookingDeadlineTime) {
+      this.handleBookingDeadlineTimeChange();
     }
   }
 
@@ -99,10 +109,22 @@ export default class CreateEvent extends Component {
     return moment(time, "kkmm a").format("hh:mm a");
   }
 
-  handleEndTimeChange(date = this.state.newListing.bookingDeadline) {
-    const bookingDeadline = moment(date).format();
+  handleBookingDeadlineTimeChange(
+    date = this.state.newListing.bookingDeadline
+  ) {
+    const endTimeHours = `${this.state.bookingDeadlineTime[0]}${
+      this.state.bookingDeadlineTime[1]
+    }`;
+    const endTimeMinutes = `${this.state.bookingDeadlineTime[2]}${
+      this.state.bookingDeadlineTime[3]
+    }`;
+    const bookingDeadline = moment(date)
+      .startOf("day")
+      .add(endTimeHours, "hours")
+      .add(endTimeMinutes, "minutes")
+      .format();
     this.setState({
-      newListing: { ...this.state.newListing, bookingDeadline: bookingDeadline }
+      newListing: { ...this.state.newListing, bookingDeadline }
     });
   }
 
@@ -456,7 +478,7 @@ export default class CreateEvent extends Component {
                         </span>
                       </div>
                     </section>
-                    <button className="tw-mt-4 tw-block tw-mx-auto tw-font-mich tw-uppercase tw-bg-green-700 tw-w-full md:tw-w-1/2 tw-p-4 tw-rounded-lg tw-text-xxs tw-tracking-widest-1 tw-font-extrabold tw-text-white tw-mx-2">
+                    <button className="tw-mt-4 tw-block tw-mx-auto tw-font-mich tw-uppercase tw-bg-green-700 tw-w-full md:tw-w-1/2 tw-p-4 tw-rounded-lg tw-text-xs tw-tracking-widest-1 tw-font-extrabold tw-text-white tw-mx-2">
                       Create Listing
                     </button>
                   </form>

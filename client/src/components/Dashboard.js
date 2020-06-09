@@ -356,6 +356,7 @@ class Dashboard extends Component {
           let ListingCard = getVenueDashboardCard("listing");
           return (
             <ListingCard
+              key={listing.id}
               listingId={listing.id}
               eventTitle={listing.event.name}
               listingTitle={listing.name}
