@@ -266,6 +266,13 @@ router.post(
           });
         }
 
+        if (!(req.body.bookingPrice > 1)) {
+          return next({
+            name: "ValidationError",
+            message: "The booking price must be greater than 1."
+          });
+        }
+
         // check if bookingDeadline falls atleast 30 minutes before event.endTime
         if (req.body.bookingDeadline) {
           if (!isValid(new Date(req.body.bookingDeadline))) {
