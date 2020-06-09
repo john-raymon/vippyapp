@@ -91,7 +91,7 @@ class Homepage extends Component {
               </div>
               <button
                 type="submit"
-                className="vippyButton mt2 mw1 self-end"
+                className="vippyButton mt2 mw1 self-end tw-transition tw-duration-500 tw-ease-in-out focus:tw-opacity-25 hover:tw-opacity-25"
                 onClick={e => {
                   e.preventDefault();
                   this.onZipCodeSearchClick();
