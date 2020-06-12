@@ -10,6 +10,14 @@ var ReservSchema = mongoose.Schema(
     totalPrice: Number,
     stripeChargeId: String,
     stripeTransferId: String,
+    qrCodeImageGenerated: {
+      type: Boolean,
+      default: false
+    },
+    qrCode: {
+      type: String,
+      default: "NO_QR_CODE"
+    },
     paidToHost: { type: Boolean, default: false },
     redeemed: { type: Boolean, default: false },
     paid: { type: Boolean, default: false },

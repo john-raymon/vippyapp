@@ -47,7 +47,7 @@ router.get("/stripe/dashboard", auth.required, hostMiddleware, function(
   // Generate a unique login link for the associated Stripe account to access their Express dashboard
   stripe.accounts
     .createLoginLink(req.vippyHost.stripeAccountId, {
-      redirect_url: config.public_domain + "/dashboard"
+      redirect_url: config.baseUrl + "/dashboard"
     })
     .then(loginLink => {
       // Directly link to the account tab
@@ -398,8 +398,7 @@ router.post("/stripe/auth", auth.required, hostMiddleware, function(
             // by default go to login for scope read_only and register for scope read_write.
             // we want register, since we don't expect venue owners/host to
             // initially have Stripe accounts.
-            redirect_uri:
-              "http://" + config.public_domain + "/api/host/stripe/token",
+            redirect_uri: "http://" + config.baseUrl + "/api/host/stripe/token",
             "suggested_capabilities[]": "transfers",
             "stripe_user[business_type]": host.type || "individual",
             "stripe_user[business_name]": host.business_name || undefined,

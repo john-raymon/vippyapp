@@ -1,27 +1,34 @@
-var mongoose = require("mongoose");
-var express = require("express");
-var router = express.Router();
-var querystring = require("querystring");
-var request = require("request");
-var crypto = require("crypto");
-var stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+const mongoose = require("mongoose");
+const express = require("express");
+const router = express.Router();
+const querystring = require("querystring");
+const request = require("request");
+const crypto = require("crypto");
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const isFuture = require("date-fns/is_future");
+const uniqid = require("uniqid");
+const qr = require("qr-image");
+const twilio = require("twilio");
+const twilioClient = new twilio(
+  process.env.TWILIO_ACCOUNT_SID,
+  process.env.TWILIO_AUTH_TOKEN
+);
 const {
   FORBIDDEN_RESERVATION,
   FORBIDDEN_RESERVATION_MESSAGE
-} = require("../../config/error-constants");
+} = require("../../../config/error-constants");
 // auth middleware
-var auth = require("../authMiddleware");
-var { hostMiddleware } = require("./host");
+const auth = require("../../authMiddleware");
+const { hostMiddleware } = require("../host");
 
 // models
-var Event = require("../../models/Event");
-var Host = require("../../models/Host");
-var Listing = require("../../models/Listing");
-var Reservation = require("../../models/Reservation");
+const Event = require("../../../models/Event");
+const Host = require("../../../models/Host");
+const Listing = require("../../../models/Listing");
+const Reservation = require("../../../models/Reservation");
 
 // config
-var config = require("./../../config");
+const config = require("../../../config");
 
 router.param("reservationId", function(req, res, next, reservationId) {
   // attempt to locate reservation
@@ -47,7 +54,7 @@ router.param("reservationId", function(req, res, next, reservationId) {
       if (!reservation) {
         return res.status(404).json({
           success: false,
-          error: "There is no active reservation with that id."
+          error: "We could not locate the reservation."
         });
       }
       req.vippyReservation = reservation;
@@ -56,6 +63,41 @@ router.param("reservationId", function(req, res, next, reservationId) {
     .catch(next);
 });
 
+// router.post('/:reservationId', auth)
+// TODO: only return ticket qr-code image if still valid (20 minutes after creation of reservation)
+// as any attempt after the 20 minute shouldn't return the ticket
+router.get("/:reservationId/qr-code", function(req, res, next) {
+  console.log("REQUEST FROM TWILIO FOR, ", req.vippyReservation._id);
+  if (req.vippyReservation.qrCodeImageGenerated) {
+    console.log("REQUEST FROM TWILIO FOR, ", req.vippyReservation._id);
+    return res.status(404).json({
+      success: false,
+      error: "We could not locate a the qr-code."
+    });
+  }
+  console.log("REQUEST FROM TWILIO FOR, ", req.vippyReservation._id);
+  try {
+    const code = qr.image(
+      `getvippy.com/?qr-code=${req.vippyReservation.qrCode || ""}`,
+      { type: "png" }
+    );
+    req.vippyReservation.qrCodeImageGenerated = true;
+    req.vippyReservation.save();
+    res.setHeader("Content-type", "image/png"); //sent qr image to client side
+    code.pipe(res);
+  } catch (e) {
+    res.writeHead(500, { "Content-Type": "text/html" });
+    res.end("<h1>Unable to load code for reservation</h1>");
+  }
+});
+
+// DEPECRECATED,
+// TODO: NO LONGER REQUIRE REDEEMING,create endpoint to cancel and refund reservation with
+// a constraint of only allowing cancellations up to 1 hour into the event or up to 2 hours before the event.
+// only allow venue/host or vippy admin to cancel&refund the reservation to prevent fraud where reservation
+// was used in person and then cancelled after but still used in person.
+// HANDLE TRANSFERING funds of non-cancelled reservations to venue/host related to reservation
+// via a job set after the event ends.
 // begin redeeming of reservation
 router.post(
   "/:reservationId/redeem",
@@ -128,6 +170,8 @@ router.post(
           // if verified successfully then set reservation as redeemed, res with success.
           // also create transfer for Host
           // Create a Transfer to the connected account (later):
+          // TODO: move this logic over to a job that transfers amount for venue/host
+          // after event related to uncancelled reservation ends.
           req.vippyReservation.redeemed = body.success;
           return stripe.transfers.create(
             {
@@ -173,7 +217,7 @@ router.post(
       );
     }
     // if req.query.verify is not set then, Send Code to customer
-    request(
+    return request(
       {
         url: "https://api.authy.com/protected/json/phones/verification/start",
         method: "POST",
@@ -289,6 +333,10 @@ router.post("/", auth.required, auth.setUserOrHost, function(req, res, next) {
           if (charge && charge.status === "succeeded") {
             // the charge succeeded continue
             // create reservation
+
+            // generate fresh code for qrcode
+            const qrCode = uniqid();
+
             const reservation = new Reservation({
               id: reservationConfirmationCode,
               customer: req.vippyUser,
@@ -297,7 +345,9 @@ router.post("/", auth.required, auth.setUserOrHost, function(req, res, next) {
               payAndWait: listing.payAndWait,
               totalPrice: listing.bookingPrice,
               stripeChargeId: charge.id,
-              paid: true
+              paid: true,
+              qrCodeImageGenerated: false,
+              qrCode
             });
             listing.currentReservations = [
               ...listing.currentReservations,
@@ -327,16 +377,33 @@ router.post("/", auth.required, auth.setUserOrHost, function(req, res, next) {
         });
     })
     .then(([reservation, listing]) => {
-      // we should have a reservation and a listings
-      // return the reservation created to the user
-      let reservationResponse = {
-        ...reservation.toProfileJSON(),
-        listing: listing._toJSON()
-      };
-      res.json({
-        success: true,
-        reservation: reservationResponse
-      });
+      return twilioClient.messages
+        .create({
+          body:
+            "Thank you for reserving! Be sure to secure this CODE and scan it at the door to get in.",
+          from: process.env.TWILIO_PHONE_NUMBER,
+          mediaUrl: [
+            `${config.serverBaseUrl}/api/reservation/${reservation._id}/qr-code`
+          ],
+          to: req.vippyUser.phonenumber
+        })
+        .then(message => {
+          console.log(message);
+          // we should have a reservation and a listings
+          // return the reservation created to the user
+          let reservationResponse = {
+            ...reservation.toProfileJSON(),
+            listing: listing._toJSON()
+          };
+          return res.json({
+            success: true,
+            reservation: reservationResponse
+          });
+        })
+        .catch(error => {
+          console.log("error sending reservation's qr code to customer", error);
+          throw error;
+        }); // TODO: handle this error better
     })
     .catch(next);
 });
