@@ -34,7 +34,7 @@ var auth = {
     if (!req.vippyUser) {
       return next({
         name: "UnauthorizedError",
-        message: "You are not logged in"
+        message: "You must be logged in as a user."
       });
     }
     next();

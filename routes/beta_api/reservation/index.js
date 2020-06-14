@@ -241,6 +241,7 @@ router.post(
   }
 );
 
+// DEPRECATED
 // create a reservation
 router.post("/", auth.required, auth.setUserOrHost, function(req, res, next) {
   if (!req.vippyUser) {
@@ -273,7 +274,7 @@ router.post("/", auth.required, auth.setUserOrHost, function(req, res, next) {
   if (!req.body.cardToken && process.env.NODE_ENV === "production") {
     return res.status(400).json({ error: "A Stripe card token is required" });
   }
-  Listing.findById(req.query.listing)
+  return Listing.findById(req.query.listing)
     .then(function(listing) {
       if (!listing) {
         return res.status(400).json({
@@ -366,7 +367,7 @@ router.post("/", auth.required, auth.setUserOrHost, function(req, res, next) {
               )
             ]);
           }
-          res.json({
+          return res.json({
             success: false,
             errors: {
               listing: {
@@ -379,13 +380,13 @@ router.post("/", auth.required, auth.setUserOrHost, function(req, res, next) {
     .then(([reservation, listing]) => {
       return twilioClient.messages
         .create({
-          body:
-            "Thank you for reserving! Be sure to secure this CODE and scan it at the door to get in.",
+          body: "Scan this code at the door to redeem your reservation.",
           from: process.env.TWILIO_PHONE_NUMBER,
           mediaUrl: [
-            `${config.serverBaseUrl}/api/reservation/${reservation._id}/qr-code`
+            `${"http://b41cf5113975.ngrok.io" ||
+              config.serverBaseUrl}/api/reservation/${reservation._id}/qr-code`
           ],
-          to: req.vippyUser.phonenumber
+          to: reservation.customer.phonenumber
         })
         .then(message => {
           console.log(message);

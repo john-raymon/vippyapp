@@ -1,6 +1,7 @@
 const isProd = process.env.NODE_ENV === "production";
 
 module.exports = {
+  isProd,
   secret: isProd ? process.env.SECRET : "secret",
   stripe: {
     secret_key: process.env.STRIPE_SECRET_KEY,
