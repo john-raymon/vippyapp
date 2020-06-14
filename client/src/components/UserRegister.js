@@ -95,9 +95,6 @@ class UserRegister extends Component {
         .required("Your email is required"),
       phoneNumber: yup
         .string()
-        .matches(phoneNumberRegExp, {
-          message: "Your phone must be a valid phone number"
-        })
         .label("Phone number")
         .required("You must provide a phone number"),
       password: yup
