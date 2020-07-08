@@ -1,3 +1,6 @@
+@import 'react-date-range/dist/styles'; // main style file
+@import 'react-date-range/dist/theme/default'; // theme css file
+
 /* all base stylesheets */
 @import 'tailwindcss-out';
 
@@ -17,7 +20,8 @@
 'components/homepage',
 'components/browseContainer',
 'components/header',
-'components/venueDashboard';
+'components/venueDashboard',
+'components/createListingPage';
 
 @import
 'base/utils';

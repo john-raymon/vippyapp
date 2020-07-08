@@ -40,7 +40,7 @@ export class Agent {
 
   async _get(url, fullPath = false, query = {}) {
     const returnedToken = await this._initToken();
-    console.log("the token is!! -->", this.token);
+    console.log("with _get, the token is!! -->", this.token);
     //debugger;
     return superagent
       .get(fullPath ? url : `${this.API_ROOT}${url}`)
@@ -147,10 +147,30 @@ export class VenueEndpointAgent extends Agent {
     });
   }
 
+  // create new listing for event
+  createListing(body) {
+    return this._post("/api/listing", body, true).catch(error => {
+      throw error.response.body;
+    });
+  }
+
   // read an event by id
   getEventById(eventId) {
     return this._get(`/api/event/${eventId}`, true).catch(error => {
       throw error.response.body;
+    });
+  }
+
+  // get venue stats for dashboard
+  getStats() {
+    return this._get("/stats").catch(error => {
+      throw error.response.body;
+    });
+  }
+
+  initStripePayout() {
+    return this._post("/stripe/payout").catch(error => {
+      return error.response.body;
     });
   }
 

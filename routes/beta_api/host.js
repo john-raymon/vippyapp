@@ -47,7 +47,7 @@ router.get("/stripe/dashboard", auth.required, hostMiddleware, function(
   // Generate a unique login link for the associated Stripe account to access their Express dashboard
   stripe.accounts
     .createLoginLink(req.vippyHost.stripeAccountId, {
-      redirect_url: config.public_domain + "/dashboard"
+      redirect_url: config.baseUrl + "/dashboard"
     })
     .then(loginLink => {
       // Directly link to the account tab
@@ -99,7 +99,7 @@ router.patch(
     }
 
     if (req.body.email && req.vippyHost.email !== req.body.email) {
-      // send security confirmation email below
+      // TODO: send security confirmation email below
       // and reset isEmailConfirmed
       // ...
       req.vippyHost.email = req.body.email;
@@ -108,6 +108,7 @@ router.patch(
 
     if (req.body.password) {
       // TODO: send security email to host
+      // TODO: handle updating password differently
       req.vippyHost.setPassword(req.body.password);
     }
 
@@ -253,6 +254,73 @@ router.post(
   }
 );
 
+router.post("/stripe/payout", auth.required, hostMiddleware, function(
+  req,
+  res,
+  next
+) {
+  const { vippyHost: host } = req;
+  if (!host.hasStripeId()) {
+    return res.status(404).json({
+      success: false,
+      message:
+        "You must connect your Vippy account to a Stripe account before recieving payouts."
+    });
+  }
+
+  stripe.balance
+    .retrieve({
+      stripe_account: host.stripeAccountId
+    })
+    .then(({ available, pending }) => {
+      const { amount, currency } = available[0];
+      return stripe.payouts
+        .create(
+          {
+            amount,
+            currency,
+            statement_descriptor: "Vippy APP"
+          },
+          {
+            stripe_account: host.stripeAccountId
+          }
+        )
+        .then(payout => res.json({ ...payout, success: true }));
+    })
+    .catch(next);
+});
+
+router.get("/stats", auth.required, hostMiddleware, function(req, res, next) {
+  return Promise.all([
+    req.vippyHost.listRecentReservations(),
+    req.vippyHost.hasStripeId()
+      ? stripe.balance.retrieve({
+          stripe_account: req.vippyHost.stripeAccountId
+        })
+      : null
+  ])
+    .then(([recentReservations, { available, pending }]) => {
+      const recentReservationRevenue = recentReservations.reduce(
+        (totalNetRevenue, reservation) => {
+          return totalNetRevenue + reservation.amountForHost();
+        },
+        0
+      );
+      return res.json({
+        success: true,
+        stats: {
+          recentReservationsCount: recentReservations.length,
+          recentReservationRevenue,
+          balance: {
+            available: available[0].amount,
+            pending: pending[0].amount
+          }
+        }
+      });
+    })
+    .catch(next);
+});
+
 // login and authenticate Host
 router.post("/login", function(req, res, next) {
   const requiredProps = ["email", "password"];
@@ -330,8 +398,7 @@ router.post("/stripe/auth", auth.required, hostMiddleware, function(
             // by default go to login for scope read_only and register for scope read_write.
             // we want register, since we don't expect venue owners/host to
             // initially have Stripe accounts.
-            redirect_uri:
-              "http://" + config.public_domain + "/api/host/stripe/token",
+            redirect_uri: "http://" + config.baseUrl + "/api/host/stripe/token",
             "suggested_capabilities[]": "transfers",
             "stripe_user[business_type]": host.type || "individual",
             "stripe_user[business_name]": host.business_name || undefined,

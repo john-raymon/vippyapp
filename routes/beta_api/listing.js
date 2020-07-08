@@ -1,35 +1,44 @@
-var express = require("express");
-var router = express.Router();
-var querystring = require("querystring");
-var request = require("request");
+const express = require("express");
+const router = express.Router();
+const querystring = require("querystring");
+const request = require("request");
 const differenceInMinutes = require("date-fns/difference_in_minutes");
 const isFuture = require("date-fns/is_future");
 const isValid = require("date-fns/is_valid");
+const crypto = require("crypto");
+const uniqid = require("uniqid");
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+const twilio = require("twilio");
+const twilioClient = new twilio(
+  process.env.TWILIO_ACCOUNT_SID,
+  process.env.TWILIO_AUTH_TOKEN
+);
 
 // cloudinary
-var cloudinary = require("cloudinary");
+const cloudinary = require("cloudinary");
 
 // zipcodes library
-var zipcodes = require("zipcodes");
+const zipcodes = require("zipcodes");
 
 // auth middleware
-var auth = require("../authMiddleware");
-var hostOrPromoterOnlyMiddleware = auth.hostOrPromoterMiddleware(false);
-var hostOnlyMiddleware = auth.hostOrPromoterMiddleware(true);
+const auth = require("../authMiddleware");
+const hostOrPromoterOnlyMiddleware = auth.hostOrPromoterMiddleware(false);
+const hostOnlyMiddleware = auth.hostOrPromoterMiddleware(true);
 
 // cloudinary parser middleware
-var imageParser = require("./../../config/multer-cloudinary");
+const imageParser = require("./../../config/multer-cloudinary");
 
 // models
-var Event = require("../../models/Event");
-var Host = require("../../models/Host");
-var Listing = require("../../models/Listing");
+const Event = require("../../models/Event");
+const Host = require("../../models/Host");
+const Listing = require("../../models/Listing");
+const Reservation = require("../../models/Reservation");
 
 // config
-var config = require("./../../config");
+const config = require("./../../config");
 
 // utils
-var isBodyMissingProps = require("./../../utils/isBodyMissingProps");
+const isBodyMissingProps = require("./../../utils/isBodyMissingProps");
 
 router.param("listing", function(req, res, next, listingId) {
   Listing.findById(listingId)
@@ -48,6 +57,149 @@ router.param("listing", function(req, res, next, listingId) {
     })
     .catch(next);
 });
+
+// purchases an Event's Listing, creating a Reservation
+router.post(
+  "/:listing/purchase",
+  auth.required,
+  auth.setUserOrHost,
+  auth.onlyUser,
+  function(req, res, next) {
+    const { vippyUser, listing, body } = req;
+
+    // require a Stripe.js card token
+    if (!body.cardToken && process.env.NODE_ENV === "production") {
+      return res.status(400).json({ error: "A Stripe card token is required" });
+    }
+
+    // check if event is cancelled
+    if (listing.cancelled) {
+      return next({
+        name: "BadRequestError",
+        message:
+          "The listing is no longer available, the venue may have removed it, we apologize for the inconvenience."
+      });
+    }
+
+    // check if booking cutoff time is still in the future
+    if (!isFuture(new Date(listing.bookingDeadline))) {
+      return next({
+        name: "BadRequestError",
+        message:
+          "This listing can no longer be reserved as it's booking deadline has passed, we apologize for the inconvenience."
+      });
+    }
+
+    // check if there is available quantity
+    if (!listing.unlimitedQuantity && listing.quantity === 0) {
+      return res.status(400).json({
+        success: false,
+        errors: {
+          listing: {
+            message:
+              "This listing is sold out, we apologize for the inconvenience."
+          }
+        }
+      });
+    }
+
+    const reservationConfirmationCode = crypto.randomBytes(8).toString("hex");
+
+    // continue and attempt to make charge,
+    return stripe.charges
+      .create({
+        amount: +listing.bookingPrice * 100,
+        currency: "usd",
+        description: "Listing Reservation",
+        source:
+          process.env.NODE_ENV === "production" ? body.cardToken : "tok_visa",
+        transfer_group: reservationConfirmationCode,
+        metadata: {
+          reservationConfirmationCode,
+          hostId: listing.host._id.toString(),
+          customerId: vippyUser._id.toString()
+        }
+      })
+      .then(charge => {
+        // the charge failed reject with BadRequest error
+        if (charge && !charge.status === "succeeded") {
+          return Promise.reject({
+            name: "BadRequest",
+            message: "We were unable to charge the provided payment method."
+          });
+        }
+        // create reservation
+
+        // generate fresh code for qrcode
+        const qrCode = uniqid();
+
+        // created
+        const newReservation = new Reservation({
+          id: reservationConfirmationCode,
+          customer: vippyUser,
+          host: listing.host,
+          listing: listing,
+          payAndWait: listing.payAndWait,
+          totalPrice: listing.bookingPrice,
+          stripeChargeId: charge.id,
+          paid: true,
+          qrCodeImageGenerated: false,
+          qrCode
+        });
+
+        listing.currentReservations = [
+          ...listing.currentReservations,
+          newReservation._id
+        ];
+
+        // if falsey, then it's zero, so return zero, if not then deduct quantity by 1
+        listing.quantity = listing.unlimitedQuantity
+          ? listing.quantity
+          : listing.quantity && listing.quantity;
+
+        // attempt to save
+        return Promise.all([
+          newReservation.save().then(r => r.populate("host").execPopulate()),
+          listing.save().then(listing =>
+            listing
+              .populate("host")
+              .populate({ path: "event", populate: { path: "host" } })
+              .execPopulate()
+          )
+        ]);
+      })
+      .then(([reservation, listing]) => {
+        return twilioClient.messages
+          .create({
+            body: "Scan this code at the door to redeem your reservation.",
+            from: process.env.TWILIO_PHONE_NUMBER,
+            mediaUrl: [
+              `${
+                !config.isProd
+                  ? "http://b41cf5113975.ngrok.io"
+                  : config.serverBaseUrl
+              }/api/reservation/${reservation._id}/qr-code`
+            ],
+            to: reservation.customer.phonenumber
+          })
+          .then(message => {
+            console.log(message);
+            // we should have a reservation and a listings
+            // return the reservation created to the user
+            const reservationResponse = {
+              ...reservation.toProfileJSON(),
+              listing: listing._toJSON()
+            };
+
+            return res.json({
+              success: true,
+              reservation: reservationResponse
+            });
+          });
+      })
+      .catch(next);
+  }
+);
 
 router.patch(
   "/:listing",
@@ -95,7 +247,7 @@ router.patch(
     // preferred date, startTime, endtime, address will need to take be created
     // /event/deactivate endpoint will be used for deactivating since sideeffects
     // and constrains will need be to checked, deactivating connected listings, refunding reservations.
-    // multiple event cancellations will result in suspension of host , set event cap in env variables
+    // multiple event cancellations will result in suspension of host , set event cap in env constiables
 
     for (let prop in req.body) {
       if (whitelistedKeys.includes(prop)) {
@@ -245,7 +397,7 @@ router.post(
           return next({
             name: "UnauthorizedError",
             message:
-              "You must the venue host of this event or promoter of the venue host of this event with proper permissions to create listings for this event"
+              "You must be the venue host of this event or promoter of the venue host of this event with proper permissions to create listings for this event"
           });
         }
 
@@ -263,6 +415,13 @@ router.post(
             name: "BadRequestError",
             message:
               "You can no longer create listings for this event as it has been cancelled."
+          });
+        }
+
+        if (!(req.body.bookingPrice > 1)) {
+          return next({
+            name: "ValidationError",
+            message: "The booking price must be greater than 1."
           });
         }
 

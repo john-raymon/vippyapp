@@ -65,7 +65,7 @@ class Homepage extends Component {
             <p className="michroma f6 f4-ns tracked b lh-title white-90 pl3 w-80 w-60-ns">
               Book the best vip spot for your night out.
             </p>
-            <div className="flex flex-column w-auto mw5 mw6-l self-end self-center-l">
+            <form className="flex flex-column w-auto mw5 mw6-l self-end self-center-l">
               <div className="w-auto">
                 <TextField
                   onChange={this.handleZipCodeChange}
@@ -79,6 +79,7 @@ class Homepage extends Component {
                   inputProps={{
                     className: "b--white tr w-70 f8-important tracked"
                   }}
+                  // eslint-disable-next-line react/jsx-no-duplicate-props
                   InputProps={{
                     className:
                       "MuiInputBase-input white-important w-100 tr b--white ttu michroma-important mt2-important tracked MuiInput-underline"
@@ -90,8 +91,12 @@ class Homepage extends Component {
                 />
               </div>
               <button
-                className="vippyButton mt2 mw1 self-end"
-                onClick={this.onZipCodeSearchClick}
+                type="submit"
+                className="vippyButton mt2 mw1 self-end tw-transition tw-duration-500 tw-ease-in-out focus:tw-opacity-25 hover:tw-opacity-25"
+                onClick={e => {
+                  e.preventDefault();
+                  this.onZipCodeSearchClick();
+                }}
               >
                 <div className="vippyButton__innerColorBlock">
                   <div className="w-100 h-100 flex flex-column justify-center">
@@ -101,7 +106,7 @@ class Homepage extends Component {
                   </div>
                 </div>
               </button>
-            </div>
+            </form>
           </div>
           <div className="w-100 w-80-m w-60-l">
             <img src={heroBackgroundImage} width="100%" alt="Hero Background" />

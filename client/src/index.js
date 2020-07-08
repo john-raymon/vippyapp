@@ -1,12 +1,10 @@
 import React, { Component } from "react";
 import ReactDOM from "react-dom";
-import { Provider } from "react-redux";
+import { Provider as ReduxProvider } from "react-redux";
 import { withRouter } from "react-router-dom";
 import { PersistGate } from "redux-persist/integration/react";
 import { ConnectedRouter } from "connected-react-router";
 import configureStore, { history } from "./utils/configStore";
-import "react-date-range/dist/styles.css"; // main style file
-import "react-date-range/dist/theme/default.css"; // theme css file
 import App from "./components/App";
 
 import * as serviceWorker from "./serviceWorker";
@@ -28,7 +26,7 @@ class _ScrollToTop extends Component {
 const ScrollToTop = withRouter(_ScrollToTop);
 
 ReactDOM.render(
-  <Provider store={store}>
+  <ReduxProvider store={store}>
     <PersistGate loading={null} persistor={persistor}>
       <ConnectedRouter history={history}>
         <ScrollToTop>
@@ -36,7 +34,7 @@ ReactDOM.render(
         </ScrollToTop>
       </ConnectedRouter>
     </PersistGate>
-  </Provider>,
+  </ReduxProvider>,
   document.getElementById("root")
 );
 

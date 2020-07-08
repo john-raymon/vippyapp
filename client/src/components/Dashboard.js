@@ -15,6 +15,8 @@ import {
   fetchListingsForVenue
 } from "./../state/actions/authActions";
 
+// venue dashboard actions
+import { fetchVenueStats } from "./../state/actions/venueDashboardActions";
 // Selectors
 import getUsersReservation from "./../state/selectors/getUsersReservations";
 import getVenueReservations from "./../state/selectors/getVenueReservations";
@@ -41,7 +43,7 @@ function getVenueDashboardCard(type) {
       return (
         <div className="tw-flex tw-flex-col tw-ftw-bg-black tw-w-full tw-rounded-md tw-border tw-border-gray-800 tw-rounded-lg tw-my-6 tw-p-4">
           <div className="tw-flex">
-            <p className="small-text tw-text-white tw-uppercase">
+            <p className="small-text tw-text-yellow-500 tw-uppercase">
               {eventStartDate}
             </p>
           </div>
@@ -73,7 +75,7 @@ function getVenueDashboardCard(type) {
           </div>
           <div className="tw-flex tw-w-full tw-justify-between tw-pt-2 md:tw-pt-0">
             <div className="tw-flex tw-items-end">
-              <p className="small-text tw-text-yellow-500 tw-opacity-25 tw-uppercase">
+              <p className="small-text tw-text-yellow-500 tw-uppercase">
                 {type}
               </p>
             </div>
@@ -124,7 +126,7 @@ function getVenueDashboardCard(type) {
       return (
         <div className="tw-flex tw-flex-col tw-ftw-bg-black tw-w-full tw-rounded-md tw-border tw-border-gray-800 tw-rounded-lg tw-my-6 tw-p-4">
           <div className="tw-flex tw-justify-between tw-pb-4">
-            <p className="small-text tw-text-white tw-uppercase">
+            <p className="small-text tw-text-yellow-500 tw-uppercase">
               {eventStartDate}
             </p>
 
@@ -154,7 +156,7 @@ function getVenueDashboardCard(type) {
               </div>
               <div className="tw-flex tw-flex-col tw-w-1/2 tw-items-center tw-justify-center tw-flex-grow">
                 <p className="large-text tw-text-white tw-uppercase tw-w-full tw-h-8 tw-overflow-scroll tw-text-center">
-                  {bookingPrice}
+                  ${bookingPrice.toFixed(2)}
                 </p>
                 <p className="small-text tw-uppercase tw-text-gray-600 tw-text-center tw-border-t tw-border-gray-800 tw-w-full tw-flex-grow tw-py-2">
                   booking price
@@ -183,7 +185,7 @@ function getVenueDashboardCard(type) {
 
           <div className="tw-flex tw-w-full tw-justify-between tw-pt-2 md:tw-pt-0">
             <div className="tw-flex tw-items-end">
-              <p className="small-text tw-text-yellow-500 tw-opacity-25 tw-uppercase">
+              <p className="small-text tw-text-yellow-500 tw-uppercase">
                 {type}
               </p>
             </div>
@@ -219,7 +221,7 @@ function getVenueDashboardCard(type) {
       return (
         <div className="tw-flex tw-flex-col tw-ftw-bg-black tw-w-full tw-rounded-md tw-border tw-border-gray-800 tw-rounded-lg tw-my-6 tw-p-4">
           <div className="tw-flex">
-            <p className="small-text tw-text-white tw-uppercase">
+            <p className="small-text tw-text-yellow-500 tw-uppercase">
               {eventStartDate}
             </p>
           </div>
@@ -257,7 +259,7 @@ function getVenueDashboardCard(type) {
           </div>
           <div className="tw-flex tw-w-full tw-justify-between tw-pt-2 md:tw-pt-0">
             <div className="tw-flex tw-items-end">
-              <p className="small-text tw-text-yellow-500 tw-opacity-25 tw-uppercase">
+              <p className="small-text tw-text-yellow-500 tw-uppercase">
                 {type}
               </p>
             </div>
@@ -303,6 +305,7 @@ class Dashboard extends Component {
         this.props.venueAgent,
         this.props.venue.venueId
       );
+      this.props.fetchVenueStatsDispatch(this.props.venueAgent);
       return;
     }
     // by default fetch reservations assuming a regular user is authenticated
@@ -310,9 +313,10 @@ class Dashboard extends Component {
   }
 
   render() {
+    //  UI to render() within when we have auth. venue
     if (this.props.isVenueAuth) {
-      const allReservations = this.props.venuesData.reservations.map(
-        reservation => {
+      const allReservations = this.props.venuesData.reservations
+        .map(reservation => {
           let VenueReservationCard = getVenueDashboardCard("reservation");
           return (
             <VenueReservationCard
@@ -327,43 +331,49 @@ class Dashboard extends Component {
               reservationId={reservation.id}
             />
           );
-        }
-      );
+        })
+        .reverse();
 
-      const allEvents = this.props.venuesData.events.map(event => {
-        let EventCard = getVenueDashboardCard("event");
-        return (
-          <EventCard
-            eventId={event.id}
-            eventTitle={event.name}
-            eventStartTime={event.startTime}
-            eventEndTime={event.endTime}
-            cancelled={event.cancelled}
-            totalReservations={event.totalReservations}
-          />
-        );
-      });
+      const allEvents = this.props.venuesData.events
+        .map(event => {
+          let EventCard = getVenueDashboardCard("event");
+          return (
+            <EventCard
+              key={event.id}
+              eventId={event.id}
+              eventTitle={event.name}
+              eventStartTime={event.startTime}
+              eventEndTime={event.endTime}
+              cancelled={event.cancelled}
+              totalReservations={event.totalReservations}
+            />
+          );
+        })
+        .reverse();
 
-      const allListings = this.props.venuesData.listings.map(listing => {
-        let ListingCard = getVenueDashboardCard("listing");
-        return (
-          <ListingCard
-            listingId={listing.id}
-            eventTitle={listing.event.name}
-            listingTitle={listing.name}
-            eventStartTime={listing.event.startTime}
-            eventEndTime={listing.event.endTime}
-            cancelled={listing.event.cancelled}
-            guestCount={listing.guestCount}
-            bookingPrice={listing.bookingPrice}
-            allReservations={listing.currentReservations}
-            quantity={
-              listing.unlimitedQuantity ? "unlimited" : listing.quantity
-            }
-            bookingDeadline={listing.bookingDeadline}
-          />
-        );
-      });
+      const allListings = this.props.venuesData.listings
+        .map(listing => {
+          let ListingCard = getVenueDashboardCard("listing");
+          return (
+            <ListingCard
+              key={listing.id}
+              listingId={listing.id}
+              eventTitle={listing.event.name}
+              listingTitle={listing.name}
+              eventStartTime={listing.event.startTime}
+              eventEndTime={listing.event.endTime}
+              cancelled={listing.event.cancelled}
+              guestCount={listing.guestCount}
+              bookingPrice={listing.bookingPrice}
+              allReservations={listing.currentReservations}
+              quantity={
+                listing.unlimitedQuantity ? "unlimited" : listing.quantity
+              }
+              bookingDeadline={listing.bookingDeadline}
+            />
+          );
+        })
+        .reverse();
 
       const allTabs = ["reservations", "listings", "events"];
       return (
@@ -374,6 +384,9 @@ class Dashboard extends Component {
               return (
                 <CreateEvent
                   {...props}
+                  fetchEventsForVenueDispatch={
+                    this.props.fetchEventsForVenueDispatch
+                  }
                   venue={this.props.venue}
                   venueAgent={this.props.venueAgent}
                 />
@@ -386,6 +399,9 @@ class Dashboard extends Component {
               return (
                 <CreateListing
                   {...props}
+                  fetchListingsForVenueDispatch={
+                    this.props.fetchListingsForVenueDispatch
+                  }
                   venue={this.props.venue}
                   venueAgent={this.props.venueAgent}
                 />
@@ -397,6 +413,7 @@ class Dashboard extends Component {
               <div className="tw-flex tw-flex-row tw-items-center">
                 {Object.entries(this.props.venue.images).length ? (
                   <img
+                    alt="venue-profile"
                     className="venue-dashboard__image tw-w-20 tw-h-20 tw-rounded-full tw-bg-purple-200"
                     src="/"
                   />
@@ -445,7 +462,25 @@ class Dashboard extends Component {
               >
                 create a new event
               </Link>
-              <button className="button tw-my-2 tw-bg-green-700 tw-px-12 tw-py-3 tw-text-2xs tw-w-full tw-tracking-widest-1 tw-rounded-lg">
+              <button
+                disabled={
+                  this.props.stats.balance
+                    ? this.props.stats.balance.available === 0
+                    : true
+                }
+                onClick={() => {
+                  this.props.venueAgent.initStripePayout().then(() => {
+                    this.props.venueAgent.redirectToStripeDashboard(); // directs to payout page
+                  });
+                }}
+                className={`button tw-my-2 tw-bg-green-700 tw-px-12 tw-py-3 tw-text-2xs tw-w-full tw-tracking-widest-1 tw-rounded-lg ${
+                  (this.props.stats.balance
+                  ? this.props.stats.balance.available === 0
+                  : true)
+                    ? "tw-opacity-25"
+                    : ""
+                }`}
+              >
                 pay out now
               </button>
             </div>
@@ -456,7 +491,12 @@ class Dashboard extends Component {
               <div className="tw-w-9/12 tw-flex tw-justify-between">
                 <div className="tw-pb-2">
                   <p className="tw-mich tw-text-lg tw-text-white tw-mb-2">
-                    $4000.00
+                    $
+                    {this.props.stats.balance
+                      ? (
+                          (this.props.stats.balance.available || 0) / 100
+                        ).toFixed(2)
+                      : 0}
                   </p>
                   <p className="tw-mich tw-uppercase tw-text-2xs tw-text-gray-400 tw-leading-snug">
                     available
@@ -467,7 +507,10 @@ class Dashboard extends Component {
                 <div className="tw-flex tw-items-end">
                   <div className="tw-pb-2">
                     <p className="tw-mich tw-text-lg tw-text-right tw-text-white">
-                      $4000.00
+                      $
+                      {(this.props.stats.recentReservationRevenue || 0).toFixed(
+                        2
+                      )}
                     </p>
                   </div>
                   <span className="tw-border-r tw-border-gray-700 tw-h-1/2 tw-pl-5" />
@@ -476,7 +519,7 @@ class Dashboard extends Component {
               <div className="tw-w-3/12 tw-flex tw-items-end tw-justify-end">
                 <div className="tw-pb-2">
                   <p className="tw-mich tw-text-lg tw-text-right tw-text-white">
-                    30
+                    {this.props.stats.recentReservationsCount}
                   </p>
                 </div>
               </div>
@@ -485,24 +528,31 @@ class Dashboard extends Component {
               <div className="tw-w-9/12 tw-flex tw-items-start tw-justify-between">
                 <div className="tw-pt-2">
                   <p className="tw-mich tw-text-lg tw-text-white tw-mb-2">
-                    $4020.00
+                    $
+                    {this.props.stats.balance
+                      ? (
+                          ((this.props.stats.balance.available || 0) +
+                            (this.props.stats.balance.pending || 0)) /
+                          100
+                        ).toFixed(2)
+                      : 0}
                   </p>
                   <p className="tw-mich tw-uppercase tw-text-2xs tw-text-gray-400 tw-leading-snug">
                     total balance
                   </p>
-                  <a
-                    onClick={() =>
+                  <button
+                    onClick={e =>
                       this.props.venueAgent.redirectToStripeDashboard()
                     }
                     className="tw-cursor-pointer tw-block tw-font-mich tw-text-2xs tw-uppercase tw-tracking-widest tw-my-2 tw-text-green-500 tw-underline tw-leading-loose"
                   >
                     view payouts on stripe
-                  </a>
+                  </button>
                 </div>
                 <div className="tw-flex tw-self-stretch tw-items-start">
                   <div className="tw-pt-2">
                     <p className="tw-mich tw-uppercase tw-text-2xs tw-text-right tw-text-gray-400 tw-leading-snug">
-                      revenue made
+                      NET revenue made
                       <br />
                       this week
                     </p>
@@ -534,6 +584,7 @@ class Dashboard extends Component {
                 .filter(t => t !== this.state.activeTab)
                 .map((t, id) => (
                   <li
+                    key={id}
                     onClick={() => {
                       this.setState({
                         activeTab: t
@@ -687,7 +738,8 @@ const mapStateToProps = (state, props) => {
         events: getVenueEvents(state, props),
         reservations: getVenueReservations(state, props),
         listings: getVenueListings(state, props)
-      }
+      },
+      stats: state.venuesData.stats
     };
   }
   return {
@@ -701,6 +753,7 @@ export default connect(
     fetchReservationsForUserDispatch: fetchReservationsForUser,
     fetchReservationsForVenueDispatch: fetchReservationsForVenue,
     fetchEventsForVenueDispatch: fetchEventsForVenue,
-    fetchListingsForVenueDispatch: fetchListingsForVenue
+    fetchListingsForVenueDispatch: fetchListingsForVenue,
+    fetchVenueStatsDispatch: fetchVenueStats
   }
 )(Dashboard);

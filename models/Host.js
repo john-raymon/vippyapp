@@ -4,6 +4,9 @@ var jwt = require("jsonwebtoken");
 var uniqueValidator = require("mongoose-unique-validator");
 var secret = require("../config").secret;
 
+// Listing model
+var Reservation = require("./Reservation");
+
 // utils
 var createId = require("../utils/createId");
 
@@ -131,6 +134,15 @@ HostSchema.methods.hasStripeId = function() {
     return false;
   }
   return true;
+};
+
+// List reservations of the past week for the venue.
+HostSchema.methods.listRecentReservations = function() {
+  const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+  return Reservation.find({
+    host: this.id,
+    createdAt: { $gte: weekAgo }
+  }).exec();
 };
 
 HostSchema.methods.toAuthJSON = function() {
