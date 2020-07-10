@@ -155,6 +155,8 @@ class App extends Component {
                   return (
                     <Login
                       {...props}
+                      redirect={redirect}
+                      redirectUrl={redirectUrl}
                       isAuth={isAuth}
                       typeOfLogin={props.match.params.type}
                       userAgent={this.userAgent}

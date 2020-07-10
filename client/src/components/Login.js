@@ -39,18 +39,24 @@ class Login extends Component {
       if (locationState) {
         history.replace(locationState.from);
       } else {
-        history.replace(redirect ? redirectUrl : "/dashboard");
+        if (redirect) {
+          return window.location.replace(redirectUrl);
+        }
+        return history.replace("/dashboard");
       }
     }
   }
   componentDidMount() {
-    const { isAuth, location, history } = this.props;
+    const { isAuth, location, history, redirect, redirectUrl } = this.props;
     const { state: locationState } = location;
     if (isAuth) {
       if (locationState) {
         history.replace(locationState.from);
       } else {
-        history.replace("/dashboard");
+        if (redirect) {
+          return window.location.replace(redirectUrl);
+        }
+        return history.replace("/dashboard");
       }
     }
   }
