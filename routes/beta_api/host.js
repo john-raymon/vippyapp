@@ -347,16 +347,60 @@ router.post("/login", function(req, res, next) {
 
     return Promise.all([
       Promoter.find({ venue: host._id }).exec(),
-      Promoter.count({ venue: host._id }).exec()
+      Promoter.count({ venue: host._id }).exec(),
+      host.createRandomKey()
     ])
-      .then(([promoters, promoterCount]) => {
+      .then(([promoters, promoterCount, key]) => {
+        /**
+         * check if host when logging in
+         * has created
+         */
+        let redirectTrue = false;
+        let redirectUrl = "";
+        const hasStripeId = host.hasStripeId();
+        if (!hasStripeId) {
+          redirectTrue = true;
+          let parameters = {
+            client_id: config.stripe.client_id,
+            response_type: "code",
+            state: key,
+            scope: "read_write", // defaults to 'read_only' see https://stripe.com/docs/connect/oauth-reference
+            // if not explicitly set to read_write then stripe_landing will
+            // by default go to login for scope read_only and register for scope read_write.
+            // we want register, since we don't expect venue owners/host to
+            // initially have Stripe accounts.
+            redirect_uri: config.baseUrl + "/api/host/stripe/token",
+            "suggested_capabilities[]": "transfers",
+            "stripe_user[business_type]": host.type || "individual",
+            "stripe_user[business_name]": host.business_name || undefined,
+            "stripe_user[first_name]": host.fullname.split(" ")[0] || undefined,
+            "stripe_user[last_name]": host.fullname.split(" ")[1] || undefined,
+            "stripe_user[email]": host.email || undefined,
+            "stripe_user[phone_number]": host.phonenumber || undefined
+            // If we're suggesting this account have the `card_payments` capability,
+            // we can pass some additional fields to prefill:
+            // 'suggested_capabilities[]': 'card_payments',
+            // 'stripe_user[street_address]': req.user.address || undefined,
+            // 'stripe_user[city]': req.user.city || undefined,
+            // 'stripe_user[zip]': req.user.postalCode || undefined,
+            // 'stripe_user[state]': req.user.city || undefined,
+            // 'stripe_user[country]': req.user.country || undefined
+          };
+          redirectUrl =
+            config.stripe.authorizeUri +
+            "?" +
+            querystring.stringify(parameters);
+        }
+
         return res.json({
           success: true,
           venue: {
             ...host.toAuthJSON(),
             promoters: promoters.map(promoter => promoter.getPromoter()),
             promoterCount
-          }
+          },
+          redirect: redirectTrue || false,
+          redirectUrl: redirectTrue ? redirectUrl : null
         });
       })
       .catch(next);

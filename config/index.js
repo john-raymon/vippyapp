@@ -1,4 +1,4 @@
-const isProd = process.env.NODE_ENV === "production";
+const isProd = process.env.NODE_ENV !== "development";
 
 module.exports = {
   isProd,
@@ -9,7 +9,7 @@ module.exports = {
     client_id: isProd
       ? process.env.STRIPE_CLIENT_ID
       : process.env.STRIPE_TEST_CLIENT_ID,
-    authorizeUri: "https://connect.stripe.com/express/oauth/authorize",
+    authorizeUri: "https://connect.stripe.com/oauth/authorize",
     tokenUri: "https://connect.stripe.com/oauth/token"
   },
   baseUrl: isProd ? process.env.BASE_URL : "http://localhost:4000",

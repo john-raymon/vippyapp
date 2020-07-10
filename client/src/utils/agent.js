@@ -175,9 +175,17 @@ export class VenueEndpointAgent extends Agent {
   }
 
   login(body) {
-    return this._post(`/login`, body).catch(error => {
-      throw error.response.body;
-    });
+    return this._post(`/login`, body)
+      .then(body => {
+        debugger;
+        if (body.redirect) {
+          return window.location.replace(body.redirectUrl);
+        }
+        return body;
+      })
+      .catch(error => {
+        throw error.response.body;
+      });
   }
 
   getStripeoAuthUrl() {
