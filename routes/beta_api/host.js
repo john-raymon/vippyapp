@@ -442,7 +442,7 @@ router.post("/stripe/auth", auth.required, hostMiddleware, function(
             // by default go to login for scope read_only and register for scope read_write.
             // we want register, since we don't expect venue owners/host to
             // initially have Stripe accounts.
-            redirect_uri: "http://" + config.baseUrl + "/api/host/stripe/token",
+            redirect_uri: config.baseUrl + "/api/host/stripe/token",
             "suggested_capabilities[]": "transfers",
             "stripe_user[business_type]": host.type || "individual",
             "stripe_user[business_name]": host.business_name || undefined,
@@ -476,66 +476,61 @@ router.post("/stripe/auth", auth.required, hostMiddleware, function(
 });
 
 // stripe on-boarding returns venue host back through here
-router.get(
-  "/stripe/token",
-  auth.required, // usually not optional (auth.required), will be required when jwt can be picked up on redirect
-  hostMiddleware,
-  function(req, res, next) {
-    const hostAuth = req.auth;
-    Host.findOne({ randomKey: req.query.state, _id: hostAuth.id })
-      .then(function(host) {
-        if (!host) {
-          return next({
-            name: "UnauthorizedError",
-            message: "You must be an authenticated host"
-          });
-        }
+router.get("/stripe/token", hostMiddleware, function(req, res, next) {
+  const hostAuth = req.auth;
+  Host.findOne({ randomKey: req.query.state, _id: hostAuth.id })
+    .then(function(host) {
+      if (!host) {
+        return next({
+          name: "UnauthorizedError",
+          message: "You must be an authenticated host"
+        });
+      }
 
-        if (host.hasStripeId()) {
-          return next({
-            name: "BadRequestError",
-            message: "You have already connected to a Stripe account"
-          });
-        }
+      if (host.hasStripeId()) {
+        return next({
+          name: "BadRequestError",
+          message: "You have already connected to a Stripe account"
+        });
+      }
 
-        // make request to Stripe tokenUri with access code received from Stripe to receive Host's stripe_user_id
-        request.post(
-          config.stripe.tokenUri,
-          {
-            form: {
-              grant_type: "authorization_code",
-              client_secret: config.stripe.secret_key,
-              code: req.query.code
-            },
-            json: true
+      // make request to Stripe tokenUri with access code received from Stripe to receive Host's stripe_user_id
+      request.post(
+        config.stripe.tokenUri,
+        {
+          form: {
+            grant_type: "authorization_code",
+            client_secret: config.stripe.secret_key,
+            code: req.query.code
           },
-          (err, response, body) => {
-            if (err || body.error) {
-              // return res.json(response)
-              // TODO: decide whether to respond with bad status code and proper body to identify the issue/error/
-              // reason why the oAuth didn't process properly or redirect to specific path.
-              res.redirect("/onBoardingError"); // front-end page explaining the fallout, telling the user to attempt the process again
-            }
-            // update the host model with the stripe_user_id
-            host.stripeAccountId = body.stripe_user_id;
-
-            host
-              .save()
-              .then(host => {
-                host.createRandomKey().then(key => {
-                  return res.json({
-                    success: true,
-                    host: host._toJSON()
-                  }); // when front-end is implemented instead redirect to dashboard, that will handle for stripe being authenticated already
-                });
-              })
-              .catch(next);
+          json: true
+        },
+        (err, response, body) => {
+          if (err || body.error) {
+            // return res.json(response)
+            // TODO: decide whether to respond with bad status code and proper body to identify the issue/error/
+            // reason why the oAuth didn't process properly or redirect to specific path.
+            res.redirect("/onBoardingError"); // front-end page explaining the fallout, telling the user to attempt the process again
           }
-        );
-      })
-      .catch(next);
-  }
-);
+          // update the host model with the stripe_user_id
+          host.stripeAccountId = body.stripe_user_id;
+
+          host
+            .save()
+            .then(host => {
+              host.createRandomKey().then(key => {
+                return res.json({
+                  success: true,
+                  host: host._toJSON()
+                }); // when front-end is implemented instead redirect to dashboard, that will handle for stripe being authenticated already
+              });
+            })
+            .catch(next);
+        }
+      );
+    })
+    .catch(next);
+});
 
 module.exports = {
   router,
