@@ -512,10 +512,11 @@ router.get("/stripe/token", auth.optional, hostMiddleware, function(
         },
         (err, response, body) => {
           if (err || body.error) {
+            console.log("Error when making completing Stripe oAuth flow", err);
             // return res.json(response)
             // TODO: decide whether to respond with bad status code and proper body to identify the issue/error/
             // reason why the oAuth didn't process properly or redirect to specific path.
-            return res.status(500).json(err || body.error); // front-end page explaining the fallout, telling the user to attempt the process again
+            return res.redirect("/?venue-on-boarding-error=1"); // front-end page explaining the fallout, telling the user to attempt the process again
           }
           // update the host model with the stripe_user_id
           host.stripeAccountId = body.stripe_user_id;
