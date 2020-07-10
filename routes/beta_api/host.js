@@ -523,12 +523,13 @@ router.get("/stripe/token", auth.optional, hostMiddleware, function(
           host
             .save()
             .then(host => {
-              host.createRandomKey().then(key => {
-                return res.json({
-                  success: true,
-                  host: host._toJSON()
-                }); // when front-end is implemented instead redirect to dashboard, that will handle for stripe being authenticated already
-              });
+              return res.redirect("/");
+              // host.createRandomKey().then(key => {
+              //   return res.json({
+              //     success: true,
+              //     host: host._toJSON()
+              //   }); // when front-end is implemented instead redirect to dashboard, that will handle for stripe being authenticated already
+              // });
             })
             .catch(next);
         }
