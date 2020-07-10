@@ -104,6 +104,7 @@ class App extends Component {
       }
     });
   }
+
   hideSnackbar() {
     this.setState({
       ...this.state,
@@ -126,7 +127,9 @@ class App extends Component {
       user,
       regularLogin,
       venue,
-      venueLogin
+      venueLogin,
+      redirect,
+      redirectUrl
     } = this.props;
     const isAuth = isRegularAuth || isVenueAuth; // only use isAuth for generic things that
     // can be a shared resource for all auths. (for example: ProtectedRoute^^ wrapper components
@@ -211,6 +214,8 @@ class App extends Component {
                   return (
                     <Dashboard
                       {...props}
+                      redirect={redirect}
+                      redirectUrl={redirectUrl}
                       venue={venue}
                       venueDashoardFilters={this.state.venueDashoardFilters}
                       setVenueDashboardFilters={this.setVenueDashboardFilters}
@@ -302,7 +307,9 @@ export default connect(
     isAuth: state.auth.isAuth,
     isVenueAuth: state.auth.isVenueAuth,
     venue: state.auth.venue,
-    user: state.auth.user
+    user: state.auth.user,
+    redirect: state.auth.redirect,
+    redirectUrl: state.auth.redirectUrl
   }),
   {
     logout,

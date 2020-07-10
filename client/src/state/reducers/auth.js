@@ -2,7 +2,9 @@ const initialState = {
   isAuth: false, // TODO: rename this to something isUserAuth
   isVenueAuth: false,
   venue: {},
-  user: {}
+  user: {},
+  redirect: false,
+  redirectUrl: ""
 };
 
 export default (state = initialState, { type, payload = {} }) => {
@@ -31,7 +33,9 @@ export default (state = initialState, { type, payload = {} }) => {
         ...state,
         ...initialState,
         isVenueAuth: true,
-        venue: payload.venueHost || payload.venue
+        venue: payload.venueHost || payload.venue,
+        redirect: payload.redirect,
+        redirectUrl: payload.redirectUrl
       };
     default:
       return state;
