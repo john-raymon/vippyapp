@@ -15,6 +15,7 @@ const HostSchema = new mongoose.Schema(
     email: {
       type: String,
       lowercase: true,
+      index: true,
       unique: true,
       required: [true, "is required"],
       match: [/\S+@\S+\.\S+/, "is invalid"]
@@ -27,7 +28,7 @@ const HostSchema = new mongoose.Schema(
       },
       default: new Map()
     },
-    isEmailConfirmed: { type: Boolean, unqiue: true, default: true }, // TODO: Maybe change this to false? And implement email verification feature, also check
+    isEmailConfirmed: { type: Boolean, default: true }, // TODO: Maybe change this to false? And implement email verification feature, also check
     // if we're relying on isEmailConfirmed for anything right now befroe removing default true
     venueName: { type: String }, // consider this company name
     fullname: {
@@ -64,7 +65,7 @@ const HostSchema = new mongoose.Schema(
     products: [{ type: mongoose.Schema.Types.ObjectId, ref: "Product" }],
     salt: String,
     hash: String,
-    randomKey: String,
+    randomKey: { type: String, index: true },
     venueId: {
       type: String,
       unique: true,

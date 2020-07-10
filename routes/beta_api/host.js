@@ -476,14 +476,19 @@ router.post("/stripe/auth", auth.required, hostMiddleware, function(
 });
 
 // stripe on-boarding returns venue host back through here
-router.get("/stripe/token", hostMiddleware, function(req, res, next) {
-  const hostAuth = req.auth;
-  Host.findOne({ randomKey: req.query.state, _id: hostAuth.id })
+router.get("/stripe/token", auth.optional, hostMiddleware, function(
+  req,
+  res,
+  next
+) {
+  // const hostAuth = req.auth;
+  Host.findOne({ randomKey: req.query.state })
     .then(function(host) {
       if (!host) {
         return next({
           name: "UnauthorizedError",
-          message: "You must be an authenticated host"
+          message:
+            "Could not find a venue connected to the Stripe Express flow."
         });
       }
 
