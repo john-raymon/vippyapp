@@ -23,40 +23,32 @@ if (isProduction) {
       console.log("Mongodb crashed");
     });
   mongoose.set("debug", true);
-  function logResponseBody(req, res, next) {
-    console.log("The request body --->", req.body);
-    var oldWrite = res.write,
-      oldEnd = res.end;
+  // function logResponseBody(req, res, next) {
+  //   console.log("The request body --->", req.body);
+  //   var oldWrite = res.write,
+  //     oldEnd = res.end;
 
-    var chunks = [];
+  //   var chunks = [];
 
-    res.write = function(chunk) {
-      chunks.push(chunk);
+  //   res.write = function(chunk) {
+  //     chunks.push(chunk);
 
-      oldWrite.apply(res, arguments);
-    };
+  //     oldWrite.apply(res, arguments);
+  //   };
 
-    res.end = function(chunk) {
-      if (chunk) chunks.push(chunk);
+  //   res.end = function(chunk) {
+  //     if (chunk) chunks.push(chunk);
 
-      var body = Buffer.concat(chunks).toString("utf8");
-      console.log(req.path, body);
+  //     var body = Buffer.concat(chunks).toString("utf8");
+  //     console.log(req.path, body);
 
-      oldEnd.apply(res, arguments);
-    };
-    next();
-  }
+  //     oldEnd.apply(res, arguments);
+  //   };
+  //   next();
+  // }
 
-  app.use(logResponseBody);
+  // app.use(logResponseBody);
 }
-
-require("./models/User");
-require("./models/Host");
-require("./models/Promoter");
-require("./models/Event");
-require("./models/Listing");
-require("./models/Product");
-require("./models/Reservation");
 
 require("./config/passport");
 
