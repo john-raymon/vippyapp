@@ -542,10 +542,12 @@ router.get("/stripe/token", auth.optional, hostMiddleware, function(
         );
       })
         .then(() => {
-          return res.redirect("/");
+          return res.json({
+            success: true
+          });
         })
         .catch(() => {
-          res.redirect("/");
+          return res.redirect("/?venue-on-boarding-error");
         });
     })
     .catch(next);
